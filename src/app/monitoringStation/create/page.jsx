@@ -13,18 +13,13 @@ import Container from "@mui/material/Container";
 import { areasDeTrabajo } from "@/constants";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-export default function SignUp() {
+export default function CreateMonitoringStation() {
     const [area, setArea] = useState('');
     const [errors, setErrors] = useState({
         name: "",
         reference: "",
         photos: "",
         nomenclature: "",
-        cedula: "",
-        occupation: "",
-        area: "",
-        position: "",
-        institution: "",
     });
 
     const handleSubmit = (event) => {

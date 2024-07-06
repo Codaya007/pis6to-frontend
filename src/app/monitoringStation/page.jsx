@@ -1,245 +1,128 @@
 "use client";
-import React, { useState } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { areasDeTrabajo } from "@/constants";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { useAuth } from "@/context/AuthContext";
+// import { deleteNode, getAllNodes } from "@/services/nodes.service";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+// import mensajeConfirmacion from "../components/MensajeConfirmacion";
+// import { WithAuth } from "../components/WithAuth";
+import * as React from 'react';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+const MonitoringStationCard = ({ nombre, reference, photos, nomenclature, estado: connected, id, token, refreshMotas }) => {
+  const router = useRouter();
 
-export default function SignUp() {
-    const [area, setArea] = useState('');
-    const [errors, setErrors] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        cedula: "",
-        occupation: "",
-        area: "",
-        position: "",
-        institution: "",
-    });
+  const handleUpdateStation = () => {
+    router.push(`/monitoringStation/update/${id}`);
+  }
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get("email"),
-            password: data.get("password"),
-            firstName: data.get("firstName"),
-            lastName: data.get("lastName"),
-            cedula: data.get("cedula"),
-            occupation: data.get("occupation"),
-            area: data.get("area"),
-            position: data.get("position"),
-            institution: data.get("institution"),
-            // Agregar más campos según sea necesario
-        });
+  const handleDeleteStation = async () => {
+    try {
+      const confirmation = await mensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning");
 
-        // Aquí puedes agregar lógica adicional, como enviar los datos al backend
-    };
+      if (confirmation) {
+        // await deleteNode(id, token);
 
-    const handleBlur = (event) => {
-        const { name, value } = event.target;
+        // await refreshMotas();
+      }
+    } catch (error) {
+      console.log({ error });
+    }
+  }
 
-        // Validación básica de campos requeridos
-        switch (name) {
-            case "firstName":
-                setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    firstName: value ? "" : "El nombre es requerido",
-                }));
-                break;
-            case "lastName":
-                setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    lastName: value ? "" : "El apellido es requerido",
-                }));
-                break;
-            case "email":
-                setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-                        ? ""
-                        : "Correo electrónico inválido",
-                }));
-                break;
-            case "password":
-                setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    password: value.length >= 8
-                        ? ""
-                        : "La contraseña debe tener al menos 8 caracteres",
-                }));
-                break;
-            // Agregar más validaciones según sea necesario para los demás campos
-            default:
-                break;
-        }
-    };
+  return <article className="user-card">
+    <div className="buttons">
+      <button onClick={handleUpdateStation}>Editar</button>
+      <button style={{ color: "#a31818" }} onClick={handleDeleteStation}>Eliminar</button>
+    </div>
+    <h2>{nombre}</h2>
+    <p className="text-primary">{reference}</p>
+    <p className="text-primary">Nomenclatura: {nomenclature}</p>
+    <p className="text-primary">Fotos: {photos}</p>
+    <div className="container-dot">
+      <span className="dot" style={{ backgroundColor: connected ? "green" : "red" }}></span>
+      <p>{connected ? "Conectado" : "Desconectado"}</p>
+    </div>
+  </article>
+}
+const ImgMediaCard = ({ nombre, reference, photos, nomenclature, estado: connected, id, token, refreshMotas }) => {
+    const router = useRouter();
+    const handleUpdateMota = () => {
+        router.push(`/monitoringStation/update/${id}`);
+    }
 
     return (
-        <Container component="main" maxWidth="md">
-            <CssBaseline />
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                }}
+      <Card sx={{ maxWidth: 345 }}>
+        <CardMedia
+          component="img"
+          alt="green iguana"
+          height="140"
+        //   image="../../utils/estacionPrueba.jpg"
+        image="https://integracionav.com/wp-content/uploads/2020/03/centro-de-monitoreo.jpeg"
 
-            >
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                    <LockOutlinedIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Registrar cuenta
-                </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        {/* Información básica */}
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.firstName}
-                                helperText={errors.firstName}
-                                autoComplete="given-name"
-                                name="firstName"
-                                required
-                                fullWidth
-                                id="firstName"
-                                label="Nombre"
-                                autoFocus
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.lastName}
-                                helperText={errors.lastName}
-                                required
-                                fullWidth
-                                id="lastName"
-                                label="Apellido"
-                                name="lastName"
-                                autoComplete="family-name"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.email}
-                                helperText={errors.email}
-                                required
-                                fullWidth
-                                id="email"
-                                label="Correo electrónico"
-                                name="email"
-                                autoComplete="email"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.password}
-                                helperText={errors.password}
-                                required
-                                fullWidth
-                                name="password"
-                                label="Contraseña"
-                                type="password"
-                                id="password"
-                                autoComplete="new-password"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.cedula}
-                                helperText={errors.cedula}
-                                required
-                                fullWidth
-                                id="cedula"
-                                label="Cédula"
-                                name="cedula"
-                            />
-                        </Grid>
-                    </Grid>
-
-                    {/* Información académica */}
-                    <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 2 }}>
-                        Información Académica
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                fullWidth
-                                id="occupation"
-                                label="Ocupación"
-                                name="occupation"
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth required>
-                                <InputLabel id="area-label">Área</InputLabel>
-                                <Select
-                                    labelId="area-label"
-                                    id="area"
-                                    value={area}
-                                    label="Área"
-                                    onChange={(e) => setArea(e.target.value)}
-                                >
-                                    {areasDeTrabajo.map((option) => (
-                                        <MenuItem key={option} value={option}>
-                                            {option}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                fullWidth
-                                id="position"
-                                label="Cargo"
-                                name="position"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                fullWidth
-                                id="institution"
-                                label="Institución"
-                                name="institution"
-                            />
-                        </Grid>
-                        {/* Agregar más campos según sea necesario para la información académica */}
-                    </Grid>
-
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Registrarse
-                    </Button>
-                    <Grid container justifyContent="center">
-                        <Grid item xs={12} sx={{ mt: 2 }} style={{ textAlign: "center" }}>
-                            Ya tienes una cuenta? <Link href="#" variant="body1">
-                                Iniciar sesión
-                            </Link>
-                        </Grid>
-
-                    </Grid>
-                </Box>
-            </Box>
-        </Container>
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {nombre}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Referencia: {reference}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Nomenclatura: {nomenclature}
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button size="small" variant="contained" color="success" onClick={handleUpdateMota}>Editar</Button>
+          <Button size="small" variant="contained" color="error">Eliminar</Button>
+        </CardActions>
+      </Card>
     );
 }
+
+export default function MonitoringStationDashboard() {
+  const { token } = useAuth();
+  const [stations, setStations] = useState([]);
+  const router = useRouter();
+  const fetchNodes = async () => {
+//     const { results: allNodes } = await getAllNodes(token)
+
+//     setNodes(allNodes);
+  }
+
+  useEffect(() => {
+    if (token) {
+
+    //   fetchNodes()
+    } else {
+    //   setStations([])
+      setStations([{id: 1, name: "Station 1", reference: "Ref1", photos:"Ph1", nomenclature: "nomen1" },
+        {id: 2, name: "Station 2", reference: "Ref2", photos:"Ph2", nomenclature: "nomen2" }
+      ])
+    }
+  }, [token]);
+  const addMonitoringStation = (e) => {
+    e.preventDefault();
+    router.push("/monitoringStation/create");
+  }
+  return (
+    <div className="main-container vertical-top">
+      <section className="buttons">
+        <Button type="button" fullWidth variant="contained" onClick={addMonitoringStation} sx={{ mt: 3, mb: 2 }}>
+                + Nueva estación de monitoreo
+        </Button> 
+      </section>
+      <section className="items-container">
+        {
+          stations.map(station => <ImgMediaCard {...station} token={token} refreshMotas={fetchNodes} key={station.id} />)
+        }
+      </section>
+    </div>
+  );
+}
+
+// export default WithAuth(MonitoringStationDashboard)
