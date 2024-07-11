@@ -4,7 +4,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -12,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { areasDeTrabajo } from "@/constants";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
     const [area, setArea] = useState('');
@@ -26,6 +26,7 @@ export default function SignUp() {
         position: "",
         institution: "",
     });
+    const router = useRouter();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -230,13 +231,13 @@ export default function SignUp() {
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Registrarse
                     </Button>
-                    <Grid container justifyContent="center">
-                        <Grid item xs={12} sx={{ mt: 2 }} style={{ textAlign: "center" }}>
-                            Ya tienes una cuenta? <Link href="#" variant="body1">
-                                Iniciar sesión
-                            </Link>
-                        </Grid>
-
+                    <Grid item xs={12} sx={{ mt: 2 }} style={{ textAlign: "center", paddingBottom: "2rem" }}>
+                        Ya tienes una cuenta? <span
+                            style={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'underline' }}
+                            onClick={() => router.push("/auth/login")}
+                        >
+                            Iniciar sesión
+                        </span>
                     </Grid>
                 </Box>
             </Box>

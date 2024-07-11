@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ export default function SignIn() {
         email: '',
         password: '',
     });
+    const router = useRouter();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -48,6 +50,7 @@ export default function SignIn() {
     const handleForgotPassword = () => {
         // Logic for handling forgot password functionality
         console.log('Forgot password clicked');
+        router.push("/auth/forgot-password")
     };
 
     const handleBlur = (event) => {
@@ -123,20 +126,27 @@ export default function SignIn() {
                             />
                         </Grid>
                     </Grid>
-                    <Grid item xs={11} sm={5} style={{ textAlign: "rigth" }}>
-                        <Link href="#" variant="body2" onClick={handleForgotPassword}>
+                    <Grid item xs={11} sm={5} style={{ textAlign: "right" }}>
+                        <span
+                            style={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'underline' }}
+                            onClick={() => router.push("/auth/forgot-password")}
+                        >
                             Olvidé mi contraseña?
-                        </Link>
+                        </span>
                     </Grid>
+
                     <Grid item xs={12} sm={6} style={{ textAlign: "right" }}>
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                             Iniciar sesión
                         </Button>
                     </Grid>
                     <Grid item xs={12} sx={{ mt: 2 }} style={{ textAlign: "center" }}>
-                        No tienes una cuenta? <Link href="#" variant="body1" onClick={handleForgotPassword}>
+                        No tienes una cuenta? <span
+                            style={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'underline' }}
+                            onClick={() => router.push("/auth/register")}
+                        >
                             Registrarse
-                        </Link>
+                        </span>
                     </Grid>
                 </Box>
             </Box>
