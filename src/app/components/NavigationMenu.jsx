@@ -23,12 +23,13 @@ import LockIcon from "@mui/icons-material/Lock";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useAuth } from "@/context/AuthContext";
+import GetAppIcon from '@mui/icons-material/GetApp';
 
 const NavigationMenu = () => {
     let { user, logoutUser } = useAuth();
     const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-    user = { role: { name: "Administrador" } }
+    user = { role: { name: "Investigador" } }
 
     const handleMobileMenuOpen = () => {
         setMobileMenuOpen(true);
@@ -69,7 +70,7 @@ const NavigationMenu = () => {
     } else if (user?.role.name === "Investigador") {
         menuItems.push(
             { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/dashboard" },
-            { label: "Solicitar datos", icon: <NotificationsIcon />, path: "/access-requests/create" }
+            { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" }
         );
     }
 
