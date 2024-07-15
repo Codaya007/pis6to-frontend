@@ -68,7 +68,8 @@ const NavigationMenu = () => {
         );
     } else if (user?.role.name === "Investigador") {
         menuItems.push(
-            { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/dashboard" }
+            { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/dashboard" },
+            { label: "Solicitar datos", icon: <NotificationsIcon />, path: "/access-requests/create" }
         );
     }
 
