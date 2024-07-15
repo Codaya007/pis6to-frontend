@@ -23,12 +23,13 @@ import LockIcon from "@mui/icons-material/Lock";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useAuth } from "@/context/AuthContext";
+import GetAppIcon from '@mui/icons-material/GetApp';
 
 const NavigationMenu = () => {
     let { user, logoutUser } = useAuth();
     const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-    user = { role: { name: "Administrador" } }
+    user = { role: { name: "Investigador" } }
 
     const handleMobileMenuOpen = () => {
         setMobileMenuOpen(true);
@@ -61,14 +62,15 @@ const NavigationMenu = () => {
             { label: "Nodos", icon: <WifiIcon />, path: "/nodes" },
             { label: "Estaciones de monitoreo", icon: <PlaceIcon />, path: "/monitoringStation" },
             { label: "Alertas", icon: <NotificationsIcon />, path: "/alerts" },
-            { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/access-requests" },
+            { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
             { label: "Sensores", icon: <WifiIcon />, path: "/sensors" },
             { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },
             { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" }
         );
     } else if (user?.role.name === "Investigador") {
         menuItems.push(
-            { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/dashboard" }
+            { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/dashboard" },
+            { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" }
         );
     }
 
