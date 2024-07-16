@@ -47,7 +47,7 @@ export default function SeeAlertDetail() {
     }
 
     return (
-        <Container component="main" maxWidth="md">
+        <Container component="main" maxWidth="md" sx={{marginTop: 2, paddingBottom:5, borderRadius:5, border: '4px solid black', alignItems: 'center' }}>
             <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 {/* Avatar del usuario */}
                 <Avatar sx={{ width: 100, height: 100, mb: 2, overflow: 'visible' }}>
