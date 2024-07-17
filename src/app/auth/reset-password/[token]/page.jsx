@@ -9,14 +9,15 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { recoveryPassword } from "@/services/auth.service";
+import mensajes from "@/app/components/Mensajes";
 
 export default function ResetPassword() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const token = searchParams.get('token');
+    const { token } = useParams();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -27,27 +28,26 @@ export default function ResetPassword() {
         }
 
         try {
-            // TODO: Agregar lógica para enviar la solicitud al backend
             const body = {
                 token, password
             }
 
-            const response = { ok: true };
+            console.log(token, password)
 
-            if (!response.ok) {
-                throw new Error('Error al restablecer la contraseña');
-            }
+            // Lógica para enviar la solicitud al backend
+            await recoveryPassword(token, body)
 
-            console.log('Contraseña restablecida correctamente');
-            router.push('/');
+            mensajes("Exito", "Usuario actualizado exitosamente");
+            router.push('/auth/login');
         } catch (error) {
-            console.error('Error:', error);
-            alert('Hubo un problema al restablecer la contraseña');
+            console.log(error?.response?.data || error.message);
+
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
         }
     };
 
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="md">
             <CssBaseline />
             <Box
                 sx={{

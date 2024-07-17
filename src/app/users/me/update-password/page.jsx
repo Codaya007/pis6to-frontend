@@ -2,20 +2,39 @@
 import React, { useState } from 'react';
 import { Container, Typography, Grid, Button, Box, TextField } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { updateUser } from '@/services/user.service';
+import mensajes from '@/app/components/Mensajes';
 
 
 export default function ProfileView() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
+    const { user, token } = useAuth();
 
 
-    const handleChangePassword = () => {
+    const handleChangePassword = async () => {
         // Aquí iría la lógica para cambiar la contraseña
         // Puedes realizar validaciones aquí antes de enviar la solicitud al servidor
         console.log('Cambiando contraseña...');
-    };
 
+        if (newPassword !== confirmPassword) {
+            return mensajes("Error de validación", "Las constraseñas ingresadas no coinciden", "error");
+        }
+
+        try {
+            await updateUser(user._id, { password: newPassword }, token);
+
+            mensajes("Usuario actualizado exitosamente.", "Éxito");
+
+            router.push("/users/me");
+        } catch (error) {
+            console.log(error?.response?.data || error.message);
+
+            mensajes("Error al actualizar el usuario", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
+        }
+    };
 
     return (
         <Container component="main" maxWidth="md">
