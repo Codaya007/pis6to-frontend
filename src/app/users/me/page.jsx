@@ -3,49 +3,39 @@ import React, { useEffect, useState } from 'react';
 import { Container, Typography, Grid, Button, Avatar, Box, Link, } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { ADMIN_ROLE_NAME } from '@/constants';
 
-const fakeUserData = {
-    firstName: "Juan",
-    lastName: "Pérez",
-    email: "juan@example.com",
-    cedula: "123456789",
-    occupation: "Ingeniero",
-    area: "Tecnología",
-    position: "Desarrollador Senior",
-    institution: "Empresa XYZ",
-    avatarUrl: "https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png"
-};
+// const fakeUserData = {
+//     name: "Juan",
+//     lastname: "Pérez",
+//     email: "juan@example.com",
+//     identificationCard: "123456789",
+//     occupation: "Ingeniero",
+//     area: "Tecnología",
+//     position: "Desarrollador Senior",
+//     institution: "Empresa XYZ",
+//     avatar: "https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png"
+// };
 
 export default function ProfileView() {
-    const [userData, setUserData] = useState(null);
     const router = useRouter();
+    const { user } = useAuth();
 
     const handleEdit = () => {
-        // Redirigir a la página /edit
-        router.push('/users/me/edit');
+        if (user.researcher) {
+            router.push(`/researchers/update/${user.researcher._id}`);
+        } else {
+            router.push(`/users/admins/update/${user._id}`);
+        }
     };
+
     const handleChangePassword = () => {
         // Redirigir a la página /edit
         router.push('/users/me/update-password');
     };
 
-    useEffect(() => {
-        // Simulando una consulta a la base de datos para obtener el perfil del usuario
-        const fetchUserProfile = async () => {
-            try {
-                const user = fakeUserData;
-                // const user = await getUserProfileFromDatabase(); // Llama a tu función para obtener el perfil del usuario
-                setUserData(user); // Actualiza el estado con los datos del usuario
-            } catch (error) {
-                console.error('Error al obtener el perfil del usuario:', error);
-                // Manejo de errores según sea necesario
-            }
-        };
-
-        fetchUserProfile();
-    }, []); // Ejecuta la consulta solo una vez al montar el componente
-
-    if (!userData) {
+    if (!user) {
         return <Typography>Cargando perfil...</Typography>; // Muestra un mensaje mientras se carga el perfil
     }
 
@@ -54,9 +44,9 @@ export default function ProfileView() {
             <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 {/* Avatar del usuario */}
                 <Avatar sx={{ width: 100, height: 100, mb: 2, overflow: 'visible' }}>
-                    {userData.avatarUrl ? (
+                    {user.avatar ? (
                         <img
-                            src={userData.avatarUrl}
+                            src={user.avatar}
                             alt="Avatar del usuario"
                             style={{ width: '100%', height: 'auto', borderRadius: '50%' }}
                         />
@@ -74,37 +64,40 @@ export default function ProfileView() {
                     </Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
-                            <Typography variant="subtitle1"><strong>Nombre:</strong> {userData.firstName}</Typography>
+                            <Typography variant="subtitle1"><strong>Nombre:</strong> {user.name}</Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Typography variant="subtitle1"><strong>Apellido:</strong> {userData.lastName}</Typography>
+                            <Typography variant="subtitle1"><strong>Apellido:</strong> {user.lastname}</Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <Typography variant="subtitle1"><strong>Correo electrónico:</strong> {userData.email}</Typography>
+                            <Typography variant="subtitle1"><strong>Correo electrónico:</strong> {user.email}</Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <Typography variant="subtitle1"><strong>Cédula:</strong> {userData.cedula}</Typography>
+                            <Typography variant="subtitle1"><strong>Cédula:</strong> {user.identificationCard}</Typography>
                         </Grid>
                     </Grid>
 
                     {/* Información académica */}
-                    <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 2 }}>
-                        Información Académica
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <Typography variant="subtitle1"><strong>Ocupación:</strong> {userData.occupation}</Typography>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Typography variant="subtitle1"><strong>Área:</strong> {userData.area}</Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle1"><strong>Cargo:</strong> {userData.position}</Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle1"><strong>Institución:</strong> {userData.institution}</Typography>
-                        </Grid>
-                    </Grid>
+                    {user.researcher ?
+                        <>
+                            <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 2 }}>
+                                Información Académica
+                            </Typography>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="subtitle1"><strong>Ocupación:</strong> {user.researcher?.occupation}</Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="subtitle1"><strong>Área:</strong> {user.researcher?.area}</Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="subtitle1"><strong>Cargo:</strong> {user.researcher?.position}</Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="subtitle1"><strong>Institución:</strong> {user.researcher?.institution}</Typography>
+                                </Grid>
+                            </Grid>
+                        </> : <></>}
 
                     <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
                         {/* Botón para editar perfil */}

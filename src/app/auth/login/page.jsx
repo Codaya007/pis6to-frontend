@@ -47,6 +47,8 @@ export default function SignIn() {
         try {
             const { user, token } = await login({ email, password })
 
+            console.log({ user, token })
+
             // Lo guardo en el contexto global
             loginUser(user, token);
 

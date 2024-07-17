@@ -24,6 +24,9 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useAuth } from "@/context/AuthContext";
 import GetAppIcon from '@mui/icons-material/GetApp';
+import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
+import LoginIcon from '@mui/icons-material/Login';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 const NavigationMenu = () => {
     let { user, logoutUser, loginUser } = useAuth();
@@ -41,7 +44,7 @@ const NavigationMenu = () => {
 
     const handleLogout = () => {
         logoutUser();
-        router.push("/auth/login");
+        router.push("/");
         handleMobileMenuClose(); // Cerrar menú después de cerrar sesión
     };
 
@@ -53,6 +56,12 @@ const NavigationMenu = () => {
     const menuItems = [
         { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
         { label: "Mi Perfil", icon: <PersonIcon />, path: "/users/me" }
+    ];
+
+    const menuItemsNoUser = [
+        { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { label: "Registrarse", icon: <PersonAddAltIcon />, path: "/auth/register" },
+        { label: "Iniciar sesión", icon: <LoginIcon />, path: "/auth/login" }
     ];
 
     useEffect(() => {
@@ -67,7 +76,7 @@ const NavigationMenu = () => {
         }
     }, []);
 
-    if (user?.role.name === "Administrador") {
+    if (user?.role.name === ADMIN_ROLE_NAME) {
         menuItems.push(
             { label: "Administradores", icon: <PeopleIcon />, path: "/users/admins" },
             { label: "Investigadores", icon: <PeopleIcon />, path: "/researchers" },
@@ -79,7 +88,7 @@ const NavigationMenu = () => {
             { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },
             { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" }
         );
-    } else if (user?.role.name === "Investigador") {
+    } else if (user?.role.name === RESEARCHER_ROLE_NAME) {
         menuItems.push(
             { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/my-request" },
             { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" }
@@ -93,18 +102,27 @@ const NavigationMenu = () => {
                 open={mobileMenuOpen}
                 onClose={handleMobileMenuClose}
             >
-                <List>
-                    {menuItems.map((item) => (
-                        <ListItem button key={item.label} onClick={() => handleNavigation(item.path)}>
-                            <ListItemIcon>{item.icon}</ListItemIcon>
-                            <ListItemText primary={item.label} />
+                {user ?
+                    <List>
+                        {menuItems.map((item) => (
+                            <ListItem button key={item.label} onClick={() => handleNavigation(item.path)}>
+                                <ListItemIcon>{item.icon}</ListItemIcon>
+                                <ListItemText primary={item.label} />
+                            </ListItem>
+                        ))}
+                        <ListItem button onClick={handleLogout}>
+                            <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+                            <ListItemText primary="Cerrar Sesión" />
                         </ListItem>
-                    ))}
-                    <ListItem button onClick={handleLogout}>
-                        <ListItemIcon><ExitToAppIcon /></ListItemIcon>
-                        <ListItemText primary="Cerrar Sesión" />
-                    </ListItem>
-                </List>
+                    </List> :
+                    <List>
+                        {menuItemsNoUser.map((item) => (
+                            <ListItem button key={item.label} onClick={() => handleNavigation(item.path)}>
+                                <ListItemIcon>{item.icon}</ListItemIcon>
+                                <ListItemText primary={item.label} />
+                            </ListItem>
+                        ))}
+                    </List>}
             </Drawer>
             <AppBar position="static">
                 <Toolbar>

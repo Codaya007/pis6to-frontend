@@ -1,6 +1,6 @@
 import swal from "sweetalert";
 
-const mensajes = (texto, titulo, tipo = "success") => {
+const mensajes = (titulo, texto, tipo = "success") => {
   swal(titulo, texto, tipo, {
     button: "ACEPTAR",
     timer: 5000,
