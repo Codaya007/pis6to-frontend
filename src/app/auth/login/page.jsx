@@ -1,16 +1,18 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { login } from '@/services/auth.service';
+import mensajes from '@/app/components/Mensajes';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -20,8 +22,9 @@ export default function SignIn() {
         password: '',
     });
     const router = useRouter();
+    const { loginUser, user } = useAuth();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         // Basic validation
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -41,17 +44,38 @@ export default function SignIn() {
 
         // Handle form submission logic (e.g., API call)
         console.log({ email, password });
+        try {
+            const { user, token } = await login({ email, password })
 
-        // Reset form fields
-        setEmail('');
-        setPassword('');
+            // Lo guardo en el contexto global
+            loginUser(user, token);
+
+            mensajes("Has ingresado al sistema", "Bienvenido usuario");
+            router.push("/");
+
+            // Reset form fields
+            setEmail('');
+            setPassword('');
+        } catch (error) {
+            console.log(error?.response?.data || error.message);
+            mensajes("Error en inicio de sesion", error.response?.data?.customMessage || "No se ha podido iniciar sesión", "error");
+        }
     };
 
-    const handleForgotPassword = () => {
-        // Logic for handling forgot password functionality
-        console.log('Forgot password clicked');
-        router.push("/auth/forgot-password")
-    };
+
+    useEffect(() => {
+        if (!user) {
+            const userData = window.localStorage.getItem("user")
+            const token = window.localStorage.getItem("token")
+
+            // Si ya hay sesión, logueo al usuario, sino, lo mando al login
+            if (userData && token) {
+                loginUser(JSON.parse(userData), token)
+
+                router.push("/")
+            }
+        }
+    }, []);
 
     const handleBlur = (event) => {
         const { name, value } = event.target;

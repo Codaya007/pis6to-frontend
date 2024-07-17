@@ -11,3 +11,5 @@ export const areasDeTrabajo = [
   "Consultoría",
   "Otro",
 ];
+
+export const BACKEND_BASEURL = "http://localhost:4000";

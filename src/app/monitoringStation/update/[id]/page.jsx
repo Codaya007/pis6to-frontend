@@ -8,7 +8,7 @@ import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import MyLocationIcon from '@mui/icons-material/MyLocation';import Typography from "@mui/material/Typography";
+import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { areasDeTrabajo } from "@/constants";
 import { FormControl, InputAdornment, InputLabel, MenuItem, Select } from "@mui/material";
@@ -22,15 +22,15 @@ import { AccountCircle } from "@mui/icons-material";
 
 const validationSchema = object().shape({
     name: string()
-      .required("Campo requerido"),
+        .required("Campo requerido"),
     reference: string()
-      .max(200, "Máximo 200 caracteres"),
+        .max(200, "Máximo 200 caracteres"),
     photos: string()
-    //   .matches(IP_REGEX, "Ip no válida")
-      .required("Foto es requerida"),
+        //   .matches(IP_REGEX, "Ip no válida")
+        .required("Foto es requerida"),
     nomenclature: string().required("Nomenclatura requerida")
     // nomenclature: string().required("Rol requerido").matches(UUID_REGEX, "Debe ser un rol válido"),
-  });
+});
 
 
 export default function CreateMonitoringStation() {
@@ -39,7 +39,7 @@ export default function CreateMonitoringStation() {
     const { id } = useParams();
     const { token } = useAuth();
     const [monitoringStation, setMonitoringStation] = useState({});
-    
+
     const formOptions = {
         resolver: yupResolver(validationSchema),
         mode: "onChange",
@@ -54,14 +54,14 @@ export default function CreateMonitoringStation() {
         nomenclature: "",
     });
 
-    const handleStation = async(data) => {
+    const handleStation = async (data) => {
         try {
             // await updateStation(id, data, token);
             mensajes("Exito", "Mota actualizada exitosamente");
             router.push("/monitoringStation");
         } catch (error) {
             console.log(error?.response?.data || error);
-            mensajes("Error", error.response?.data?.msg || "No se ha podido actualizar la mota", "error");    
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido actualizar la mota", "error");
         }
     }
 
@@ -87,29 +87,29 @@ export default function CreateMonitoringStation() {
                     ...prevErrors,
                     photos: value ? "" : "Las fotos son requeridas",
                 }));
-              break;      
+                break;
             case "nomenclature":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
                     nomenclature: value ? "" : "La nomenclatura es requerida",
                 }));
-            break;
+                break;
 
             // Agregar más validaciones según sea necesario para los demás campos
             default:
                 break;
         }
     };
-    
+
     const fetchMonitoringStation = async () => {
-    //   const { results } = await getNodeById(id, token);
-  
-    //   reset({
-    //     name: results.name,
-    //     reference: results.reference,
-    //     nomenclature: results.nomenclature,
-    //     rol: results.rol
-    //   });
+        //   const { results } = await getNodeById(id, token);
+
+        //   reset({
+        //     name: results.name,
+        //     reference: results.reference,
+        //     nomenclature: results.nomenclature,
+        //     rol: results.rol
+        //   });
         reset({
             name: "Station 1",
             reference: "Ref1",
@@ -118,12 +118,12 @@ export default function CreateMonitoringStation() {
         });
     }
     useEffect(() => {
-    //   if (token) {
+        //   if (token) {
         fetchMonitoringStation();
-    //   }
-      
-      setMonitoringStation({id: 1, name: "Station 1", reference: "Ref1", photos:"Ph1", nomenclature: "nomen1" });
-      console.log(monitoringStation);
+        //   }
+
+        setMonitoringStation({ id: 1, name: "Station 1", reference: "Ref1", photos: "Ph1", nomenclature: "nomen1" });
+        console.log(monitoringStation);
     }, [token]);
 
     return (
@@ -157,12 +157,12 @@ export default function CreateMonitoringStation() {
                                 required
                                 fullWidth
                                 id="name"
-                                {...register("name")}   
+                                {...register("name")}
                                 label="Nombre"
                                 //TOD: CAMBIAR BVALUE
                                 defaultValue={"Nombre"}
                                 autoFocus
-                                
+
                             />
                             {/* Si no funciona es este */}
                             {/* <TextField
@@ -181,7 +181,7 @@ export default function CreateMonitoringStation() {
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
-                                
+
                                 error={!!errors.reference}
                                 helperText={errors.reference}
                                 required
@@ -232,14 +232,14 @@ export default function CreateMonitoringStation() {
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Guardar
                     </Button>
-                    
+
                     {/* <Button type="submit" fullWidth variant="contained" sx={{ mt: 1, mb: 2,backgroundColor: 'rgba(255, 165, 0, 0.8)', // Naranja opaco
                 '&:hover': {
                     backgroundColor: 'rgba(255, 140, 0, 0.8)', // Un poco más oscuro al hacer hover
                 } }}>
                         Cancelar
                     </Button> */}
-                    
+
                 </Box>
             </Box>
         </Container>
