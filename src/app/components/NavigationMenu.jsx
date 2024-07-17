@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
     AppBar,
@@ -26,10 +26,10 @@ import { useAuth } from "@/context/AuthContext";
 import GetAppIcon from '@mui/icons-material/GetApp';
 
 const NavigationMenu = () => {
-    let { user, logoutUser } = useAuth();
+    let { user, logoutUser, loginUser } = useAuth();
     const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-    user = { role: { name: "Investigador" } }
+    // user = { role: { name: "Administrador" } }
 
     const handleMobileMenuOpen = () => {
         setMobileMenuOpen(true);
@@ -54,6 +54,18 @@ const NavigationMenu = () => {
         { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
         { label: "Mi Perfil", icon: <PersonIcon />, path: "/users/me" }
     ];
+
+    useEffect(() => {
+        if (!user) {
+            const userData = window.localStorage.getItem("user")
+            const token = window.localStorage.getItem("token")
+
+            // Si ya hay sesión, logueo al usuario, sino, lo mando al login
+            if (userData && token) {
+                loginUser(JSON.parse(userData), token)
+            }
+        }
+    }, []);
 
     if (user?.role.name === "Administrador") {
         menuItems.push(

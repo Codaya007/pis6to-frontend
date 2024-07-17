@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -10,11 +10,13 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/services/user.service";
+import { getUserById, updateUser } from "@/services/user.service";
 import mensajes from "@/app/components/Mensajes";
 import { useAuth } from "@/context/AuthContext";
+import { useParams } from "next/navigation";
 
-export default function SignUp() {
+export default function UpdateUser() {
+    const { id } = useParams();
     const [formData, setFormData] = useState({
         name: "",
         lastname: "",
@@ -29,6 +31,29 @@ export default function SignUp() {
     });
     const { token } = useAuth();
     const router = useRouter();
+
+    const fetchUserData = async () => {
+        try {
+            const { results: user } = await getUserById(token, id);
+
+            setFormData({
+                name: user.name,
+                lastname: user.lastname,
+                email: user.email,
+                identificationCard: user.identificationCard,
+            });
+        } catch (error) {
+            console.error(error);
+
+            mensajes("Error al obtener usuario", error.response?.data?.customMessage || "No se ha podido obtener el usuario", "error");
+        }
+    };
+
+    useEffect(() => {
+        if (token) {
+            fetchUserData();
+        }
+    }, [id, token]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -76,6 +101,7 @@ export default function SignUp() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
         // Validar todos los campos antes de enviar
         handleBlur({ target: { name: "name", value: formData.name } });
         handleBlur({ target: { name: "lastname", value: formData.lastname } });
@@ -87,15 +113,14 @@ export default function SignUp() {
             return;
         }
 
-        // TODO: Enviar los datos al backend
         try {
-            await createUser(formData, token);
+            await updateUser(id, formData, token);
 
-            mensajes("Usuario administrador creado exitosamente. Las credenciales de acceso se enviarán al email del usuario registrado.", "Éxito");
+            mensajes("Usuario actualizado exitosamente.", "Éxito");
             router.push("/users/admins");
         } catch (error) {
             console.log(error?.response?.data || error.message);
-            mensajes("Error en inicio de sesion", error.response?.data?.customMessage || "No se ha podido iniciar sesión", "error");
+            mensajes("Error al actualizar el usuario", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
         }
     };
 
@@ -114,7 +139,7 @@ export default function SignUp() {
                     <LockOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Registrar usuario administrador
+                    Actualizar usuario
                 </Typography>
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
@@ -131,6 +156,7 @@ export default function SignUp() {
                                 fullWidth
                                 id="name"
                                 label="Nombre"
+                                value={formData.name}
                                 autoFocus
                             />
                         </Grid>
@@ -145,6 +171,7 @@ export default function SignUp() {
                                 id="lastname"
                                 label="Apellido"
                                 name="lastname"
+                                value={formData.lastname}
                                 autoComplete="family-name"
                             />
                         </Grid>
@@ -159,6 +186,7 @@ export default function SignUp() {
                                 id="email"
                                 label="Correo electrónico"
                                 name="email"
+                                value={formData.email}
                                 autoComplete="email"
                             />
                         </Grid>
@@ -173,11 +201,12 @@ export default function SignUp() {
                                 id="identificationCard"
                                 label="Cédula"
                                 name="identificationCard"
+                                value={formData.identificationCard}
                             />
                         </Grid>
                     </Grid>
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Crear
+                        Actualizar
                     </Button>
                 </Box>
             </Box>
