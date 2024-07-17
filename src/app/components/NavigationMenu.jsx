@@ -70,7 +70,7 @@ const NavigationMenu = () => {
     if (user?.role.name === "Administrador") {
         menuItems.push(
             { label: "Administradores", icon: <PeopleIcon />, path: "/users/admins" },
-            { label: "Investigadores", icon: <PeopleIcon />, path: "/users/researchers" },
+            { label: "Investigadores", icon: <PeopleIcon />, path: "/researchers" },
             { label: "Nodos", icon: <WifiIcon />, path: "/nodes" },
             { label: "Estaciones de monitoreo", icon: <PlaceIcon />, path: "/monitoringStation" },
             { label: "Alertas", icon: <NotificationsIcon />, path: "/alerts" },

@@ -1,94 +1,72 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Avatar, Button, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Container, Box, Grid, Paper } from "@mui/material";
-import { useRouter } from "next/navigation";
-import { deleteUserById, getAllUsers, updateUser } from "@/services/user.service";
+import { deleteResearcherById, getAllResearchers, updateResearcher } from "@/services/researcher.service";
 import { useAuth } from "@/context/AuthContext";
 import mensajes from "@/app/components/Mensajes";
 import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
 import { ACTIVE_USER_STATUS, BLOQUED_USER_STATUS } from "@/constants";
+import { useRouter } from "next/navigation";
 
-// // Mock data para ejemplo
-// const mockAdmins = [
-//     {
-//         id: 1,
-//         avatar: "https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png",
-//         firstName: "John",
-//         lastName: "Doe",
-//         email: "john.doe@example.com"
-//     },
-//     {
-//         id: 2,
-//         avatar: "https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png",
-//         firstName: "Jane",
-//         lastName: "Doe",
-//         email: "jane.doe@example.com"
-//     },
-// ];
-
-export default function AdminUsers() {
-    const [admins, setAdmins] = useState([]);
+export default function Researchers() {
+    const [researchers, setResearchers] = useState([]);
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
     const [totalCount, setTotalCount] = useState(null);
     const { token } = useAuth();
     const router = useRouter();
 
-    const getAdmins = async () => {
-        const { totalCount, results } = await getAllUsers(token, skip, limit);
+    const getResearchers = async () => {
+        const { totalCount, results } = await getAllResearchers(token, skip, limit);
 
         setTotalCount(totalCount)
-        setAdmins(results);
+        setResearchers(results);
     }
 
     useEffect(() => {
         // Llamada a backend
         if (token) {
-            getAdmins();
+            getResearchers();
         }
 
-        // setAdmins(mockAdmins);
+        // setResearchers(mockResearchers);
     }, [token]);
 
-    const handleCreateAdmin = () => {
-        router.push("/users/admins/create");
+    const handleViewResearcher = (id) => {
+        // Lógica para actualizar el investigador researcheristrador
+        router.push(`/researchers/view/${id}`);
     };
 
-    const handleUpdateAdmin = (id) => {
-        // Lógica para actualizar el usuario administrador
-        router.push(`/users/admins/update/${id}`);
-    };
-
-    const handleUpdateUserStatus = async (id, state) => {
+    const handleUpdateResearcherStatus = async (id, state) => {
         try {
-            await updateUser(id, { state }, token);
-            await getAdmins();
+            await updateResearcher(id, { state }, token);
+            await getResearchers();
 
-            mensajes("Éxito", "Usuario actualizado exitosamente", "info");
+            mensajes("Éxito", "Investigador actualizado exitosamente", "info");
         } catch (error) {
             console.log(error)
             console.log(error?.response?.data || error.message);
 
-            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el investigador", "error");
         }
     }
 
-    const handleDeleteAdmin = async (id) => {
-        // Lógica para dar de baja al usuario administrador
-        console.log(`Dando de baja al administrador con ID: ${id}`);
+    const handleDeleteResearcher = async (id) => {
+        // Lógica para dar de baja al investigador researcheristrador
+        console.log(`Dando de baja al researcheristrador con ID: ${id}`);
 
-        // setAdmins(admins.filter(admin => admin_.id !== id));
+        // setResearchers(researchers.filter(researcher => researcher_.id !== id));
         MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning").then(async () => {
             try {
-                await deleteUserById(token, id);
-                await getAdmins();
+                await deleteResearcherById(token, id);
+                await getResearchers();
 
-                mensajes("Éxito", "Usuario eliminado exitosamente", "info");
+                mensajes("Éxito", "Investigador eliminado exitosamente", "info");
             } catch (error) {
                 console.log(error)
                 console.log(error?.response?.data || error.message);
 
-                mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el usuario", "error");
+                mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el investigador", "error");
             }
         }).catch((error) => {
             console.error(error);
@@ -109,14 +87,14 @@ export default function AdminUsers() {
                 <Grid container justifyContent="space-between" alignItems="center">
                     <Grid item>
                         <Typography component="h1" variant="h5">
-                            Usuarios Administradores
+                            Investigadores
                         </Typography>
                     </Grid>
-                    <Grid item>
-                        <Button variant="contained" onClick={handleCreateAdmin}>
-                            Crear Administrador
+                    {/* <Grid item>
+                        <Button variant="contained" onClick={handleCreateResearcher}>
+                            Crear Investigador
                         </Button>
-                    </Grid>
+                    </Grid> */}
                 </Grid>
                 <TableContainer component={Paper} sx={{ mt: 4 }}>
                     <Table>
@@ -127,40 +105,48 @@ export default function AdminUsers() {
                                 <TableCell>Apellido</TableCell>
                                 <TableCell>Estado</TableCell>
                                 <TableCell>Email</TableCell>
+                                <TableCell>Ocupación</TableCell>
+                                <TableCell>Area</TableCell>
+                                <TableCell>Cargo</TableCell>
+                                <TableCell>Institución</TableCell>
                                 <TableCell>Acciones</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {admins.map((admin) => (
-                                <TableRow key={admin._id}>
+                            {researchers.map((researcher) => (
+                                <TableRow key={researcher._id}>
                                     <TableCell>
-                                        <Avatar src={admin.avatar} alt={admin.firstName} />
+                                        <Avatar src={researcher.avatar} alt={researcher.firstName} />
                                     </TableCell>
-                                    <TableCell>{admin.name}</TableCell>
-                                    <TableCell>{admin.lastname}</TableCell>
-                                    <TableCell>{admin.state}</TableCell>
-                                    <TableCell>{admin.email}</TableCell>
+                                    <TableCell>{researcher.user.name}</TableCell>
+                                    <TableCell>{researcher.user.lastname}</TableCell>
+                                    <TableCell>{researcher.user.state}</TableCell>
+                                    <TableCell>{researcher.user.email}</TableCell>
+                                    <TableCell>{researcher.occupation}</TableCell>
+                                    <TableCell>{researcher.area}</TableCell>
+                                    <TableCell>{researcher.position}</TableCell>
+                                    <TableCell>{researcher.institution}</TableCell>
                                     <TableCell>
                                         <Button
                                             variant="outlined"
                                             color="primary"
-                                            onClick={() => handleUpdateAdmin(admin._id)}
+                                            onClick={() => handleViewResearcher(researcher._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
                                         >
-                                            Actualizar
+                                            Ver
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="secondary"
-                                            onClick={() => handleUpdateUserStatus(admin._id, admin.state === BLOQUED_USER_STATUS ? ACTIVE_USER_STATUS : BLOQUED_USER_STATUS)}
+                                            onClick={() => handleUpdateResearcherStatus(researcher._id, researcher.user.state === BLOQUED_USER_STATUS ? ACTIVE_USER_STATUS : BLOQUED_USER_STATUS)}
                                             sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
                                         >
-                                            {admin.state === BLOQUED_USER_STATUS ? "Desbloquear" : "Bloquear"}
+                                            {researcher.user.state === BLOQUED_USER_STATUS ? "Desbloquear" : "Bloquear"}
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="secondary"
-                                            onClick={() => handleDeleteAdmin(admin._id)}
+                                            onClick={() => handleDeleteResearcher(researcher._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
                                         >
                                             Dar de baja
