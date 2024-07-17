@@ -6,18 +6,27 @@ import { useParams, useRouter } from 'next/navigation';
 
 // TODO: Completar los datos faltantes
 
-const fakeAlertData = {
+const fakeSensorData = {
     id: 1,
-    title: "Alerta 1",
-    type: 'Falla de nodo 1',
-    severity: 'Alta',
-    description: 'Alta',
-    date: '2020/10/20',
-    isResolve: false,
+    type: "Temperaturas",
+    code: "001",
+    state: true,
+    environmentalParameter: {
+        name: 'Calor',
+        description: 'Descripcion del calor',
+        range: {
+            minimum: '10',
+            maximum: '100'
+        },
+        measurementUnit: 'Celcius',
+        measurementSymbol: 'C'
+    },
+    model: 'DHT-11',
+    manufacturer: 'Itachi'
 };
 
-export default function SeeAlertDetail() {
-    const [alertData, setAlertData] = useState(null);
+export default function SeeSensorDetail() {
+    const [sensorData, setSensorData] = useState(null);
     const router = useRouter();
     const { id } = useParams();
 
@@ -30,9 +39,9 @@ export default function SeeAlertDetail() {
         // Simulando una consulta a la base de datos para obtener el perfil del usuario
         const fetchUserProfile = async () => {
             try {
-                const alert = fakeAlertData;
+                const sensor = fakeSensorData;
                 // const user = await getUserProfileFromDatabase(); // Llama a tu función para obtener el perfil del usuario
-                setAlertData(alert); // Actualiza el estado con los datos del usuario
+                setSensorData(sensor); // Actualiza el estado con los datos del usuario
             } catch (error) {
                 console.error('Error al obtener el perfil del usuario:', error);
                 // Manejo de errores según sea necesario
@@ -42,12 +51,12 @@ export default function SeeAlertDetail() {
         fetchUserProfile();
     }, []); // Ejecuta la consulta solo una vez al montar el componente
 
-    if (!alertData) {
-        return <Typography>Cargando alerta...</Typography>; // Muestra un mensaje mientras se carga el perfil
+    if (!sensorData) {
+        return <Typography>Cargando sensor...</Typography>; // Muestra un mensaje mientras se carga el perfil
     }
 
     return (
-        <Container component="main" maxWidth="md" sx={{marginTop: 2, paddingBottom:5, borderRadius:5, border: '4px solid black', alignItems: 'center' }}>
+        <Container component="main" maxWidth="md">
             <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 {/* Avatar del usuario */}
                 <Avatar sx={{ width: 100, height: 100, mb: 2, overflow: 'visible' }}>
@@ -58,31 +67,33 @@ export default function SeeAlertDetail() {
                         />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Detalle de la alerta
+                    Detalle del sensor
                 </Typography>
                 <Box sx={{ mt: 3, textAlign: 'center' }}>
                     {/* Información básica */}
                     <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 3, textAlign: 'center' }} >
-                         {alertData.title}
+                         {sensorData.title}
                     </Typography>
                     <Grid container spacing={4}>
                         <Grid item xs={12} sm={3} >
-                            <Typography variant="subtitle1"><strong>Titulo:</strong> {alertData.title}</Typography>
+                            <Typography variant="subtitle1"><strong>Fabricante:</strong> {sensorData.manufacturer}</Typography>
                         </Grid>
                         <Grid item xs={12} sm={3}>
-                            <Typography variant="subtitle1"><strong>Tipo:</strong> {alertData.type}</Typography>
+                            <Typography variant="subtitle1"><strong>Modelo:</strong> {sensorData.model}</Typography>
                         </Grid>
                         <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Severidad:</strong> {alertData.severity}</Typography>
+                            <Typography variant="subtitle1"><strong>Tipo:</strong> {sensorData.type}</Typography>
                         </Grid>
                         <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Descripcion:</strong> {alertData.description}</Typography>
+                            <Typography variant="subtitle1"><strong>Codigo:</strong> {sensorData.code}</Typography>
                         </Grid>
                         <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Fecha:</strong> {alertData.date}</Typography>
+                            <Typography variant="subtitle1"><strong>Estado:</strong> {sensorData.state == true ? "Activado" : "Desactivado"}</Typography>
                         </Grid>
                         <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Esta resuelta:</strong> {alertData.isResolve == true ? "Si" : "No"}</Typography>
+                            <Typography variant="subtitle1"><strong>Nombre del parametro a medir:</strong> {sensorData.environmentalParameter.name}</Typography>
+                            <Typography variant="subtitle1"><strong>Descripcion del parametro a medir:</strong> {sensorData.environmentalParameter.description}</Typography>
+                            <Typography variant="subtitle1"><strong>Rango minimo-maximo: </strong> {sensorData.environmentalParameter.description}</Typography>
                         </Grid>
                     </Grid>
 
