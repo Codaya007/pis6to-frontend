@@ -7,6 +7,7 @@ import mensajes from "@/app/components/Mensajes";
 import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
 import { ACTIVE_USER_STATUS, BLOQUED_USER_STATUS } from "@/constants";
 import { useRouter } from "next/navigation";
+import CustomPagination from "../components/CustomPagination";
 
 export default function Researchers() {
     const [researchers, setResearchers] = useState([]);
@@ -17,10 +18,14 @@ export default function Researchers() {
     const router = useRouter();
 
     const getResearchers = async () => {
-        const { totalCount, results } = await getAllResearchers(token, skip, limit);
+        try {
+            const { totalCount, results } = await getAllResearchers(token, skip, limit);
 
-        setTotalCount(totalCount)
-        setResearchers(results);
+            setTotalCount(totalCount)
+            setResearchers(results);
+        } catch (error) {
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener los investigadores", "error");
+        }
     }
 
     useEffect(() => {
@@ -30,7 +35,7 @@ export default function Researchers() {
         }
 
         // setResearchers(mockResearchers);
-    }, [token]);
+    }, [token, skip, limit]);
 
     const handleViewResearcher = (id) => {
         // Lógica para actualizar el investigador researcheristrador
@@ -71,6 +76,10 @@ export default function Researchers() {
         }).catch((error) => {
             console.error(error);
         })
+    };
+
+    const handlePageChange = (newSkip) => {
+        setSkip(newSkip);
     };
 
     return (
@@ -158,6 +167,12 @@ export default function Researchers() {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <CustomPagination
+                    skip={skip}
+                    limit={limit}
+                    totalCount={totalCount}
+                    onPageChange={handlePageChange}
+                />
             </Box>
         </Container>
     );

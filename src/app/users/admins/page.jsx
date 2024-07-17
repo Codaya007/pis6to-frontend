@@ -7,55 +7,33 @@ import { useAuth } from "@/context/AuthContext";
 import mensajes from "@/app/components/Mensajes";
 import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
 import { ACTIVE_USER_STATUS, BLOQUED_USER_STATUS } from "@/constants";
-
-// // Mock data para ejemplo
-// const mockAdmins = [
-//     {
-//         id: 1,
-//         avatar: "https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png",
-//         firstName: "John",
-//         lastName: "Doe",
-//         email: "john.doe@example.com"
-//     },
-//     {
-//         id: 2,
-//         avatar: "https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png",
-//         firstName: "Jane",
-//         lastName: "Doe",
-//         email: "jane.doe@example.com"
-//     },
-// ];
+import CustomPagination from "@/app/components/CustomPagination";
 
 export default function AdminUsers() {
     const [admins, setAdmins] = useState([]);
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
-    const [totalCount, setTotalCount] = useState(null);
+    const [totalCount, setTotalCount] = useState(0);
     const { token } = useAuth();
     const router = useRouter();
 
     const getAdmins = async () => {
         const { totalCount, results } = await getAllUsers(token, skip, limit);
-
-        setTotalCount(totalCount)
+        setTotalCount(totalCount);
         setAdmins(results);
-    }
+    };
 
     useEffect(() => {
-        // Llamada a backend
         if (token) {
             getAdmins();
         }
-
-        // setAdmins(mockAdmins);
-    }, [token]);
+    }, [token, skip]);
 
     const handleCreateAdmin = () => {
         router.push("/users/admins/create");
     };
 
     const handleUpdateAdmin = (id) => {
-        // Lógica para actualizar el usuario administrador
         router.push(`/users/admins/update/${id}`);
     };
 
@@ -63,36 +41,34 @@ export default function AdminUsers() {
         try {
             await updateUser(id, { state }, token);
             await getAdmins();
-
             mensajes("Éxito", "Usuario actualizado exitosamente", "info");
         } catch (error) {
-            console.log(error)
+            console.log(error);
             console.log(error?.response?.data || error.message);
-
             mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
         }
-    }
+    };
 
     const handleDeleteAdmin = async (id) => {
-        // Lógica para dar de baja al usuario administrador
-        console.log(`Dando de baja al administrador con ID: ${id}`);
+        MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
+            .then(async () => {
+                try {
+                    await deleteUserById(token, id);
+                    await getAdmins();
+                    mensajes("Éxito", "Usuario eliminado exitosamente", "info");
+                } catch (error) {
+                    console.log(error);
+                    console.log(error?.response?.data || error.message);
+                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el usuario", "error");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
-        // setAdmins(admins.filter(admin => admin_.id !== id));
-        MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning").then(async () => {
-            try {
-                await deleteUserById(token, id);
-                await getAdmins();
-
-                mensajes("Éxito", "Usuario eliminado exitosamente", "info");
-            } catch (error) {
-                console.log(error)
-                console.log(error?.response?.data || error.message);
-
-                mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el usuario", "error");
-            }
-        }).catch((error) => {
-            console.error(error);
-        })
+    const handlePageChange = (newSkip) => {
+        setSkip(newSkip);
     };
 
     return (
@@ -145,15 +121,17 @@ export default function AdminUsers() {
                                             variant="outlined"
                                             color="primary"
                                             onClick={() => handleUpdateAdmin(admin._id)}
-                                            sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Actualizar
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="secondary"
-                                            onClick={() => handleUpdateUserStatus(admin._id, admin.state === BLOQUED_USER_STATUS ? ACTIVE_USER_STATUS : BLOQUED_USER_STATUS)}
-                                            sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
+                                            onClick={() =>
+                                                handleUpdateUserStatus(admin._id, admin.state === BLOQUED_USER_STATUS ? ACTIVE_USER_STATUS : BLOQUED_USER_STATUS)
+                                            }
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             {admin.state === BLOQUED_USER_STATUS ? "Desbloquear" : "Bloquear"}
                                         </Button>
@@ -161,17 +139,22 @@ export default function AdminUsers() {
                                             variant="outlined"
                                             color="secondary"
                                             onClick={() => handleDeleteAdmin(admin._id)}
-                                            sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Dar de baja
                                         </Button>
                                     </TableCell>
-
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <CustomPagination
+                    skip={skip}
+                    limit={limit}
+                    totalCount={totalCount}
+                    onPageChange={handlePageChange}
+                />
             </Box>
         </Container>
     );
