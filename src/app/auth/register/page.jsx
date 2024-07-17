@@ -12,15 +12,17 @@ import Container from "@mui/material/Container";
 import { areasDeTrabajo } from "@/constants";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { createResearcher } from "@/services/researcher.service";
+import mensajes from "@/app/components/Mensajes";
 
 export default function SignUp() {
     const [area, setArea] = useState('');
     const [errors, setErrors] = useState({
-        firstName: "",
-        lastName: "",
+        name: "",
+        lastname: "",
         email: "",
         password: "",
-        cedula: "",
+        identificationCard: "",
         occupation: "",
         area: "",
         position: "",
@@ -28,23 +30,33 @@ export default function SignUp() {
     });
     const router = useRouter();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
+        const body = {
             email: data.get("email"),
             password: data.get("password"),
-            firstName: data.get("firstName"),
-            lastName: data.get("lastName"),
-            cedula: data.get("cedula"),
+            name: data.get("name"),
+            lastname: data.get("lastname"),
+            identificationCard: data.get("identificationCard"),
             occupation: data.get("occupation"),
-            area: data.get("area"),
             position: data.get("position"),
             institution: data.get("institution"),
+            area,
             // Agregar más campos según sea necesario
-        });
+        }
 
-        // Aquí puedes agregar lógica adicional, como enviar los datos al backend
+        // Enviamos datos a backend
+        try {
+            await createResearcher(body,)
+
+            mensajes("Bienvenido usuario", "Se ha registrado exitosamente, ingrese con sus credenciales.");
+            router.push("/auth/login");
+        } catch (error) {
+            console.log(error?.response?.data || error.message);
+
+            mensajes("Error en inicio de sesion", error.response?.data?.customMessage || "No se ha podido iniciar sesión", "error");
+        }
     };
 
     const handleBlur = (event) => {
@@ -52,16 +64,16 @@ export default function SignUp() {
 
         // Validación básica de campos requeridos
         switch (name) {
-            case "firstName":
+            case "name":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
-                    firstName: value ? "" : "El nombre es requerido",
+                    name: value ? "" : "El nombre es requerido",
                 }));
                 break;
-            case "lastName":
+            case "lastname":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
-                    lastName: value ? "" : "El apellido es requerido",
+                    lastname: value ? "" : "El apellido es requerido",
                 }));
                 break;
             case "email":
@@ -85,6 +97,8 @@ export default function SignUp() {
                 break;
         }
     };
+
+    console.log({ area })
 
     return (
         <Container component="main" maxWidth="md">
@@ -110,13 +124,13 @@ export default function SignUp() {
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
-                                error={!!errors.firstName}
-                                helperText={errors.firstName}
+                                error={!!errors.name}
+                                helperText={errors.name}
                                 autoComplete="given-name"
-                                name="firstName"
+                                name="name"
                                 required
                                 fullWidth
-                                id="firstName"
+                                id="name"
                                 label="Nombre"
                                 autoFocus
                             />
@@ -124,13 +138,13 @@ export default function SignUp() {
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
-                                error={!!errors.lastName}
-                                helperText={errors.lastName}
+                                error={!!errors.lastname}
+                                helperText={errors.lastname}
                                 required
                                 fullWidth
-                                id="lastName"
+                                id="lastname"
                                 label="Apellido"
-                                name="lastName"
+                                name="lastname"
                                 autoComplete="family-name"
                             />
                         </Grid>
@@ -164,13 +178,13 @@ export default function SignUp() {
                         <Grid item xs={12}>
                             <TextField
                                 onBlur={handleBlur}
-                                error={!!errors.cedula}
-                                helperText={errors.cedula}
+                                error={!!errors.identificationCard}
+                                helperText={errors.identificationCard}
                                 required
                                 fullWidth
-                                id="cedula"
+                                id="identificationCard"
                                 label="Cédula"
-                                name="cedula"
+                                name="identificationCard"
                             />
                         </Grid>
                     </Grid>
@@ -197,7 +211,10 @@ export default function SignUp() {
                                     id="area"
                                     value={area}
                                     label="Área"
-                                    onChange={(e) => setArea(e.target.value)}
+                                    onChange={(e) => {
+                                        console.log(e.target.value);
+                                        setArea(e.target.value);
+                                    }}
                                 >
                                     {areasDeTrabajo.map((option) => (
                                         <MenuItem key={option} value={option}>

@@ -3,12 +3,10 @@ import { BACKEND_BASEURL } from "../constants/index";
 
 const BASEURL = `${BACKEND_BASEURL}/ms1/researchers`;
 
-export const createResearcher = async (body, token) => {
+export const createResearcher = async (body) => {
   const url = `${BASEURL}`;
 
-  const { data } = await axios.post(url, body, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await axios.post(url, body);
 
   return data;
 };
