@@ -4,33 +4,15 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { areasDeTrabajo } from "@/constants";
 import { FormControl, InputAdornment, InputLabel, MenuItem, Select } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { object, string } from "yup";
-import { AccountCircle } from "@mui/icons-material";
-
-
-const validationSchema = object().shape({
-    name: string()
-        .required("Campo requerido"),
-    reference: string()
-        .max(200, "Máximo 200 caracteres"),
-    photos: string()
-        //   .matches(IP_REGEX, "Ip no válida")
-        .required("Foto es requerida"),
-    nomenclature: string().required("Nomenclatura requerida")
-    // nomenclature: string().required("Rol requerido").matches(UUID_REGEX, "Debe ser un rol válido"),
-});
+import { getMonitoringStationById, updateMonitoringStation } from "@/services/monitoring-station.service";
+import mensajes from "@/app/components/Mensajes";
 
 
 export default function CreateMonitoringStation() {
@@ -40,18 +22,33 @@ export default function CreateMonitoringStation() {
     const { token } = useAuth();
     const [monitoringStation, setMonitoringStation] = useState({});
 
-    const formOptions = {
-        resolver: yupResolver(validationSchema),
-        mode: "onChange",
-    };
 
-    const { register, handleSubmit, formState, reset } = useForm(formOptions)
 
+    const [formData, setFormData] = useState({
+        name: "",
+        reference: "",
+        address: "",
+        photos: "",
+        campus: "",
+        block: "",
+        enviroment: "",
+        subEnviroment: "",
+        floor: "",
+        longitude: "",
+        latitude: "",
+    });
     const [errors, setErrors] = useState({
         name: "",
         reference: "",
+        address: "",
         photos: "",
-        nomenclature: "",
+        campus: "",
+        block: "",
+        enviroment: "",
+        subEnviroment: "",
+        longitude: "",
+        latitude: "",
+        floor: "",
     });
 
     const handleStation = async (data) => {
@@ -82,18 +79,61 @@ export default function CreateMonitoringStation() {
                     reference: value ? "" : "La referencia es requerida",
                 }));
                 break;
+
+            case "address":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    address: value ? "" : "La direccion es requerida",
+                }));
+                break;
             case "photos":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
                     photos: value ? "" : "Las fotos son requeridas",
                 }));
-                break;
-            case "nomenclature":
+                break;      
+            case "campus":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
-                    nomenclature: value ? "" : "La nomenclatura es requerida",
+                    campus: value ? undefined : "El campus es requerida",
                 }));
                 break;
+            case "block":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    block: value ? "" : "El bloque es requerido",
+                }));
+                break;
+            case "floor":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    floor: value ? "" : "El piso es requerido",
+                }));
+                break;
+            case "enviroment":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    enviroment: value ? "" : "El ambiente es requerido",
+                }));
+                break;
+            case "subEnviroment":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    subEnviroment: value ? "" : "El subambiente es requerido",
+                }));
+                break;
+            case "longitude":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    longitude: value ? "" : "La longitud es requerida",
+                }));
+                break;
+            case "latitude":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    latitude: value ? "" : "La latitud es requerida",
+                }));
+                break
 
             // Agregar más validaciones según sea necesario para los demás campos
             default:
@@ -102,31 +142,74 @@ export default function CreateMonitoringStation() {
     };
 
     const fetchMonitoringStation = async () => {
-        //   const { results } = await getNodeById(id, token);
+        try {
+            const { results: monitoringStation } = await getMonitoringStationById(token, id);
 
-        //   reset({
-        //     name: results.name,
-        //     reference: results.reference,
-        //     nomenclature: results.nomenclature,
-        //     rol: results.rol
-        //   });
-        reset({
-            name: "Station 1",
-            reference: "Ref1",
-            photos: "Ph1",
-            nomenclature: "nomen1"
-        });
+            setFormData({
+                name: monitoringStation.name,
+                reference: monitoringStation.reference,
+                address: monitoringStation.address,
+                photos: monitoringStation.photos,
+                campus: monitoringStation.campus,
+                block: monitoringStation.block,
+                enviroment: monitoringStation.enviroment,
+                subEnviroment: monitoringStation.subEnviroment,
+                longitude: monitoringStation.longitude,
+                latitude: monitoringStation.latitude,
+                floor: monitoringStation.floor,
+                longitude: monitoringStation.longitude,
+            });
+        } catch (error) {
+            console.error(error);
+            mensajes("Error al obtener la estación de monitoreo", error.response?.data?.customMessage || "No se ha podido obtener la estación de monitoreo", "error");
+        }
     }
     useEffect(() => {
-        //   if (token) {
-        fetchMonitoringStation();
-        //   }
+          if (token) {
+            fetchMonitoringStation();
+          }
 
-        setMonitoringStation({ id: 1, name: "Station 1", reference: "Ref1", photos: "Ph1", nomenclature: "nomen1" });
-        console.log(monitoringStation);
-    }, [token]);
+    }, [id, token]);
 
-    return (
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        console.log(token);
+        // Validar todos los campos antes de enviar
+        handleBlur({ target: { name: "name", value: formData.name } });
+        handleBlur({ target: { name: "reference", value: formData.reference } });
+        handleBlur({ target: { name: "address", value: formData.address } });
+        handleBlur({ target: { name: "photos", value: formData.photos } });
+        handleBlur({ target: { name: "campus", value: formData.campus } });
+        handleBlur({ target: { name: "block", value: formData.block } });
+        handleBlur({ target: { name: "enviroment", value: formData.enviroment } });
+        handleBlur({ target: { name: "subEnviroment", value: formData.subEnviroment } });
+        handleBlur({ target: { name: "floor", value: formData.floor } });
+        handleBlur({ target: { name: "longitude", value: formData.longitude } });
+        handleBlur({ target: { name: "latitude", value: formData.latitude } });
+
+        // Si hay errores, no enviar el formulario
+        if (Object.values(errors).some((error) => error !== "")) {
+            return;
+        }
+
+        try {
+            await updateMonitoringStation(id, formData, token);
+
+            mensajes("Estación de monitoreo actualizada exitosamente.", "Éxito");
+            router.push("/monitoringStation");
+        } catch (error) {
+            console.log(error?.response?.data || error.message);
+            mensajes("Error al actualizar la estación de monitoreo", error.response?.data?.customMessage || "No se ha podido actualizar la estación de monitoreo", "error");
+        }
+    };    return (
         <Container component="main" maxWidth="md">
             <CssBaseline />
             <Box
@@ -144,8 +227,8 @@ export default function CreateMonitoringStation() {
                 <Typography component="h1" variant="h5">
                     Actualizar estación de monitoreo
                 </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit(handleStation)} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
+                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                <Grid container spacing={2}>
                         {/* Información básica */}
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -157,31 +240,13 @@ export default function CreateMonitoringStation() {
                                 required
                                 fullWidth
                                 id="name"
-                                {...register("name")}
                                 label="Nombre"
-                                //TOD: CAMBIAR BVALUE
-                                defaultValue={"Nombre"}
                                 autoFocus
-
                             />
-                            {/* Si no funciona es este */}
-                            {/* <TextField
-                                id="input-with-icon-textfield"
-                                label="TextField"
-                                InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                    <AccountCircle />
-                                    </InputAdornment>
-                                ),
-                                }}
-                                variant="standard"
-                             /> */}
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
-
                                 error={!!errors.reference}
                                 helperText={errors.reference}
                                 required
@@ -189,14 +254,26 @@ export default function CreateMonitoringStation() {
                                 id="reference"
                                 label="Referecia"
                                 name="reference"
-                                // defaultValue={"Referenccia"}
                                 autoComplete="family-name"
-                                {...register("reference")}
+                                
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12}>
+                            <TextField
+                                onBlur={handleBlur}
+                                error={!!errors.address}
+                                helperText={errors.address}
+                                required
+                                fullWidth
+                                id="address"
+                                label="Direccion"
+                                name="address"
+                                autoComplete="family-name"
+                                
                             />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                {...register("photos")}
                                 onBlur={handleBlur}
                                 error={!!errors.photos}
                                 helperText={errors.photos}
@@ -204,25 +281,146 @@ export default function CreateMonitoringStation() {
                                 fullWidth
                                 id="photos"
                                 type="file"
-                                label="Fotos"
-                                name="photos"
-                                defaultValue={"Cambiea"}
-                                autoComplete="photos"
+                                // value={detail.img.length}
+                                inputProps={{ multiple: true }}
+                                // autoComplete="photos"
+                                onChange={async (e) => {
+                                    // setDetail({ ...detail, });
+                                    const newImg = await handleFileChange(e);
+                                    console.log(newImg);
+                                    // setDetail({ ...detail, [..img, newImg] });
+                                    setImagenes(newImg);
+                                    // setDetail((prevDetail) => ({
+                                    //     ...prevDetail,
+                                    //     img: [...prevDetail.img, newImg], // Agrega las nuevas imágenes al array existente
+                                    //   }));
+                                }}
                             />
                         </Grid>
+                    
                         <Grid item xs={12}>
+                            <Typography component="h6" variant="h6">
+                                Nomenclatura
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Campus</InputLabel>
+                                <Select
+                                    onBlur={handleBlur}
+                                    error={!!errors.campus}
+                                    helperText={errors.campus}
+                                    labelId="campus"
+                                    name="campus"
+                                    id="campus"
+                                    required
+                                    // value={age}
+                                    label="Campus"
+                                    onChange={(e) => {
+                                        setCampus(e.target.value);
+                                        console.log(e.target.value);
+                                    }}
+                                >
+                                    <MenuItem value={"Argelia"}>Argelia</MenuItem>
+                                    <MenuItem value={"Motupe"}>Motupe</MenuItem>
+                                    <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
+                                    <MenuItem value={"Nueva Loja"}>Nueva Loja</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={3}>
                             <TextField
                                 onBlur={handleBlur}
-                                error={!!errors.nomenclature}
-                                helperText={errors.nomenclature}
+                                error={!!errors.block}
+                                helperText={errors.block}
                                 required
                                 fullWidth
-                                name="nomenclature"
-                                label="Nomenclatura"
-                                type="text"
-                                defaultValue={"Nomenclatura"}
-                                id="nomenclature"
-                                autoComplete="nomenclature"
+                                name="block"
+                                label="Bloque"
+                                type="number"
+                                id="block"
+                                autoComplete="block"
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextField
+                                onBlur={handleBlur}
+                                error={!!errors.floor}
+                                helperText={errors.floor}
+                                required
+                                fullWidth
+                                name="floor"
+                                label="Piso"
+                                type="number"
+                                id="floor"
+                                autoComplete="floor"
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextField
+                                onBlur={handleBlur}
+                                error={!!errors.enviroment}
+                                helperText={errors.enviroment}
+                                required
+                                fullWidth
+                                name="enviroment"
+                                label="Ambiente"
+                                type="number"
+                                id="enviroment"
+                                autoComplete="enviroment"
+                            />
+                        </Grid>
+
+                        <Grid item xs={3}>
+                            <TextField
+                                onBlur={handleBlur}
+                                error={!!errors.subEnviroment}
+                                helperText={errors.subEnviroment}
+                                required
+                                fullWidth
+                                name="subEnviroment"
+                                label="Subambiente"
+                                type="number"
+                                id="subEnviroment"
+                                autoComplete="subEnviroment"
+                            />
+                        </Grid>
+
+                        <Grid item xs={9}>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Typography component="h6" variant="h6">
+                                Coordenadas
+                            </Typography>
+                        </Grid>
+                        
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                onBlur={handleBlur}
+                                error={!!errors.longitude}
+                                helperText={errors.longitude}
+                                autoComplete="given-name"
+                                name="longitude"
+                                required
+                                fullWidth
+                                id="longitude"
+                                label="Longitud"
+                                autoFocus
+                                value = {monitoringStation.longitude}
+                            />
+                        </Grid>
+                        <Grid item xs={4} sm={6}>
+                            <TextField
+                                onBlur={handleBlur}
+                                error={!!errors.latitude}
+                                helperText={errors.latitude}
+                                required
+                                fullWidth
+                                id="latitude"
+                                value={monitoringStation.latitude}
+                                label="Latitud"
+                                name="latitude"
+                                autoComplete="family-name"
                             />
                         </Grid>
                     </Grid>
@@ -230,7 +428,7 @@ export default function CreateMonitoringStation() {
                     {/* Información académica */}
 
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Guardar
+                        Actualizar
                     </Button>
 
                     {/* <Button type="submit" fullWidth variant="contained" sx={{ mt: 1, mb: 2,backgroundColor: 'rgba(255, 165, 0, 0.8)', // Naranja opaco
