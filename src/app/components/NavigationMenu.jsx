@@ -60,6 +60,7 @@ const NavigationMenu = () => {
 
     const menuItemsNoUser = [
         { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { label: "Historial", icon: <HistoryIcon />, path: "/monitoringStation/sensors/history" },
         { label: "Registrarse", icon: <PersonAddAltIcon />, path: "/auth/register" },
         { label: "Iniciar sesión", icon: <LoginIcon />, path: "/auth/login" }
     ];
