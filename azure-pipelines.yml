@@ -27,10 +27,6 @@ steps:
       npm run build
     displayName: "Instalar dependencias y construir aplicación"
 
-  - script: |
-      ls -la
-    displayName: "Listar archivos después de la construcción"
-
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: "$(Build.SourcesDirectory)/.next"
@@ -39,6 +35,12 @@ steps:
       archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
       replaceExistingArchive: true
     displayName: "Empaquetar archivos de construcción"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: "$(Build.ArtifactStagingDirectory)"
+      artifactName: "drop"
+    displayName: "Publicar artefactos de construcción"
 
   - task: AzureWebApp@1
     inputs:

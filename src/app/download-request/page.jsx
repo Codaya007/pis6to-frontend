@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Avatar, Button, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Container, Box, Grid, Paper } from "@mui/material";
-import { deleteDownloadRequestById, getAllDownloadRequests, updateDownloadRequest } from "@/services/downloadRequest.service";
+import { getAllDownloadRequests, updateDownloadRequestById } from "@/services/downloadRequest.service";
 import { useAuth } from "@/context/AuthContext";
 import mensajes from "@/app/components/Mensajes";
 import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
@@ -44,7 +44,7 @@ export default function DownloadRequests() {
 
     const handleUpdateDownloadRequestStatus = async (id, state) => {
         try {
-            await updateDownloadRequest(id, { state }, token);
+            await updateDownloadRequestById(id, { state }, token);
             await getDownloadRequests();
 
             mensajes("Éxito", "Solicitud de descarga actualizado exitosamente", "info");
@@ -56,27 +56,27 @@ export default function DownloadRequests() {
         }
     }
 
-    const handleDeleteDownloadRequest = async (id) => {
-        // Lógica para dar de baja al solicitud de descarga downloadrequestistrador
-        console.log(`Dando de baja al downloadrequestistrador con ID: ${id}`);
+    // const handleDeleteDownloadRequest = async (id) => {
+    //     // Lógica para dar de baja al solicitud de descarga downloadrequestistrador
+    //     console.log(`Dando de baja al downloadrequestistrador con ID: ${id}`);
 
-        // setDownloadRequests(downloadrequests.filter(downloadrequest => downloadrequest_.id !== id));
-        MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning").then(async () => {
-            try {
-                await deleteDownloadRequestById(token, id);
-                await getDownloadRequests();
+    //     // setDownloadRequests(downloadrequests.filter(downloadrequest => downloadrequest_.id !== id));
+    //     MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning").then(async () => {
+    //         try {
+    //             await deleteDownloadRequestById(token, id);
+    //             await getDownloadRequests();
 
-                mensajes("Éxito", "Solicitud de descarga eliminado exitosamente", "info");
-            } catch (error) {
-                console.log(error)
-                console.log(error?.response?.data || error.message);
+    //             mensajes("Éxito", "Solicitud de descarga eliminado exitosamente", "info");
+    //         } catch (error) {
+    //             console.log(error)
+    //             console.log(error?.response?.data || error.message);
 
-                mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el solicitud de descarga", "error");
-            }
-        }).catch((error) => {
-            console.error(error);
-        })
-    };
+    //             mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el solicitud de descarga", "error");
+    //         }
+    //     }).catch((error) => {
+    //         console.error(error);
+    //     })
+    // };
 
     const handlePageChange = (newSkip) => {
         setSkip(newSkip);
@@ -151,7 +151,7 @@ export default function DownloadRequests() {
                                         <Button
                                             variant="outlined"
                                             color="secondary"
-                                            onClick={() => handleDeleteDownloadRequest(downloadrequest._id)}
+                                            onClick={() => handleUpdateDownloadRequestStatus(downloadrequest._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
                                         >
                                             Aceptar solicitud
