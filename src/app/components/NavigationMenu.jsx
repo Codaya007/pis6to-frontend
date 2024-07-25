@@ -80,22 +80,23 @@ const NavigationMenu = () => {
         menuItems.push(
             { label: "Administradores", icon: <PeopleIcon />, path: "/users/admins" },
             { label: "Investigadores", icon: <PeopleIcon />, path: "/researchers" },
-            { label: "Nodos", icon: <WifiIcon />, path: "/nodes" },
+            { label: "Nodos", icon: <WifiIcon />, path: "/monitoringStation/nodes" },
             { label: "Estaciones de monitoreo", icon: <PlaceIcon />, path: "/monitoringStation" },
             { label: "Historial", icon: <HistoryIcon />, path: "/monitoringStation/sensors/history" },
             { label: "Alertas", icon: <NotificationsIcon />, path: "/alerts" },
-            // { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/download-request" },
-            { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
-            { label: "Sensores", icon: <WifiIcon />, path: "/sensors" },
+            { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/download-request" },
+            // { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
+            { label: "Sensores", icon: <WifiIcon />, path: "monitoringStation/sensors" },
             // { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors/createSensors" },
             { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },
-            { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" },
+            { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/activities" },
+            // { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" },
         );
     } else if (user?.role.name === RESEARCHER_ROLE_NAME) {
         menuItems.push(
             { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/my-request" },
-            { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" },
-            { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
+            // { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" },
+            { label: "Solicitar datos", icon: <LockIcon />, path: "/application-form" },
         );
     }
 
