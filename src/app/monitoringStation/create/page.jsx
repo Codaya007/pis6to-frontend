@@ -90,11 +90,11 @@ export default function CreateMonitoringStation() {
 
     const handleMarkerDrawn = (markerCoordinates) => {
         const coordinates = markerCoordinates.geometry.coordinates;
-        setMonitoringStation((prevState) => ({
-          ...prevState,
-          latitude: coordinates[1],
-          longitude: coordinates[0],
-        }));
+        // setMonitoringStation((prevState) => ({
+        //   ...prevState,
+        //   latitude: coordinates[1],
+        //   longitude: coordinates[0],
+        // }));
       };
 
     const handleSubmit = async(event) => {
@@ -437,7 +437,7 @@ export default function CreateMonitoringStation() {
 
                         <MapWithDrawNodes
                         onMarkerDrawn={handleMarkerDrawn}
-                        markerRef={markerRef}
+                        // markerRef={markerRef}
                         latitude={monitoringStation.latitude}
                         longitude={monitoringStation.longitude}
                         />

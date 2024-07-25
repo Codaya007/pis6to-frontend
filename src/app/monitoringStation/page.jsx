@@ -20,6 +20,8 @@ import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
 export default function MonitoringStationDashboard() {
   const [monitoringStations, setMonitoringStations] = useState([]);
+  const [campus, setCampus] = useState('');
+
   const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
