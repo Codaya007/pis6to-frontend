@@ -8,6 +8,8 @@ export const login = async (body) => {
 
   const { data: loginResponse } = await axios.post(url, body);
 
+  console.log("Response: ", loginResponse);
+
   return loginResponse;
 };
 
