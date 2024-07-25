@@ -19,6 +19,7 @@ import { uploadImageToS3 } from "../../../services/image.service";
 import { createMonitoringStation } from "@/services/monitoringStation.service";
 import { toast } from "react-toastify";
 import mensajes from "@/app/components/Mensajes";
+import MapWithDrawNodes from '@/app/components/MapWithDrawNodes';
 
 // Dinamicamente importar MapContainer
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -443,24 +444,6 @@ export default function CreateMonitoringStation() {
                         longitude={monitoringStation.longitude}
                         />
                     </MapContainer>
-                    {/* <MapContainer
-                        style={{ width: "100%", height: "60vh", marginTop: 20}}
-                        center={DEFAULT_MAP_CENTER}
-                        zoom={DEFAULT_MAP_ZOOM}
-                        scrollWheelZoom={false}
-                    >
-                    <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-
-                    <MapWithDrawNodes
-                        onMarkerDrawn={handleMarkerDrawn}
-                        markerRef={markerRef}
-                        latitude={monitoringStation.latitude}
-                        longitude={monitoringStation.longitude}
-                    />
-                </MapContainer> */}
                     <FormGroup>
                         <FormControlLabel control={<Checkbox defaultChecked />} label="Habilitado"
                             onChange={(e) => {

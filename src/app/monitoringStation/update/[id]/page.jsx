@@ -11,7 +11,7 @@ import Container from "@mui/material/Container";
 import { CardMedia, CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Select } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { getMonitoringStationById, updateMonitoringStation } from "@/services/monitoringStation.service";
+import { getMonitoringStationById, updateMonitoringStation } from "@/services/monitoring-station.service";
 import mensajes from "@/app/components/Mensajes";
 import { MapContainer, TileLayer } from "react-leaflet";
 import MapWithDrawNodes from "@/app/components/MapWithDrawNodes";
@@ -113,7 +113,7 @@ export default function CreateMonitoringStation() {
                     ...prevErrors,
                     photos: value ? "" : "El las fotos son requeridas",
                 }));
-                break;      
+                break;
             case "campus":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
@@ -169,29 +169,24 @@ export default function CreateMonitoringStation() {
                 console.log(monitoringStation);
                 setMonitoringStation(monitoringStation);
 
-            setFormData({
-                name: monitoringStation.name,
-                reference: monitoringStation.reference,
-                address: monitoringStation.address,
-                photos: monitoringStation.photos,
-                campus: monitoringStation.campus,
-                block: monitoringStation.block,
-                enviroment: monitoringStation.enviroment,
-                subEnviroment: monitoringStation.subEnviroment,
-                longitude: monitoringStation.longitude,
-                latitude: monitoringStation.latitude,
-                floor: monitoringStation.floor,
-                longitude: monitoringStation.longitude,
-            });
-        } catch (error) {
-            console.error(error);
-            mensajes("Error al obtener la estación de monitoreo", error.response?.data?.customMessage || "No se ha podido obtener la estación de monitoreo", "error");
+                setFormData({
+                    name: monitoringStation.name,
+                    reference: monitoringStation.reference,
+                    address: monitoringStation.address,
+                    photos: monitoringStation.photos,
+                    nomenclature: monitoringStation.nomenclature,
+                    coordinate: monitoringStation.coordinate,
+                });
+            } catch (error) {
+                console.error("Error fetching estacion de monitoreo", error);
+                mensajes("Error al obtener estacion de monitoreo", error.response?.data?.customMessage || "No se pudo obtener la estacion de monitoreo", "error");
+            } finally {
+                setLoading(false);
+            }
         }
-    }
-    useEffect(() => {
           if (token) {
             fetchMonitoringStation();
-        }
+          }
 
     }, [id, token]);
 
@@ -309,7 +304,40 @@ export default function CreateMonitoringStation() {
             console.log(error?.response?.data || error.message);
             mensajes("Error al actualizar la estación de monitoreo", error.response?.data?.customMessage || "No se ha podido actualizar la estación de monitoreo", "error");
         }
-    };    return (
+    };    
+    
+    if (loading) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (!monitoringStation) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <Typography variant="h6">Estación de monitoreo no encontrado</Typography>
+            </Box>
+        );
+    }
+
+    const handleMarkerDrawn = (markerCoordinates) => {
+        const coordinates = markerCoordinates.geometry.coordinates;
+        // setMonitoringStation((prevState) => ({
+        //   ...prevState,
+        //   latitude: coordinates[1],
+        //   longitude: coordinates[0],
+        // }));
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            coordinate: [coordinates[0], coordinates[1]]
+            // latitude: coordinates[1],
+            // longitude: coordinates[0],
+        }));
+      };
+
+    return (
         <Container component="main" maxWidth="md">
             <CssBaseline />
             <Box
@@ -328,7 +356,7 @@ export default function CreateMonitoringStation() {
                     Actualizar estación de monitoreo
                 </Typography>
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
+                <Grid container spacing={2}>
                         {/* Información básica */}
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -359,7 +387,7 @@ export default function CreateMonitoringStation() {
                                 value={formData.reference}
                                 name="reference"
                                 autoComplete="family-name"
-
+                                
                             />
                         </Grid>
                         <Grid item xs={12} sm={12}>
@@ -375,7 +403,7 @@ export default function CreateMonitoringStation() {
                                 label="Direccion"
                                 name="address"
                                 autoComplete="family-name"
-
+                                
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -401,7 +429,20 @@ export default function CreateMonitoringStation() {
                                 }}
                             />
                         </Grid>
-                    
+                        <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", textAlign: "center", alignItems: "center" }}>
+                            {formData.photos.length > 0 && (
+                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                    {formData.photos.map((photo, index) => (
+                                        <CardMedia
+                                            key={index}
+                                            sx={{ height: 120, width: 150, borderRadius: 30, margin: '0 10px' }}
+                                            image={photo}
+                                            title={`Imagen ${index + 1}`}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </Grid>
                         <Grid item xs={12}>
                             <Typography component="h6" variant="h6">
                                 Nomenclatura
@@ -515,7 +556,7 @@ export default function CreateMonitoringStation() {
                                 Coordenadas
                             </Typography>
                         </Grid>
-
+                        
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
@@ -530,7 +571,7 @@ export default function CreateMonitoringStation() {
                                 id="longitude"
                                 label="Longitud"
                                 autoFocus
-                                value = {monitoringStation.longitude}
+                                value = {formData.coordinate[0]}
                             />
                         </Grid>
                         <Grid item xs={4} sm={6}>
