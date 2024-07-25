@@ -97,7 +97,7 @@ const NavigationMenu = () => {
         menuItems.push(
             { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/my-request" },
             // { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" },
-            { label: "Solicitar datos", icon: <LockIcon />, path: "/application-form" },
+            { label: "Solicitar datos", icon: <LockIcon />, path: "/download-request/create" },
         );
     }
 
