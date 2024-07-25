@@ -24,8 +24,11 @@ steps:
 
   - script: |
       npm install
+    displayName: "Instalar dependencias"
+
+  - script: |
       npm run build
-    displayName: "Instalar dependencias y construir aplicación"
+    displayName: "Construir aplicación"
 
   - task: ArchiveFiles@2
     inputs:
