@@ -1,5 +1,5 @@
 trigger:
-- main
+  - main
 
 pool:
   name: Default # O el nombre de tu pool de agentes
@@ -8,49 +8,44 @@ pool:
 
 variables:
   # Nombre de la aplicación en Azure App Service
-  webAppName: 'pis6tofront'
+  webAppName: "pis6tofront"
   # Nombre del grupo de recursos en Azure
-  resourceGroupName: 'pis6to'
+  resourceGroupName: "pis6to"
   # Región de despliegue
-  location: 'eastus'
+  location: "eastus"
   # Versión de Node.js a usar
-  nodeVersion: '20.x'
+  nodeVersion: "20.x"
 
 steps:
   - task: NodeTool@0
     inputs:
       versionSpec: $(nodeVersion)
-    displayName: 'Instalar Node.js'
+    displayName: "Instalar Node.js"
 
   - script: |
       npm install
       npm run build
-    displayName: 'Instalar dependencias y construir aplicación'
+    displayName: "Instalar dependencias y construir aplicación"
+
+  - script: |
+      ls -la
+    displayName: "Listar archivos después de la construcción"
 
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)/.next'
+      rootFolderOrFile: "$(Build.SourcesDirectory)/.next"
       includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+      archiveType: "zip"
+      archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
       replaceExistingArchive: true
-    displayName: 'Empaquetar archivos de construcción'
+    displayName: "Empaquetar archivos de construcción"
 
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
-      appType: 'webAppLinux'
-      appName: 'pis6tofront'
-      package: '$(Build.ArtifactStagingDirectory)/app.zip'
-      runtimeStack: 'NODE|10.12'
-      startUpCommand: 'npm start'
-    displayName: 'Desplegar a Azure App Service'
-
-  # - task: AzureCLI@2
-  #   inputs:
-  #     azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: |
-  #       az webapp config appsettings set --name $(webAppName) --resource-group $(resourceGroupName) --settings NODE_ENV=production
-  #   displayName: 'Configurar variables de entorno'
+      azureSubscription: "Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)"
+      appType: "webAppLinux"
+      appName: "pis6tofront"
+      package: "$(Build.ArtifactStagingDirectory)/app.zip"
+      runtimeStack: "NODE|20-lts"
+      startUpCommand: "npm start"
+    displayName: "Desplegar a Azure App Service"
