@@ -7,121 +7,177 @@ import { useEffect, useState } from "react";
 // import mensajeConfirmacion from "../components/MensajeConfirmacion";
 // import { WithAuth } from "../components/WithAuth";
 import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-const MonitoringStationCard = ({ nombre, reference, photos, nomenclature, estado: connected, id, token, refreshMotas }) => {
-  const router = useRouter();
+import { Avatar, Badge, Box, CardMedia, Container, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import mensajes from "../components/Mensajes";
+import CustomPagination from "../components/CustomPagination";
+import { deleteMonitoringStationById, getAllMonitoringStation, updateMonitoringStation } from "@/services/monitoring-station.service";
+import { ACTIVE_MONITORING_STATION, INACTIVE_MONITORING_STATION } from "@/constants";
+import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
-  const handleUpdateStation = () => {
-    router.push(`/monitoringStation/update/${id}`);
-  }
 
-  const handleDeleteStation = async () => {
-    try {
-      const confirmation = await mensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning");
-
-      if (confirmation) {
-        // await deleteNode(id, token);
-
-        // await refreshMotas();
-      }
-    } catch (error) {
-      console.log({ error });
-    }
-  }
-
-  return <article className="user-card">
-    <div className="buttons">
-      <button onClick={handleUpdateStation}>Editar</button>
-      <button style={{ color: "#a31818" }} onClick={handleDeleteStation}>Eliminar</button>
-    </div>
-    <h2>{nombre}</h2>
-    <p className="text-primary">{reference}</p>
-    <p className="text-primary">Nomenclatura: {nomenclature}</p>
-    <p className="text-primary">Fotos: {photos}</p>
-    <div className="container-dot">
-      <span className="dot" style={{ backgroundColor: connected ? "green" : "red" }}></span>
-      <p>{connected ? "Conectado" : "Desconectado"}</p>
-    </div>
-  </article>
-}
-const ImgMediaCard = ({ nombre, reference, photos, nomenclature, estado: connected, id, token, refreshMotas }) => {
-    const router = useRouter();
-    const handleUpdateMota = () => {
-        router.push(`/monitoringStation/update/${id}`);
-    }
-
-    return (
-      <Card sx={{ maxWidth: 345 }}>
-        <CardMedia
-          component="img"
-          alt="green iguana"
-          height="140"
-        //   image="../../utils/estacionPrueba.jpg"
-        image="https://integracionav.com/wp-content/uploads/2020/03/centro-de-monitoreo.jpeg"
-
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {nombre}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Referencia: {reference}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Nomenclatura: {nomenclature}
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Button size="small" variant="contained" color="success" onClick={handleUpdateMota}>Editar</Button>
-          <Button size="small" variant="contained" color="error">Eliminar</Button>
-        </CardActions>
-      </Card>
-    );
-}
 
 export default function MonitoringStationDashboard() {
+  const [monitoringStations, setMonitoringStations] = useState([]);
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const { token } = useAuth();
-  const [stations, setStations] = useState([]);
   const router = useRouter();
-  const fetchNodes = async () => {
-//     const { results: allNodes } = await getAllNodes(token)
 
-//     setNodes(allNodes);
-  }
+  const getMonitoringStations = async () => {
+      const { totalCount, results } = await getAllMonitoringStation(token, skip, limit);
+      setTotalCount(totalCount);
+      setMonitoringStations(results);
+  };
 
   useEffect(() => {
-    if (token) {
+      if (token) {
+          getMonitoringStations();
+      }
+  }, [token, skip]);
 
-    //   fetchNodes()
-    } else {
-    //   setStations([])
-      setStations([{id: 1, name: "Station 1", reference: "Ref1", photos:"Ph1", nomenclature: "nomen1" },
-        {id: 2, name: "Station 2", reference: "Ref2", photos:"Ph2", nomenclature: "nomen2" }
-      ])
-    }
-  }, [token]);
-  const addMonitoringStation = (e) => {
-    e.preventDefault();
-    router.push("/monitoringStation/create");
-  }
+  const handleCreateAdmin = () => {
+      router.push("/monitoringStation/create");
+  };
+
+  const handleUpdateMonitoringStation = (id) => {
+      router.push(`/monitoringStation/update/${id}`);
+  };
+
+  const handleUpdateMonitoringStationStatus = async (id, state) => {
+      try {
+          console.log(token);
+          await updateMonitoringStation(id, { status: state }, token);
+          await getMonitoringStations();
+          mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente", "info");
+      } catch (error) {
+          console.log(error);
+          console.log(error?.response?.data || error.message);
+          mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
+      }
+  };
+
+  const handleDeleteMonitoringStation = async (id) => {
+      MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
+          .then(async () => {
+              try {
+                  await deleteMonitoringStationById(token, id);
+                  await getMonitoringStations();
+                  mensajes("Éxito", "Estación de monitoreo eliminada exitosamente", "info");
+              } catch (error) {
+                  console.log(error);
+                  console.log(error?.response?.data || error.message);
+                  mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar la estación de monitoreo", "error");
+              }
+          })
+          .catch((error) => {
+              console.error(error);
+          });
+  };
+
+  const handlePageChange = (newSkip) => {
+      setSkip(newSkip);
+  };
   return (
-    <div className="main-container vertical-top">
-      <section className="buttons">
-        <Button type="button" fullWidth variant="contained" onClick={addMonitoringStation} sx={{ mt: 3, mb: 2 }}>
-                + Nueva estación de monitoreo
-        </Button> 
-      </section>
-      <section className="items-container">
-        {
-          stations.map(station => <ImgMediaCard {...station} token={token} refreshMotas={fetchNodes} key={station.id} />)
-        }
-      </section>
-    </div>
+    <Container component="main" maxWidth="xl">
+            <CssBaseline />
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                }}
+            >
+                <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid item>
+                        <Typography component="h1" variant="h5">
+                            Estaciones de monitoreo
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <Button variant="contained" onClick={handleCreateAdmin}>
+                            Crear estación de monitoreo
+                        </Button>
+                    </Grid>
+                </Grid>
+                <TableContainer component={Paper} sx={{ mt: 4 }}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Nombre</TableCell>
+                                <TableCell>Dirección</TableCell>
+                                <TableCell>Fotos</TableCell>
+                                <TableCell>Información</TableCell>
+                                <TableCell>Estado</TableCell>
+
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {monitoringStations.map((monitoringStation) => (
+                                <TableRow key={monitoringStation._id}>
+                                    <TableCell>
+                                      {monitoringStation.name}
+                                    </TableCell>
+                                    <TableCell>{monitoringStation.address}</TableCell>
+                                    <TableCell>
+                                      <CardMedia
+                                        sx={{ height: 80, width: 100 }}
+                                        image={monitoringStation.photos[0]}
+                                        title="green iguana"
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      Campus: {monitoringStation.nomenclature.campus} <br />
+                                      Bloque: {monitoringStation.nomenclature.bloque} <br />
+                                      Piso: {monitoringStation.nomenclature.piso}
+                                    </TableCell>
+                                      
+
+                                    <TableCell>{monitoringStation.status}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => handleUpdateMonitoringStation(monitoringStation._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            Actualizar
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() =>
+                                                handleUpdateMonitoringStationStatus(monitoringStation._id, monitoringStation.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
+                                            }
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            {monitoringStation.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() => handleDeleteMonitoringStation(monitoringStation._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            Dar de baja
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <CustomPagination
+                    skip={skip}
+                    limit={limit}
+                    totalCount={totalCount}
+                    onPageChange={handlePageChange}
+                />
+            </Box>
+        </Container>
   );
 }
 
