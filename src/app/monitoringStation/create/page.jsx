@@ -1,4 +1,5 @@
 "use client";
+import dynamic from 'next/dynamic';
 import React, { useRef, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -12,7 +13,6 @@ import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography f
 import Container from "@mui/material/Container";
 import { areasDeTrabajo } from "@/constants";
 import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from "@mui/material";
-import { MapContainer, TileLayer } from "react-leaflet";
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "../../../constants";
 // import MapWithDrawNodes from "../../components/MapWithDrawNodes";
 import { uploadImageToS3 } from "../../../services/image.service";
@@ -20,8 +20,9 @@ import { createMonitoringStation } from "@/services/monitoringStation.service";
 import { toast } from "react-toastify";
 import mensajes from "@/app/components/Mensajes";
 
-
-
+// Dinamicamente importar MapContainer
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 
 
 const monitoringStationInitialState = {
