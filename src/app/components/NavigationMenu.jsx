@@ -22,11 +22,11 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import LockIcon from "@mui/icons-material/Lock";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import { useAuth } from "@/context/AuthContext";
-import GetAppIcon from '@mui/icons-material/GetApp';
-import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
-import LoginIcon from '@mui/icons-material/Login';
+import HistoryIcon from "@mui/icons-material/History";
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import LoginIcon from '@mui/icons-material/Login';
+import { useAuth } from "@/context/AuthContext";
+import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
 
 const NavigationMenu = () => {
     let { user, logoutUser, loginUser } = useAuth();
@@ -44,7 +44,7 @@ const NavigationMenu = () => {
 
     const handleLogout = () => {
         logoutUser();
-        router.push("/");
+        router.push("/auth/login");
         handleMobileMenuClose(); // Cerrar menú después de cerrar sesión
     };
 
@@ -60,6 +60,7 @@ const NavigationMenu = () => {
 
     const menuItemsNoUser = [
         { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { label: "Historial", icon: <HistoryIcon />, path: "/monitoringStation/sensors/history" },
         { label: "Registrarse", icon: <PersonAddAltIcon />, path: "/auth/register" },
         { label: "Iniciar sesión", icon: <LoginIcon />, path: "/auth/login" }
     ];
@@ -80,18 +81,23 @@ const NavigationMenu = () => {
         menuItems.push(
             { label: "Administradores", icon: <PeopleIcon />, path: "/users/admins" },
             { label: "Investigadores", icon: <PeopleIcon />, path: "/researchers" },
-            { label: "Nodos", icon: <WifiIcon />, path: "/nodes" },
+            { label: "Nodos", icon: <WifiIcon />, path: "/monitoringStation/nodes" },
             { label: "Estaciones de monitoreo", icon: <PlaceIcon />, path: "/monitoringStation" },
+            { label: "Historial", icon: <HistoryIcon />, path: "/monitoringStation/sensors/history" },
             { label: "Alertas", icon: <NotificationsIcon />, path: "/alerts" },
             { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/download-request" },
-            { label: "Sensores", icon: <WifiIcon />, path: "/sensors" },
+            // { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
+            { label: "Sensores", icon: <WifiIcon />, path: "monitoringStation/sensors" },
+            // { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors/createSensors" },
             { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },
-            { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" }
+            { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/activities" },
+            // { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" },
         );
     } else if (user?.role.name === RESEARCHER_ROLE_NAME) {
         menuItems.push(
             { label: "Mis Solicitudes", icon: <NotificationsIcon />, path: "/my-request" },
-            { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" }
+            // { label: "Solicitar datos", icon: <GetAppIcon />, path: "/access-requests/create" },
+            { label: "Solicitar datos", icon: <LockIcon />, path: "/download-request/create" },
         );
     }
 

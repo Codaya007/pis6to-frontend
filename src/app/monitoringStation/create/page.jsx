@@ -1,27 +1,28 @@
 "use client";
+import dynamic from 'next/dynamic';
 import React, { useRef, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
+// import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import MyLocationIcon from '@mui/icons-material/MyLocation';import Typography from "@mui/material/Typography";
+// import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { areasDeTrabajo } from "@/constants";
 import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from "@mui/material";
-import { MapContainer, TileLayer } from "react-leaflet";
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "../../../constants";
-import MapWithDrawNodes from "../../components/MapWithDrawNodes";
-import { uploadImageToS3 } from "../../../services/imageServices";
-import { createMonitoringStation } from "@/services/monitoring-station.service";
+// import MapWithDrawNodes from "../../components/MapWithDrawNodes";
+import { uploadImageToS3 } from "../../../services/image.service";
+import { createMonitoringStation } from "@/services/monitoringStation.service";
 import { toast } from "react-toastify";
 import mensajes from "@/app/components/Mensajes";
 
-
-
+// Dinamicamente importar MapContainer
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 
 
 const monitoringStationInitialState = {
@@ -37,32 +38,32 @@ const monitoringStationInitialState = {
     enviroment: null,
     subEnviroment: null,
     status: true,
-  };
-  export const handleFileChange = async (e) => {
+};
+export const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const MAX_IMG_SIZE_MB = 2;
     const maxSizeInBytes = MAX_IMG_SIZE_MB * 1024 * 1024;
-  
+
     const uploadedImages = [];
-  
+
     for (const file of files) {
-      if (file.size > maxSizeInBytes) {
-        toast.error(
-          `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
-        );
-        continue; // Continúa con el siguiente archivo
-      }
-  
-      try {
-        const imageURL = await uploadImageToS3(file);
-        uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
-      } catch (error) {
-        toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
-      }
+        if (file.size > maxSizeInBytes) {
+            toast.error(
+                `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
+            );
+            continue; // Continúa con el siguiente archivo
+        }
+
+        try {
+            const imageURL = await uploadImageToS3(file);
+            uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
+        } catch (error) {
+            toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
+        }
     }
     console.log(uploadedImages);
     return uploadedImages; // Devuelve el array con las URLs de las imágenes
-  };
+};
 
 export default function CreateMonitoringStation() {
     const [area, setArea] = useState('');
@@ -91,23 +92,23 @@ export default function CreateMonitoringStation() {
     const handleMarkerDrawn = (markerCoordinates) => {
         const coordinates = markerCoordinates.geometry.coordinates;
         // setMonitoringStation((prevState) => ({
-        //   ...prevState,
-        //   latitude: coordinates[1],
-        //   longitude: coordinates[0],
+          //   ...prevState,
+          //   latitude: coordinates[1],
+          //   longitude: coordinates[0],
         // }));
-      };
+    };
 
-    const handleSubmit = async(event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        if(errors.name != ""){
-            return; 
+        if (errors.name != "") {
+            return;
         }
         const data = new FormData(event.currentTarget);
         const dataToSend = {
             name: data.get("name"),
             address: data.get("address"),
             reference: data.get("reference"),
-            photos: imagenes    ,
+            photos: imagenes,
             coordinate: [parseFloat(data.get("longitude")), parseFloat(data.get("latitude"))],
             status: statusMonitoringStation,
             //Coodenadas
@@ -118,17 +119,17 @@ export default function CreateMonitoringStation() {
                 ambiente: parseInt(data.get("enviroment")),
                 subAmbiente: parseInt(data.get("subEnviroment")),
             }
-          };
+        };
         //   console.log('Data to send');
         //   console.log(dataToSend.coordinate);
-          try {
+        try {
             await createMonitoringStation(dataToSend);
             mensajes("Creacion exitosa");
-          } catch (error) {
+        } catch (error) {
             console.log('ERROR');
             console.log(error?.response?.data || error.message);
             mensajes("No se pudo crear estacion de monitoreo", error.response?.data?.customMessage || "No se ha podido crear estacion de monitoreo", "error");
-          }
+        }
         // Aquí puedes agregar lógica adicional, como enviar los datos al backend
     };
 
@@ -161,7 +162,7 @@ export default function CreateMonitoringStation() {
                     ...prevErrors,
                     photos: value ? "" : "Las fotos son requeridas",
                 }));
-                break;      
+                break;
             case "campus":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
@@ -255,7 +256,7 @@ export default function CreateMonitoringStation() {
                                 label="Referecia"
                                 name="reference"
                                 autoComplete="family-name"
-                                
+
                             />
                         </Grid>
                         <Grid item xs={12} sm={12}>
@@ -269,7 +270,7 @@ export default function CreateMonitoringStation() {
                                 label="Direccion"
                                 name="address"
                                 autoComplete="family-name"
-                                
+
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -297,7 +298,7 @@ export default function CreateMonitoringStation() {
                                 }}
                             />
                         </Grid>
-                    
+
                         <Grid item xs={12}>
                             <Typography component="h6" variant="h6">
                                 Nomenclatura
@@ -393,7 +394,7 @@ export default function CreateMonitoringStation() {
                                 Coordenadas
                             </Typography>
                         </Grid>
-                        
+
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
@@ -406,7 +407,7 @@ export default function CreateMonitoringStation() {
                                 id="longitude"
                                 label="Longitud"
                                 autoFocus
-                                value = {monitoringStation.longitude}
+                                value={monitoringStation.longitude}
                             />
                         </Grid>
                         <Grid item xs={4} sm={6}>
@@ -431,13 +432,13 @@ export default function CreateMonitoringStation() {
                         scrollWheelZoom={false}
                     >
                         <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
 
                         <MapWithDrawNodes
                         onMarkerDrawn={handleMarkerDrawn}
-                        // markerRef={markerRef}
+                        markerRef={markerRef}
                         latitude={monitoringStation.latitude}
                         longitude={monitoringStation.longitude}
                         />
@@ -460,18 +461,18 @@ export default function CreateMonitoringStation() {
                         longitude={monitoringStation.longitude}
                     />
                 </MapContainer> */}
-                <FormGroup>
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Habilitado" 
-                    onChange={(e) => {
-                        let valor = e.target.checked == true ? "Activo" : "Inactivo"
-                        console.log(valor);
-                        setStatusMonitoringStation(valor)
-                    }}/>
-                </FormGroup>
+                    <FormGroup>
+                        <FormControlLabel control={<Checkbox defaultChecked />} label="Habilitado"
+                            onChange={(e) => {
+                                let valor = e.target.checked == true ? "Activo" : "Inactivo"
+                                console.log(valor);
+                                setStatusMonitoringStation(valor)
+                            }} />
+                    </FormGroup>
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Crear
                     </Button>
-                    
+
                 </Box>
             </Box>
         </Container>

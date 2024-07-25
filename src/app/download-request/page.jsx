@@ -1,150 +1,174 @@
 "use client";
-import React, { useState } from "react";
-import Avatar from "@mui/material/Avatar";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import Button from "@mui/material/Button";
-import DownloadIcon from "@mui/icons-material/Download";
+import React, { useState, useEffect } from "react";
+import { Avatar, Button, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Container, Box, Grid, Paper } from "@mui/material";
+import { getAllDownloadRequests, updateDownloadRequestById } from "@/services/downloadRequest.service";
+import { useAuth } from "@/context/AuthContext";
+import mensajes from "@/app/components/Mensajes";
+import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
+import { ACTIVE_USER_STATUS, BLOQUED_USER_STATUS } from "@/constants";
+import { useRouter } from "next/navigation";
+import CustomPagination from "../components/CustomPagination";
 
-const requestTypes = [
-    { value: "climatic", label: "Datos Climáticos" },
-    { value: "nodeFailure", label: "Fallo de Nodos" }
-];
+export default function DownloadRequests() {
+    const [downloadrequests, setDownloadRequests] = useState([]);
+    const [skip, setSkip] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [totalCount, setTotalCount] = useState(null);
+    const { token } = useAuth();
+    const router = useRouter();
 
-export default function GenerateDownloadRequest() {
-    const [requestType, setRequestType] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [errors, setErrors] = useState({
-        requestType: "",
-        startDate: "",
-        endDate: ""
-    });
+    const getDownloadRequests = async () => {
+        try {
+            const { totalCount, results } = await getAllDownloadRequests(token, skip, limit);
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
+            setTotalCount(totalCount)
+            setDownloadRequests(results);
+        } catch (error) {
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener los solicitud de descargaes", "error");
+        }
+    }
 
-        // Validación básica
-        let valid = true;
-        const newErrors = { ...errors };
-
-        if (!data.get("requestType")) {
-            newErrors.requestType = "El tipo de solicitud es requerido";
-            valid = false;
-        } else {
-            newErrors.requestType = "";
+    useEffect(() => {
+        // Llamada a backend
+        if (token) {
+            getDownloadRequests();
         }
 
-        if (!data.get("startDate")) {
-            newErrors.startDate = "La fecha de inicio es requerida";
-            valid = false;
-        } else {
-            newErrors.startDate = "";
+        // setDownloadRequests(mockDownloadRequests);
+    }, [token, skip, limit]);
+
+    const handleViewDownloadRequest = (id) => {
+        // Lógica para actualizar el solicitud de descarga downloadrequestistrador
+        router.push(`/downloadrequests/view/${id}`);
+    };
+
+    const handleUpdateDownloadRequestStatus = async (id, state) => {
+        try {
+            await updateDownloadRequestById(id, { state }, token);
+            await getDownloadRequests();
+
+            mensajes("Éxito", "Solicitud de descarga actualizado exitosamente", "info");
+        } catch (error) {
+            console.log(error)
+            console.log(error?.response?.data || error.message);
+
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el solicitud de descarga", "error");
         }
+    }
 
-        if (!data.get("endDate")) {
-            newErrors.endDate = "La fecha de fin es requerida";
-            valid = false;
-        } else {
-            newErrors.endDate = "";
-        }
+    // const handleDeleteDownloadRequest = async (id) => {
+    //     // Lógica para dar de baja al solicitud de descarga downloadrequestistrador
+    //     console.log(`Dando de baja al downloadrequestistrador con ID: ${id}`);
 
-        setErrors(newErrors);
+    //     // setDownloadRequests(downloadrequests.filter(downloadrequest => downloadrequest_.id !== id));
+    //     MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning").then(async () => {
+    //         try {
+    //             await deleteDownloadRequestById(token, id);
+    //             await getDownloadRequests();
 
-        if (valid) {
-            console.log({
-                requestType: data.get("requestType"),
-                startDate: data.get("startDate"),
-                endDate: data.get("endDate")
-            });
+    //             mensajes("Éxito", "Solicitud de descarga eliminado exitosamente", "info");
+    //         } catch (error) {
+    //             console.log(error)
+    //             console.log(error?.response?.data || error.message);
 
-            // Aquí puedes agregar lógica adicional, como enviar los datos al backend
-        }
+    //             mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el solicitud de descarga", "error");
+    //         }
+    //     }).catch((error) => {
+    //         console.error(error);
+    //     })
+    // };
+
+    const handlePageChange = (newSkip) => {
+        setSkip(newSkip);
     };
 
     return (
-        <Container component="main" maxWidth="md">
+        <Container component="main" maxWidth="xl">
             <CssBaseline />
             <Box
                 sx={{
                     marginTop: 8,
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center"
+                    alignItems: "center",
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                    <DownloadIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Generar Solicitud de Descarga
-                </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <FormControl fullWidth required>
-                                <InputLabel id="requestType-label">Tipo de Solicitud</InputLabel>
-                                <Select
-                                    labelId="requestType-label"
-                                    id="requestType"
-                                    name="requestType"
-                                    value={requestType}
-                                    label="Tipo de Solicitud"
-                                    onChange={(e) => setRequestType(e.target.value)}
-                                    error={!!errors.requestType}
-                                >
-                                    {requestTypes.map((option) => (
-                                        <MenuItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {errors.requestType && (
-                                    <Typography color="error" variant="body2">
-                                        {errors.requestType}
-                                    </Typography>
-                                )}
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                id="startDate"
-                                label="Fecha de Inicio"
-                                type="date"
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                name="startDate"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                error={!!errors.startDate}
-                                helperText={errors.startDate}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                id="endDate"
-                                label="Fecha de Fin"
-                                type="date"
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                name="endDate"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                error={!!errors.endDate}
-                                helperText={errors.endDate}
-                            />
-                        </Grid>
+                <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid item>
+                        <Typography component="h1" variant="h5">
+                            Solicitudes de descarga
+                        </Typography>
                     </Grid>
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Generar Solicitud
-                    </Button>
-                </Box>
+                    {/* <Grid item>
+                        <Button variant="contained" onClick={handleCreateDownloadRequest}>
+                            Crear Solicitud de descarga
+                        </Button>
+                    </Grid> */}
+                </Grid>
+                <TableContainer component={Paper} sx={{ mt: 4 }}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Nombre solicitante</TableCell>
+                                <TableCell>Apellido solicitante</TableCell>
+                                <TableCell>Email solicitante</TableCell>
+                                <TableCell>Estado</TableCell>
+                                {/* <TableCell>Ocupación</TableCell>
+                                <TableCell>Area</TableCell>
+                                <TableCell>Cargo</TableCell>
+                                <TableCell>Institución</TableCell> */}
+                                <TableCell>Acciones</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {downloadrequests.map((downloadrequest) => (
+                                <TableRow key={downloadrequest._id}>
+                                    <TableCell>{downloadrequest.user.name}</TableCell>
+                                    <TableCell>{downloadrequest.user.lastname}</TableCell>
+                                    <TableCell>{downloadrequest.user.email}</TableCell>
+                                    <TableCell>{downloadrequest.status}</TableCell>
+                                    {/* <TableCell>{downloadrequest.occupation}</TableCell>
+                                    <TableCell>{downloadrequest.area}</TableCell>
+                                    <TableCell>{downloadrequest.position}</TableCell>
+                                    <TableCell>{downloadrequest.institution}</TableCell> */}
+                                    <TableCell>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => handleViewDownloadRequest(downloadrequest._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
+                                        >
+                                            Ver detalle
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() => handleUpdateDownloadRequestStatus(downloadrequest._id, downloadrequest.user.state === BLOQUED_USER_STATUS ? ACTIVE_USER_STATUS : BLOQUED_USER_STATUS)}
+                                            sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
+                                        >
+                                            {downloadrequest.user.state === BLOQUED_USER_STATUS ? "Desbloquear" : "Bloquear"}
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() => handleUpdateDownloadRequestStatus(downloadrequest._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: 'none', fontSize: '0.875rem' }}
+                                        >
+                                            Aceptar solicitud
+                                        </Button>
+                                    </TableCell>
+
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <CustomPagination
+                    skip={skip}
+                    limit={limit}
+                    totalCount={totalCount}
+                    onPageChange={handlePageChange}
+                />
             </Box>
         </Container>
     );

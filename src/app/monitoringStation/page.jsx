@@ -12,11 +12,9 @@ import Typography from '@mui/material/Typography';
 import { Avatar, Badge, Box, CardMedia, Container, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import mensajes from "../components/Mensajes";
 import CustomPagination from "../components/CustomPagination";
-import { deleteMonitoringStationById, getAllMonitoringStation, updateMonitoringStation } from "@/services/monitoring-station.service";
+import { deleteMonitoringStationById, getAllMonitoringStations, updateMonitoringStationById } from "@/services/monitoringStation.service";
 import { ACTIVE_MONITORING_STATION, INACTIVE_MONITORING_STATION } from "@/constants";
 import MensajeConfirmacion from "../components/MensajeConfirmacion";
-
-
 
 export default function MonitoringStationDashboard() {
   const [monitoringStations, setMonitoringStations] = useState([]);
@@ -28,62 +26,62 @@ export default function MonitoringStationDashboard() {
   const { token } = useAuth();
   const router = useRouter();
 
-  const getMonitoringStations = async () => {
-      const { totalCount, results } = await getAllMonitoringStation(token, skip, limit);
-      setTotalCount(totalCount);
-      setMonitoringStations(results);
-  };
+    const getMonitoringStations = async () => {
+        const { totalCount, results } = await getAllMonitoringStations(token, skip, limit);
+        setTotalCount(totalCount);
+        setMonitoringStations(results);
+    };
 
-  useEffect(() => {
-      if (token) {
-          getMonitoringStations();
-      }
-  }, [token, skip]);
+    useEffect(() => {
+        if (token) {
+            getMonitoringStations();
+        }
+    }, [token, skip]);
 
-  const handleCreateAdmin = () => {
-      router.push("/monitoringStation/create");
-  };
+    const handleCreateAdmin = () => {
+        router.push("/monitoringStation/create");
+    };
 
-  const handleUpdateMonitoringStation = (id) => {
-      router.push(`/monitoringStation/update/${id}`);
-  };
+    const handleUpdateMonitoringStationById = (id) => {
+        router.push(`/monitoringStation/update/${id}`);
+    };
 
-  const handleUpdateMonitoringStationStatus = async (id, state) => {
-      try {
-          console.log(token);
-          await updateMonitoringStation(id, { status: state }, token);
-          await getMonitoringStations();
-          mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente", "info");
-      } catch (error) {
-          console.log(error);
-          console.log(error?.response?.data || error.message);
-          mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
-      }
-  };
+    const handleUpdateMonitoringStationByIdStatus = async (id, state) => {
+        try {
+            console.log(token);
+            await updateMonitoringStationById(id, { status: state }, token);
+            await getMonitoringStations();
+            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente", "info");
+        } catch (error) {
+            console.log(error);
+            console.log(error?.response?.data || error.message);
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
+        }
+    };
 
-  const handleDeleteMonitoringStation = async (id) => {
-      MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
-          .then(async () => {
-              try {
-                  await deleteMonitoringStationById(token, id);
-                  await getMonitoringStations();
-                  mensajes("Éxito", "Estación de monitoreo eliminada exitosamente", "info");
-              } catch (error) {
-                  console.log(error);
-                  console.log(error?.response?.data || error.message);
-                  mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar la estación de monitoreo", "error");
-              }
-          })
-          .catch((error) => {
-              console.error(error);
-          });
-  };
+    const handleDeleteMonitoringStation = async (id) => {
+        MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
+            .then(async () => {
+                try {
+                    await deleteMonitoringStationById(token, id);
+                    await getMonitoringStations();
+                    mensajes("Éxito", "Estación de monitoreo eliminada exitosamente", "info");
+                } catch (error) {
+                    console.log(error);
+                    console.log(error?.response?.data || error.message);
+                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar la estación de monitoreo", "error");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
-  const handlePageChange = (newSkip) => {
-      setSkip(newSkip);
-  };
-  return (
-    <Container component="main" maxWidth="xl">
+    const handlePageChange = (newSkip) => {
+        setSkip(newSkip);
+    };
+    return (
+        <Container component="main" maxWidth="xl">
             <CssBaseline />
             <Box
                 sx={{
@@ -121,29 +119,29 @@ export default function MonitoringStationDashboard() {
                             {monitoringStations.map((monitoringStation) => (
                                 <TableRow key={monitoringStation._id}>
                                     <TableCell>
-                                      {monitoringStation.name}
+                                        {monitoringStation.name}
                                     </TableCell>
                                     <TableCell>{monitoringStation.address}</TableCell>
                                     <TableCell>
-                                      <CardMedia
-                                        sx={{ height: 80, width: 100 }}
-                                        image={monitoringStation.photos[0]}
-                                        title="green iguana"
-                                      />
+                                        <CardMedia
+                                            sx={{ height: 80, width: 100 }}
+                                            image={monitoringStation.photos[0]}
+                                            title="green iguana"
+                                        />
                                     </TableCell>
                                     <TableCell>
-                                      Campus: {monitoringStation.nomenclature.campus} <br />
-                                      Bloque: {monitoringStation.nomenclature.bloque} <br />
-                                      Piso: {monitoringStation.nomenclature.piso}
+                                        Campus: {monitoringStation.nomenclature.campus} <br />
+                                        Bloque: {monitoringStation.nomenclature.bloque} <br />
+                                        Piso: {monitoringStation.nomenclature.piso}
                                     </TableCell>
-                                      
+
 
                                     <TableCell>{monitoringStation.status}</TableCell>
                                     <TableCell>
                                         <Button
                                             variant="outlined"
                                             color="primary"
-                                            onClick={() => handleUpdateMonitoringStation(monitoringStation._id)}
+                                            onClick={() => handleUpdateMonitoringStationById(monitoringStation._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Actualizar
@@ -152,7 +150,7 @@ export default function MonitoringStationDashboard() {
                                             variant="outlined"
                                             color="secondary"
                                             onClick={() =>
-                                                handleUpdateMonitoringStationStatus(monitoringStation._id, monitoringStation.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
+                                                handleUpdateMonitoringStationByIdStatus(monitoringStation._id, monitoringStation.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
                                             }
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
@@ -180,7 +178,7 @@ export default function MonitoringStationDashboard() {
                 />
             </Box>
         </Container>
-  );
+    );
 }
 
 // export default WithAuth(MonitoringStationDashboard)

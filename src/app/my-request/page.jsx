@@ -12,14 +12,37 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Divider from "@mui/material/Divider";
 import DescriptionIcon from "@mui/icons-material/Description";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 
 const sampleRequests = [
-    { id: 1, title: "Solicitud 1", content: "Contenido de la solicitud 1", url: "https://example.com/1", type: "Tipo 1", timestamp: "2023-07-01 10:00:00" },
-    { id: 2, title: "Solicitud 2", content: "Contenido de la solicitud 2", url: "https://example.com/2", type: "Tipo 2", timestamp: "2023-07-02 11:00:00" },
-    { id: 3, title: "Solicitud 3", content: "Contenido de la solicitud 3", url: "https://example.com/3", type: "Tipo 3", timestamp: "2023-07-03 12:00:00" },
-    // Añade más solicitudes según sea necesario
+    {
+        id: 1,
+        title: "Solicitud 1",
+        content: "Necesito esta información para un proyecto de análisis climático",
+        url: "https://example.com/1",
+        type: "Datos climáticos",
+        createdAt: "2023-07-01 10:00:00",
+        status: "Aceptada"
+    },
+    {
+        id: 2,
+        title: "Solicitud 2",
+        content: "Necesito esta información para un proyecto de análisis climático",
+        url: "https://example.com/2",
+        type: "Alertas",
+        createdAt: "2023-07-02 11:00:00",
+        status: "Aceptada"
+    },
+    {
+        id: 3,
+        title: "Solicitud 3",
+        content: "Probando solicitud",
+        url: "https://example.com/3",
+        type: "Alertas",
+        createdAt: "2023-07-03 12:00:00",
+        status: "Denegada"
+    },
 ];
 
 export default function MyRequests() {
@@ -74,7 +97,9 @@ export default function MyRequests() {
                                                 <br />
                                                 Tipo: {request.type}
                                                 <br />
-                                                Marca de tiempo: {request.timestamp}
+                                                Fecha solicitud: {new Date(request.createdAt).toLocaleString()}
+                                                <br />
+                                                <span style={{ color: request.status === "Aceptada" ? "green" : "red" }}>Estado: {request.status}</span>
                                             </>
                                         }
                                     />
@@ -84,7 +109,7 @@ export default function MyRequests() {
                         ))}
                     </List>
                 </Box>
-                
+
             </Box>
         </Container>
     );

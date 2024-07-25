@@ -1,0 +1,56 @@
+trigger:
+  - main
+
+pool:
+  name: Default # O el nombre de tu pool de agentes
+  demands:
+    - agent.name -equals viviagent
+
+variables:
+  # Nombre de la aplicación en Azure App Service
+  webAppName: "pis6tofront"
+  # Nombre del grupo de recursos en Azure
+  resourceGroupName: "pis6to"
+  # Región de despliegue
+  location: "eastus"
+  # Versión de Node.js a usar
+  nodeVersion: "20.x"
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(nodeVersion)
+    displayName: "Instalar Node.js"
+
+  - script: |
+      npm install
+    displayName: "Instalar dependencias"
+
+  - script: |
+      npm run build
+    displayName: "Construir aplicación"
+
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: "$(Build.SourcesDirectory)/.next"
+      includeRootFolder: false
+      archiveType: "zip"
+      archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+      replaceExistingArchive: true
+    displayName: "Empaquetar archivos de construcción"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: "$(Build.ArtifactStagingDirectory)"
+      artifactName: "drop"
+    displayName: "Publicar artefactos de construcción"
+
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: "Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)"
+      appType: "webAppLinux"
+      appName: "pis6tofront"
+      package: "$(Build.ArtifactStagingDirectory)/app.zip"
+      runtimeStack: "NODE|20-lts"
+      startUpCommand: "npm start"
+    displayName: "Desplegar a Azure App Service"
