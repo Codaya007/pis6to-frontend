@@ -36,19 +36,19 @@ steps:
       replaceExistingArchive: true
     displayName: 'Empaquetar archivos de construcción'
 
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
-    appType: 'webAppLinux'
-    appName: 'pis6tofront'
-    package: '$(Build.ArtifactStagingDirectory)/app.zip'
-    runtimeStack: 'NODE|10.12'
-    startUpCommand: 'npm start'
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
+      appType: 'webAppLinux'
+      appName: 'pis6tofront'
+      package: '$(Build.ArtifactStagingDirectory)/app.zip'
+      runtimeStack: 'NODE|10.12'
+      startUpCommand: 'npm start'
     displayName: 'Desplegar a Azure App Service'
 
   # - task: AzureCLI@2
   #   inputs:
-  #     azureSubscription: '<NombreDeTuServicioDeConexión>'
+  #     azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
   #     scriptType: 'bash'
   #     scriptLocation: 'inlineScript'
   #     inlineScript: |
