@@ -14,12 +14,14 @@ export const createMonitoringStation = async (body) => {
 };
 
 export const updateMonitoringStation =  async(id, body, token ) => {
-  console.log(`iddd ${id}`);
   const url = `${BASEURL}/${id}`;
-  const {data} = await axios.put(url, body, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  // const {data} = await axios.put(url, body);
+  console.log(`urlll ${url}`);
+  console.log('bodyyy');
+  console.log(body);
+  // const {data} = await axios.put(url, body, {
+  //   headers: { Authorization: `Bearer ${token}` },
+  // });
+  const {data} = await axios.put(url, body);
 
   console.log('dataaaa');
   console.log(data);

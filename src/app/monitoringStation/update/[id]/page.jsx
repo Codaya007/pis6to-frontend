@@ -72,7 +72,6 @@ export default function CreateMonitoringStation() {
         name: "",
         reference: "",
         address: "",
-        photos: "",
         campus: "",
         bloque: "",
         ambiente: "",
@@ -107,13 +106,7 @@ export default function CreateMonitoringStation() {
                     ...prevErrors,
                     address: value ? "" : "La direccion es requerida",
                 }));
-                break;      
-            case "photos":
-                setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    photos: value ? "" : "El las fotos son requeridas",
-                }));
-                break;
+                break; 
             case "campus":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
@@ -168,7 +161,7 @@ export default function CreateMonitoringStation() {
                 const { results: monitoringStation } = await getMonitoringStationById(token, id);
                 console.log(monitoringStation);
                 setMonitoringStation(monitoringStation);
-
+                delete monitoringStation.nomenclature._id
                 setFormData({
                     name: monitoringStation.name,
                     reference: monitoringStation.reference,
@@ -192,72 +185,73 @@ export default function CreateMonitoringStation() {
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        if(name == "campus" ){
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                nomenclature: {
-                    ...prevFormData.nomenclature,
-                    campus: value,
-                },
-            }));
-        }
-        if(name == "bloque" && value >= 1){
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                nomenclature: {
-                    ...prevFormData.nomenclature,
-                    bloque: value,
-                },
-            }));
-        }
-        if(name == "piso" && value >= 1 ){
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                nomenclature: {
-                    ...prevFormData.nomenclature,
-                    piso: value,
-                },
-            }));
-        }
-        if(name == "ambiente" && value >= 1 ){
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                nomenclature: {
-                    ...prevFormData.nomenclature,
-                    ambiente: value,
-                },
-            }));
-        }
-        if(name == "subAmbiente" && value >= 1 ){
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                nomenclature: {
-                    ...prevFormData.nomenclature,
-                    subAmbiente: value,
-                },
-            }));
-        }
-        if(name == "longitude" || name == "latitude" ){
-            let lon;
-            let lat;
-            if( name == "longitude"){
-                lon = parseFloat(value);
+        if (name == "campus" || name == "bloque" || name == "piso" || name == "ambiente" || name == "subAmbiente"){
+            if(name == "campus" ){
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    nomenclature: {
+                        ...prevFormData.nomenclature,
+                        campus: value,
+                    },
+                }));
             }
-            if(name == "latitude"){
-                lat = parseFloat(value);
+            if(name == "bloque" && value >= 1){
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    nomenclature: {
+                        ...prevFormData.nomenclature,
+                        bloque: parseInt(value),
+                    },
+                }));
             }
-            let coordinateNew = [lon, lat];
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                coordinate: coordinateNew,
-            }));
-        }else{
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                [name]: value,
-            }));
-            // alert(formData)
-        }
+            if(name == "piso" && value >= 1 ){
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    nomenclature: {
+                        ...prevFormData.nomenclature,
+                        piso: parseInt(value),
+                    },
+                }));
+            }
+            if(name == "ambiente" && value >= 1 ){
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    nomenclature: {
+                        ...prevFormData.nomenclature,
+                        ambiente: parseInt(value),
+                    },
+                }));
+            }
+            if(name == "subAmbiente" && value >= 1 ){
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    nomenclature: {
+                        ...prevFormData.nomenclature,
+                        subAmbiente: parseInt(value),
+                    },
+                }));
+            }
+        }else if(name == "longitude" || name == "latitude" ){
+                let lon;
+                let lat;
+                if( name == "longitude"){
+                    lon = parseFloat(value);
+                }
+                if(name == "latitude"){
+                    lat = parseFloat(value);
+                }
+                let coordinateNew = [lon, lat];
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    coordinate: coordinateNew,
+                }));
+            }else{
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    [name]: value,
+                }));
+                // alert(formData)
+            }
         
     };
     
@@ -269,7 +263,6 @@ export default function CreateMonitoringStation() {
         handleBlur({ target: { name: "name", value: formData.name } });
         handleBlur({ target: { name: "reference", value: formData.reference } });
         handleBlur({ target: { name: "address", value: formData.address } });
-        handleBlur({ target: { name: "photos", value: formData.photos } });
         handleBlur({ target: { name: "campus", value: formData.nomenclature.campus } });
         handleBlur({ target: { name: "bloque", value: formData.nomenclature.bloque } });
         handleBlur({ target: { name: "ambiente", value: formData.nomenclature.ambiente } });
@@ -279,7 +272,6 @@ export default function CreateMonitoringStation() {
         handleBlur({ target: { name: "latitude", value: formData.coordinate[1] } });
         console.log('FormData');
         console.log(formData);
-
         const errorMessages = Object.entries(errors)
             .filter(([field, error]) => error)
             .map(([field, error]) => `${error}`)
@@ -293,9 +285,9 @@ export default function CreateMonitoringStation() {
             mensajes("Error al actualizar la estación de monitoreo", errorMessages || "No se ha podido actualizar la estación de monitoreo", "error");
             return;
         }
-        console.log('TRUUUUUUU');
             console.log('Dentro de formData');
-            console.log(formData);
+            console.log(formData.nomenclature);
+            console.log(token);
             await updateMonitoringStation(id, formData, token);
 
             mensajes("Estación de monitoreo actualizada exitosamente.", "Éxito");
@@ -408,9 +400,7 @@ export default function CreateMonitoringStation() {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.photos}
-                                helperText={errors.photos}
+                                // onBlur={handleBlur}
                                 required
                                 fullWidth
                                 id="photos"
