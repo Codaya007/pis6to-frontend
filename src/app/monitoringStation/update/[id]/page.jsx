@@ -17,34 +17,34 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import MapWithDrawNodes from "@/app/components/MapWithDrawNodes";
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "@/constants";
 import { toast } from "react-toastify";
-import { uploadImageToS3 } from "@/services/imageServices";
+import { uploadImageToS3 } from "@/services/image.service";
 
 
 export const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const MAX_IMG_SIZE_MB = 2;
     const maxSizeInBytes = MAX_IMG_SIZE_MB * 1024 * 1024;
-  
+
     const uploadedImages = [];
-  
+
     for (const file of files) {
-      if (file.size > maxSizeInBytes) {
-        toast.error(
-          `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
-        );
-        continue; // Continúa con el siguiente archivo
-      }
-  
-      try {
-        const imageURL = await uploadImageToS3(file);
-        uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
-      } catch (error) {
-        toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
-      }
+        if (file.size > maxSizeInBytes) {
+            toast.error(
+                `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
+            );
+            continue; // Continúa con el siguiente archivo
+        }
+
+        try {
+            const imageURL = await uploadImageToS3(file);
+            uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
+        } catch (error) {
+            toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
+        }
     }
     console.log(uploadedImages);
     return uploadedImages; // Devuelve el array con las URLs de las imágenes
-  };
+};
 
 export default function CreateMonitoringStation() {
     const router = useRouter();
@@ -106,7 +106,7 @@ export default function CreateMonitoringStation() {
                     ...prevErrors,
                     address: value ? "" : "La direccion es requerida",
                 }));
-                break; 
+                break;
             case "campus":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
@@ -177,16 +177,16 @@ export default function CreateMonitoringStation() {
                 setLoading(false);
             }
         }
-          if (token) {
+        if (token) {
             fetchMonitoringStation();
-          }
+        }
 
     }, [id, token]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        if (name == "campus" || name == "bloque" || name == "piso" || name == "ambiente" || name == "subAmbiente"){
-            if(name == "campus" ){
+        if (name == "campus" || name == "bloque" || name == "piso" || name == "ambiente" || name == "subAmbiente") {
+            if (name == "campus") {
                 setFormData((prevFormData) => ({
                     ...prevFormData,
                     nomenclature: {
@@ -195,7 +195,7 @@ export default function CreateMonitoringStation() {
                     },
                 }));
             }
-            if(name == "bloque" && value >= 1){
+            if (name == "bloque" && value >= 1) {
                 setFormData((prevFormData) => ({
                     ...prevFormData,
                     nomenclature: {
@@ -204,7 +204,7 @@ export default function CreateMonitoringStation() {
                     },
                 }));
             }
-            if(name == "piso" && value >= 1 ){
+            if (name == "piso" && value >= 1) {
                 setFormData((prevFormData) => ({
                     ...prevFormData,
                     nomenclature: {
@@ -213,7 +213,7 @@ export default function CreateMonitoringStation() {
                     },
                 }));
             }
-            if(name == "ambiente" && value >= 1 ){
+            if (name == "ambiente" && value >= 1) {
                 setFormData((prevFormData) => ({
                     ...prevFormData,
                     nomenclature: {
@@ -222,7 +222,7 @@ export default function CreateMonitoringStation() {
                     },
                 }));
             }
-            if(name == "subAmbiente" && value >= 1 ){
+            if (name == "subAmbiente" && value >= 1) {
                 setFormData((prevFormData) => ({
                     ...prevFormData,
                     nomenclature: {
@@ -231,30 +231,30 @@ export default function CreateMonitoringStation() {
                     },
                 }));
             }
-        }else if(name == "longitude" || name == "latitude" ){
-                let lon;
-                let lat;
-                if( name == "longitude"){
-                    lon = parseFloat(value);
-                }
-                if(name == "latitude"){
-                    lat = parseFloat(value);
-                }
-                let coordinateNew = [lon, lat];
-                setFormData((prevFormData) => ({
-                    ...prevFormData,
-                    coordinate: coordinateNew,
-                }));
-            }else{
-                setFormData((prevFormData) => ({
-                    ...prevFormData,
-                    [name]: value,
-                }));
-                // alert(formData)
+        } else if (name == "longitude" || name == "latitude") {
+            let lon;
+            let lat;
+            if (name == "longitude") {
+                lon = parseFloat(value);
             }
-        
+            if (name == "latitude") {
+                lat = parseFloat(value);
+            }
+            let coordinateNew = [lon, lat];
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                coordinate: coordinateNew,
+            }));
+        } else {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                [name]: value,
+            }));
+            // alert(formData)
+        }
+
     };
-    
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -280,11 +280,11 @@ export default function CreateMonitoringStation() {
         // Imprimir todos los errores
         try {
 
-        // Si hay errores, no enviar el formulario
-        if (Object.values(errors).some((error) => error !== "")) {
-            mensajes("Error al actualizar la estación de monitoreo", errorMessages || "No se ha podido actualizar la estación de monitoreo", "error");
-            return;
-        }
+            // Si hay errores, no enviar el formulario
+            if (Object.values(errors).some((error) => error !== "")) {
+                mensajes("Error al actualizar la estación de monitoreo", errorMessages || "No se ha podido actualizar la estación de monitoreo", "error");
+                return;
+            }
             console.log('Dentro de formData');
             console.log(formData.nomenclature);
             console.log(token);
@@ -296,8 +296,8 @@ export default function CreateMonitoringStation() {
             console.log(error?.response?.data || error.message);
             mensajes("Error al actualizar la estación de monitoreo", error.response?.data?.customMessage || "No se ha podido actualizar la estación de monitoreo", "error");
         }
-    };    
-    
+    };
+
     if (loading) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -327,7 +327,7 @@ export default function CreateMonitoringStation() {
             // latitude: coordinates[1],
             // longitude: coordinates[0],
         }));
-      };
+    };
 
     return (
         <Container component="main" maxWidth="md">
@@ -348,7 +348,7 @@ export default function CreateMonitoringStation() {
                     Actualizar estación de monitoreo
                 </Typography>
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                <Grid container spacing={2}>
+                    <Grid container spacing={2}>
                         {/* Información básica */}
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -379,7 +379,7 @@ export default function CreateMonitoringStation() {
                                 value={formData.reference}
                                 name="reference"
                                 autoComplete="family-name"
-                                
+
                             />
                         </Grid>
                         <Grid item xs={12} sm={12}>
@@ -395,7 +395,7 @@ export default function CreateMonitoringStation() {
                                 label="Direccion"
                                 name="address"
                                 autoComplete="family-name"
-                                
+
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -448,7 +448,7 @@ export default function CreateMonitoringStation() {
                                     labelId="campus"
                                     name="campus"
                                     id="campus"
-                                    
+
                                     required
                                     value={formData.nomenclature.campus}
                                     label="Campus"
@@ -480,7 +480,7 @@ export default function CreateMonitoringStation() {
                                 value={formData.nomenclature.bloque}
                                 name="bloque"
                                 label="Bloque"
-                                min = "1"
+                                min="1"
                                 type="number"
                                 id="bloque"
                                 autoComplete="bloque"
@@ -499,7 +499,7 @@ export default function CreateMonitoringStation() {
                                 label="Piso"
                                 type="number"
                                 id="piso"
-                                min = "1"
+                                min="1"
                                 autoComplete="piso"
                             />
                         </Grid>
@@ -546,7 +546,7 @@ export default function CreateMonitoringStation() {
                                 Coordenadas
                             </Typography>
                         </Grid>
-                        
+
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
@@ -561,7 +561,7 @@ export default function CreateMonitoringStation() {
                                 id="longitude"
                                 label="Longitud"
                                 autoFocus
-                                value = {formData.coordinate[0]}
+                                value={formData.coordinate[0]}
                             />
                         </Grid>
                         <Grid item xs={4} sm={6}>
@@ -571,7 +571,7 @@ export default function CreateMonitoringStation() {
                                 error={!!errors.latitude}
                                 helperText={errors.latitude}
                                 required
-                                disabled 
+                                disabled
                                 fullWidth
                                 id="latitude"
                                 value={formData.coordinate[1]}
@@ -588,15 +588,15 @@ export default function CreateMonitoringStation() {
                         scrollWheelZoom={false}
                     >
                         <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
 
                         <MapWithDrawNodes
-                        onMarkerDrawn={handleMarkerDrawn}
-                        markerRef={markerRef}
-                        latitude={formData.coordinate[1]}
-                        longitude={formData.coordinate[0]}
+                            onMarkerDrawn={handleMarkerDrawn}
+                            markerRef={markerRef}
+                            latitude={formData.coordinate[1]}
+                            longitude={formData.coordinate[0]}
                         />
                     </MapContainer>
                     {/* Información académica */}

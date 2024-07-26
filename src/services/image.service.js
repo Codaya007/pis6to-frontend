@@ -1,10 +1,20 @@
 import axios from "axios";
-import { BACKEND_BASEURL } from "../constants/index";
+import { BACKEND_BASEURL } from "../constants";
 
-const BASEURL = `${BACKEND_BASEURL}/ms8/media`;
+export const updateImageToS3 = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
 
-export const uploadImageToS3 = async (body) => {
-  const { data } = await axios.post(BASEURL, body);
+    const response = await axios.post(`${BACKEND_BASEURL}/ms8/media`, formData);
+    // console.log(response.data.url);
+    const imageUrl = response.data.url;
 
-  return data;
+    return imageUrl;
+  } catch (error) {
+    console.error("Error al subir la imagen:", error);
+    throw error;
+  }
 };
+
+export const uploadImageToS3 = updateImageToS3;
