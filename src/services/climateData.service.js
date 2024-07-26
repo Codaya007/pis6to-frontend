@@ -3,6 +3,8 @@ import { BACKEND_BASEURL } from "../constants/index";
 
 const BASEURL = `${BACKEND_BASEURL}/ms3/climate-datas`;
 
+export const CLIMATEDATA_SOCKET_URL = BASEURL;
+
 export const getAllClimateData = async (
   token,
   skip = 0,
@@ -33,4 +35,17 @@ export const getClimateDataById = async (token, id) => {
   });
 
   return data;
+};
+
+// ms3 / climate - datas / nodes;
+export const getClimateDataByNodes = async (monitoringStation) => {
+  let url = `${BASEURL}/nodes`;
+
+  if (monitoringStation) url += `?monitoringStation=${monitoringStation}`;
+
+  const { data } = await axios.get(url);
+
+  console.log(data);
+
+  return data.results;
 };
