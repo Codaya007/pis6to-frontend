@@ -61,10 +61,10 @@ export default function CreateMonitoringStation() {
         photos: [],
         nomenclature: {
             campus: "",
-            bloque: null,
-            ambiente: null,
-            subAmbiente: null,
-            piso: null,
+            bloque: "",
+            ambiente: "",
+            subAmbiente: "",
+            piso: "",
         },
         coordinate: [],
     });
@@ -355,7 +355,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.name}
-                                helperText={errors.name}
+                                // helpertext={errors.name}
                                 autoComplete="given-name"
                                 name="name"
                                 required
@@ -371,7 +371,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.reference}
-                                helperText={errors.reference}
+                                // helpertext={errors.reference}
                                 required
                                 fullWidth
                                 id="reference"
@@ -387,7 +387,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.address}
-                                helperText={errors.address}
+                                // helpertext={errors.address}
                                 required
                                 fullWidth
                                 id="address"
@@ -444,7 +444,7 @@ export default function CreateMonitoringStation() {
                                 <Select
                                     onBlur={handleBlur}
                                     error={!!errors.campus}
-                                    helperText={errors.campus}
+                                    // helpertext={errors.campus}
                                     labelId="campus"
                                     name="campus"
                                     id="campus"
@@ -462,6 +462,7 @@ export default function CreateMonitoringStation() {
                                         }));
                                     }}
                                 >
+                                    <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"Argelia"}>Argelia</MenuItem>
                                     <MenuItem value={"Motupe"}>Motupe</MenuItem>
                                     <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
@@ -474,7 +475,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.bloque}
-                                helperText={errors.bloque}
+                                // helpertext={errors.bloque}
                                 required
                                 fullWidth
                                 value={formData.nomenclature.bloque}
@@ -491,7 +492,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.piso}
-                                helperText={errors.piso}
+                                // helpertext={errors.piso}
                                 required
                                 fullWidth
                                 value={formData.nomenclature.piso}
@@ -508,7 +509,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.ambiente}
-                                helperText={errors.ambiente}
+                                // helpertext={errors.ambiente}
                                 required
                                 fullWidth
                                 value={formData.nomenclature.ambiente}
@@ -526,7 +527,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.subAmbiente}
-                                helperText={errors.subAmbiente}
+                                // helpertext={errors.subAmbiente}
                                 required
                                 fullWidth
                                 value={formData.nomenclature.subAmbiente}
@@ -552,7 +553,7 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 error={!!errors.longitude}
                                 onChange={handleChange}
-                                helperText={errors.longitude}
+                                // helpertext={errors.longitude}
                                 autoComplete="given-name"
                                 name="longitude"
                                 required
@@ -561,7 +562,7 @@ export default function CreateMonitoringStation() {
                                 id="longitude"
                                 label="Longitud"
                                 autoFocus
-                                value={formData.coordinate[0]}
+                                value={formData.coordinate ? formData.coordinate[0] : ""}
                             />
                         </Grid>
                         <Grid item xs={4} sm={6}>
@@ -569,12 +570,12 @@ export default function CreateMonitoringStation() {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 error={!!errors.latitude}
-                                helperText={errors.latitude}
+                                // helpertext={errors.latitude}
                                 required
                                 disabled
                                 fullWidth
                                 id="latitude"
-                                value={formData.coordinate[1]}
+                                value={formData.coordinate ? formData.coordinate[1] : ""}
                                 label="Latitud"
                                 name="latitude"
                                 autoComplete="family-name"
@@ -595,8 +596,8 @@ export default function CreateMonitoringStation() {
                         <MapWithDrawNodes
                             onMarkerDrawn={handleMarkerDrawn}
                             markerRef={markerRef}
-                            latitude={formData.coordinate[1]}
-                            longitude={formData.coordinate[0]}
+                            latitude={formData.coordinate ? formData.coordinate[1] : null}
+                            longitude={formData.coordinate ? formData.coordinate[0] : null}
                         />
                     </MapContainer>
                     {/* Información académica */}

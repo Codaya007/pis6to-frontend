@@ -236,7 +236,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.name}
-                                helperText={errors.name}
+                                // // helpertext={errors.name}
                                 autoComplete="given-name"
                                 name="name"
                                 required
@@ -250,7 +250,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.reference}
-                                helperText={errors.reference}
+                                // helpertext={errors.reference}
                                 required
                                 fullWidth
                                 id="reference"
@@ -264,7 +264,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.address}
-                                helperText={errors.address}
+                                // helpertext={errors.address}
                                 required
                                 fullWidth
                                 id="address"
@@ -278,7 +278,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.photos}
-                                helperText={errors.photos}
+                                // helpertext={errors.photos}
                                 required
                                 fullWidth
                                 id="photos"
@@ -310,7 +310,7 @@ export default function CreateMonitoringStation() {
                                 <Select
                                     onBlur={handleBlur}
                                     error={!!errors.campus}
-                                    helperText={errors.campus}
+                                    // helpertext={errors.campus}
                                     labelId="campus"
                                     name="campus"
                                     id="campus"
@@ -322,6 +322,7 @@ export default function CreateMonitoringStation() {
                                         console.log(e.target.value);
                                     }}
                                 >
+                                    <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"Argelia"}>Argelia</MenuItem>
                                     <MenuItem value={"Motupe"}>Motupe</MenuItem>
                                     <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
@@ -333,7 +334,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.bloque}
-                                helperText={errors.bloque}
+                                // helpertext={errors.bloque}
                                 required
                                 fullWidth
                                 name="bloque"
@@ -347,7 +348,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.piso}
-                                helperText={errors.piso}
+                                // helpertext={errors.piso}
                                 required
                                 fullWidth
                                 name="piso"
@@ -361,7 +362,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.ambiente}
-                                helperText={errors.ambiente}
+                                // helpertext={errors.ambiente}
                                 required
                                 fullWidth
                                 name="ambiente"
@@ -376,8 +377,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.subAmbiente}
-                                helperText={errors.subAmbiente}
-                                required
+                                // helpertext={errors.subAmbiente}
                                 fullWidth
                                 name="subAmbiente"
                                 label="Subambiente"
@@ -399,7 +399,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.longitude}
-                                helperText={errors.longitude}
+                                // helpertext={errors.longitude}
                                 autoComplete="given-name"
                                 name="longitude"
                                 required
@@ -415,7 +415,7 @@ export default function CreateMonitoringStation() {
                             <TextField
                                 onBlur={handleBlur}
                                 error={!!errors.latitude}
-                                helperText={errors.latitude}
+                                // helpertext={errors.latitude}
                                 required
                                 fullWidth
                                 disabled

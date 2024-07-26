@@ -49,6 +49,10 @@ const mockNodes = [
 
 export default function Home() {
   const [nodes, setNodes] = useState([]);
+  const [monitoringStations, setMonitoringStations] = useState([]);
+  const [currentNode, setCurrentNode] = useState(null);
+  const [currentMonitoringStation, setCurrentMonitoringStation] = useState(null);
+  const [climateData, setClimateData] = useState(null);
 
   useEffect(() => {
     // Simulamos la carga de datos

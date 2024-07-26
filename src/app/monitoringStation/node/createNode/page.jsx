@@ -128,6 +128,7 @@ export default function NodeManagement() {
                     value={newNode.status}
                     onChange={handleNodeInputChange}
                   >
+                    <MenuItem value=""></MenuItem>
                     <MenuItem value="active">Activo</MenuItem>
                     <MenuItem value="inactive">Inactivo</MenuItem>
                   </Select>

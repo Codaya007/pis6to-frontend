@@ -17,14 +17,14 @@ import { ACTIVE_MONITORING_STATION, INACTIVE_MONITORING_STATION } from "@/consta
 import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
 export default function MonitoringStationDashboard() {
-  const [monitoringStations, setMonitoringStations] = useState([]);
-  const [campus, setCampus] = useState('');
+    const [monitoringStations, setMonitoringStations] = useState([]);
+    const [campus, setCampus] = useState('');
 
-  const [skip, setSkip] = useState(0);
-  const [limit, setLimit] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
-  const { token } = useAuth();
-  const router = useRouter();
+    const [skip, setSkip] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
+    const { token } = useAuth();
+    const router = useRouter();
 
     const getMonitoringStations = async () => {
         const { totalCount, results } = await getAllMonitoringStations(token, skip, limit);
@@ -49,7 +49,7 @@ export default function MonitoringStationDashboard() {
     const handleUpdateMonitoringStationByIdStatus = async (id, state) => {
         try {
             console.log(token);
-            await updateMonitoringStationById(id, { status: state }, token);
+            await updateMonitoringStationById(token, id, { status: state },);
             await getMonitoringStations();
             mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente", "info");
         } catch (error) {
