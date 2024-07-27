@@ -3,23 +3,30 @@ import React, { useEffect, useState } from 'react';
 import { Container, Typography, Grid, Button, Avatar, Box, Link, } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useParams, useRouter } from 'next/navigation';
+import { getAlertById } from '@/services/alert.service';
+import { useAuth } from "@/context/AuthContext";
+import { getAllNodes } from '@/services/nodes.service';
+import { getAllUsers } from '@/services/user.service';
 
 // TODO: Completar los datos faltantes
 
-const fakeAlertData = {
-    id: 1,
-    title: "Alerta 1",
-    type: 'Falla de nodo 1',
-    severity: 'Alta',
-    description: 'Alta',
-    date: '2020/10/20',
-    isResolve: false,
-};
-
 export default function SeeAlertDetail() {
-    const [alertData, setAlertData] = useState(null);
+    const [skip, setSkip] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const { token, user } = useAuth();
+    const [alertData, setAlertData] = useState({
+        title: "",
+        description: "",
+        url: "",
+        type: "",
+        node: "",
+        resolved: true,
+        resolvedBy: "",
+        emitSound: true,
+    });
     const router = useRouter();
     const { id } = useParams();
+    
 
     const handleReturn = () => {
         // Redirigir a la página /edit
@@ -27,24 +34,39 @@ export default function SeeAlertDetail() {
     };
 
     useEffect(() => {
-        // Simulando una consulta a la base de datos para obtener el perfil del usuario
-        const fetchUserProfile = async () => {
+        
+        const fetchAlert = async () => {
             try {
-                const alert = fakeAlertData;
-                // const user = await getUserProfileFromDatabase(); // Llama a tu función para obtener el perfil del usuario
-                setAlertData(alert); // Actualiza el estado con los datos del usuario
+                const alert = await getAlertById(token, id);
+                const nodes = await getAllNodes(token, skip, limit);
+                const users = await getAllUsers(token, skip, limit);
+                console.log('ALERTTSSSS');
+                console.log(alert);
+                console.log(`idddd ${alert.results.resolvedBy}`);
+                const nodoEncontrado = nodes.data.find(node => node._id === alert.results.node);
+                const userEncontrado = users.results.find(user => user._id === alert.results.resolvedBy);
+
+                setAlertData(alert.results); // Actualiza el estado con los datos del usuario
+                setAlertData( (prev) => ({
+                    ...prev,
+                    node: nodoEncontrado.name,
+                    resolvedBy: `${userEncontrado.name} ${userEncontrado.lastname}`
+                }));
             } catch (error) {
-                console.error('Error al obtener el perfil del usuario:', error);
-                // Manejo de errores según sea necesario
+                console.error('Error al obtener a informacion:', error);
             }
         };
 
-        fetchUserProfile();
-    }, []); // Ejecuta la consulta solo una vez al montar el componente
+        fetchAlert();
+    }, [token]); // Ejecuta la consulta solo una vez al montar el componente
 
     if (!alertData) {
         return <Typography>Cargando alerta...</Typography>; // Muestra un mensaje mientras se carga el perfil
     }
+
+    const handlePageChange = (newSkip) => {
+        setSkip(newSkip);
+    };
 
     return (
         <Container component="main" maxWidth="md" sx={{marginTop: 2, paddingBottom:5, borderRadius:5, border: '4px solid black', alignItems: 'center' }}>
@@ -66,23 +88,29 @@ export default function SeeAlertDetail() {
                          {alertData.title}
                     </Typography>
                     <Grid container spacing={4}>
-                        <Grid item xs={12} sm={3} >
+                        <Grid item xs={12} sm={12} >
                             <Typography variant="subtitle1"><strong>Titulo:</strong> {alertData.title}</Typography>
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={12} >
+                            <Typography variant="subtitle1"><strong>Descripción:</strong> {alertData.description}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={12} >
+                            <Typography variant="subtitle1"><strong>Url:</strong> {alertData.url}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={12}>
                             <Typography variant="subtitle1"><strong>Tipo:</strong> {alertData.type}</Typography>
                         </Grid>
-                        <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Severidad:</strong> {alertData.severity}</Typography>
+                        <Grid item xs={12}  sm={12}>
+                            <Typography variant="subtitle1"><strong>Node:</strong> {alertData.node}</Typography>
                         </Grid>
-                        <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Descripcion:</strong> {alertData.description}</Typography>
+                        <Grid item xs={12}  sm={12}>
+                            <Typography variant="subtitle1"><strong>¿Esta resuelta?:</strong> {alertData.resolved == true ? "Si" : "No"}</Typography>
                         </Grid>
-                        <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Fecha:</strong> {alertData.date}</Typography>
+                        <Grid item xs={12}  sm={12}>
+                            <Typography variant="subtitle1"><strong>Resuelta por:</strong> {alertData.resolvedBy}</Typography>
                         </Grid>
-                        <Grid item xs={12}  sm={3}>
-                            <Typography variant="subtitle1"><strong>Esta resuelta:</strong> {alertData.isResolve == true ? "Si" : "No"}</Typography>
+                        <Grid item xs={12}  sm={12}>
+                            <Typography variant="subtitle1"><strong>Silenciada:</strong> {alertData.emitSound == true ? "Si" : "No"}</Typography>
                         </Grid>
                     </Grid>
 

@@ -21,25 +21,22 @@ export default function Alerts() {
         try {
             const { totalCount, results } = await getAllAlerts(token, skip, limit);
             const nodes = await getAllNodes(token, skip, limit);
-            console.log(nodes.results);
             const nodesMap = new Map();
-            nodes.results.forEach(node => {
+            nodes.data.forEach(node => {
                 nodesMap.set(node._id, node); // Mapear el _id del nodo al nodo completo
             });
-            console.log(nodesMap);
 
             // Añadir el nombre del nodo a cada alerta
             const alertsWithNodeNames = results.map(alert => {
                 const nodeId = nodesMap.get(alert.node); // Buscar el nodo correspondiente
-                console.log(alert);
                 return {
                     ...alert,
                     nodeName: nodeId ? nodeId.name : null // Agregar el nombre del nodo a la alerta
                 };
             });
-            console.log(alertsWithNodeNames);
-            setTotalCount(totalCount)
+            setTotalCount(totalCount);
             setAlerts(alertsWithNodeNames);
+            
         } catch (error) {
             mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener las alertas", "error");
         }
@@ -76,10 +73,10 @@ export default function Alerts() {
         }
     }
 
-    const handleResolveAlert = async (id, resolved) => {
+    const handleResolveAlert = async (id, resolvedId) => {
         try {
             const item = {
-                resolved : resolved,
+                resolved : resolvedId,
                 resolvedBy: user._id
             }
             await resolveAlert(id, item , token);
@@ -131,7 +128,7 @@ export default function Alerts() {
                         </TableHead>
                         <TableBody>
                             {alerts.map((alert) => (
-                                <TableRow key={alert.id}>
+                                <TableRow key={alert._id}>
                                     {/* <TableCell>
                                         {alert.id}
                                     </TableCell> */}
@@ -146,7 +143,7 @@ export default function Alerts() {
                                             style={{marginLeft: 10}}    
                                             variant="contained"
                                             color="info"
-                                            onClick={() => handleSeeAlert(alert.id)}
+                                            onClick={() => handleSeeAlert(alert._id)}
                             
                                         >
                                             Ver detalle

@@ -27,7 +27,6 @@ export const getAllNodes = async (token, skip = 0, limit = 10) => {
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
-
   return data;
 };
 
