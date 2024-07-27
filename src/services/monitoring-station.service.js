@@ -3,52 +3,58 @@ import { BACKEND_BASEURL } from "../constants/index";
 
 const BASEURL = `${BACKEND_BASEURL}/ms2/monitoring-stations`;
 
-export const createMonitoringStation = async (body) => {
-  const url = `${BASEURL}`; 
-  console.log('body');
+export const createMonitoringStation = async (body, token) => {
+  const url = `${BASEURL}`;
+  console.log("body");
   console.log(body);
 
-  const { data: montoringStationResponse } = await axios.post(url, body);
+  const { data: montoringStationResponse } = await axios.post(url, body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   console.log(montoringStationResponse);
   return montoringStationResponse;
 };
 
-export const updateMonitoringStation =  async(id, body, token ) => {
+export const updateMonitoringStation = async (id, body, token) => {
   const url = `${BASEURL}/${id}`;
   console.log(`urlll ${url}`);
-  console.log('bodyyy');
+  console.log("bodyyy");
   console.log(body);
   // const {data} = await axios.put(url, body, {
   //   headers: { Authorization: `Bearer ${token}` },
   // });
-  const {data} = await axios.put(url, body);
+  const { data } = await axios.put(url, body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-  console.log('dataaaa');
+  console.log("dataaaa");
   console.log(data);
   return data;
-}
+};
 
-export const getAllMonitoringStation = async(token, skip = 10, limit = 10) => {
+export const getAllMonitoringStation = async (token, skip = 10, limit = 10) => {
   const url = `${BASEURL}?skip=${skip}&limit=${limit}`;
 
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  return data; 
+  return data;
+};
 
-}
-
-export const getMonitoringStationById = async(token, id) => {
+export const getMonitoringStationById = async (token, id) => {
   const url = `${BASEURL}/${id}`;
 
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
   console.log(data);
-  return data; 
-
-}
+  return data;
+};
 
 export const deleteMonitoringStationById = async (token, id) => {
   const url = `${BASEURL}/${id}`;

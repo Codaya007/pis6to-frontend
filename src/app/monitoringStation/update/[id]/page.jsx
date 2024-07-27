@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { uploadImageToS3 } from "@/services/image.service";
 
 
-export const handleFileChange = async (e) => {
+export const handleFileChange = async (e, token) => {
     const files = Array.from(e.target.files);
     const MAX_IMG_SIZE_MB = 2;
     const maxSizeInBytes = MAX_IMG_SIZE_MB * 1024 * 1024;
@@ -36,7 +36,7 @@ export const handleFileChange = async (e) => {
         }
 
         try {
-            const imageURL = await uploadImageToS3(file);
+            const imageURL = await uploadImageToS3(file, token);
             uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
         } catch (error) {
             toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
@@ -159,7 +159,7 @@ export default function CreateMonitoringStation() {
         const fetchMonitoringStation = async () => {
             try {
                 const { results: monitoringStation } = await getMonitoringStationById(token, id);
-                console.log(monitoringStation);
+                // console.log(monitoringStation);
                 setMonitoringStation(monitoringStation);
                 delete monitoringStation.nomenclature._id
                 setFormData({
@@ -257,43 +257,46 @@ export default function CreateMonitoringStation() {
 
 
     const handleSubmit = async (event) => {
-        event.preventDefault();
-        console.log(token);
-        // Validar todos los campos antes de enviar
-        handleBlur({ target: { name: "name", value: formData.name } });
-        handleBlur({ target: { name: "reference", value: formData.reference } });
-        handleBlur({ target: { name: "address", value: formData.address } });
-        handleBlur({ target: { name: "campus", value: formData.nomenclature.campus } });
-        handleBlur({ target: { name: "bloque", value: formData.nomenclature.bloque } });
-        handleBlur({ target: { name: "ambiente", value: formData.nomenclature.ambiente } });
-        handleBlur({ target: { name: "subAmbiente", value: formData.nomenclature.subAmbiente } });
-        handleBlur({ target: { name: "piso", value: formData.nomenclature.piso } });
-        handleBlur({ target: { name: "longitude", value: formData.coordinate[0] } });
-        handleBlur({ target: { name: "latitude", value: formData.coordinate[1] } });
-        console.log('FormData');
-        console.log(formData);
-        const errorMessages = Object.entries(errors)
-            .filter(([field, error]) => error)
-            .map(([field, error]) => `${error}`)
-            .join("\n");
-
-        // Imprimir todos los errores
         try {
+            event.preventDefault();
+            console.log(token);
+            // Validar todos los campos antes de enviar
+            handleBlur({ target: { name: "name", value: formData.name } });
+            handleBlur({ target: { name: "reference", value: formData.reference } });
+            handleBlur({ target: { name: "address", value: formData.address } });
+            handleBlur({ target: { name: "campus", value: formData.nomenclature.campus } });
+            handleBlur({ target: { name: "bloque", value: formData.nomenclature.bloque } });
+            handleBlur({ target: { name: "ambiente", value: formData.nomenclature.ambiente } });
+            handleBlur({ target: { name: "subAmbiente", value: formData.nomenclature.subAmbiente } });
+            handleBlur({ target: { name: "piso", value: formData.nomenclature.piso } });
+            handleBlur({ target: { name: "longitude", value: formData.coordinate[0] } });
+            handleBlur({ target: { name: "latitude", value: formData.coordinate[1] } });
+            console.log('FormData');
+            console.log(formData);
+            const errorMessages = Object.entries(errors)
+                .filter(([field, error]) => error)
+                .map(([field, error]) => `${error}`)
+                .join("\n");
+
+
+            console.log({ errors })
 
             // Si hay errores, no enviar el formulario
-            if (Object.values(errors).some((error) => error !== "")) {
+            if (Object.values(errors).some((error) => error !== "" && error !== undefined)) {
+
                 mensajes("Error al actualizar la estación de monitoreo", errorMessages || "No se ha podido actualizar la estación de monitoreo", "error");
                 return;
             }
-            console.log('Dentro de formData');
-            console.log(formData.nomenclature);
-            console.log(token);
+            // console.log('Dentro de formData');
+            // console.log(formData.nomenclature);
+            // console.log(token);
             await updateMonitoringStation(id, formData, token);
 
             mensajes("Estación de monitoreo actualizada exitosamente.", "Éxito");
             router.push("/monitoringStation");
         } catch (error) {
-            console.log(error?.response?.data || error.message);
+            console.log(error);
+
             mensajes("Error al actualizar la estación de monitoreo", error.response?.data?.customMessage || "No se ha podido actualizar la estación de monitoreo", "error");
         }
     };
