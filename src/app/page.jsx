@@ -20,15 +20,18 @@ import OpacityIcon from '@mui/icons-material/Opacity';
 import CloudIcon from '@mui/icons-material/Cloud';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import io from "socket.io-client";
-import { CLIMATEDATA_SOCKET_URL, getClimateDataByNodes } from "@/services/climateData.service";
+import { getAllClimateData, getClimateDataByNodes } from "@/services/climateData.service";
 import mensajes from "./components/Mensajes";
 import { getAllMonitoringStation } from "@/services/monitoring-station.service";
+
+const nullLastValue = { temp: null, hum: null, co2: null }
 
 export default function Home() {
   const [nodes, setNodes] = useState([]);
   const [monitoringStations, setMonitoringStations] = useState([]);
   const [currentMonitoringStation, setCurrentMonitoringStation] = useState(null);
-  const [latestData, setLatestData] = useState({ temp: null, hum: null, co2: null });
+  const [currentStationName, setCurrentStationName] = useState("");
+  const [latestData, setLatestData] = useState(nullLastValue);
   const socketRef = useRef(null);
 
   const fetchData = async () => {
@@ -51,33 +54,43 @@ export default function Home() {
     }
   };
 
+  const fetchLastClimateData = async () => {
+    try {
+      const { results } = await getAllClimateData(
+        0,
+        1,
+        currentMonitoringStation ? { monitoringStation: currentMonitoringStation } : {}
+      );
+
+      setLatestData(results[0] || nullLastValue);
+    } catch (error) {
+      console.error(error);
+      mensajes("Error", error.response?.data?.customMessage || "No se han podido obtener las estaciones de monitoreo", "error");
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchLastClimateData();
   }, [currentMonitoringStation]);
 
   useEffect(() => {
     fetchMonitoringStations();
   }, []);
 
-  const BASEURL = "http://localhost:4003"
-
+  const CLIMATEDATA_SOCKET_URL = "http://localhost:5000"
   useEffect(() => {
     try {
-      // socket = io(BASEURL, { transports: ['websocket'], });
-      // const socket = io(CLIMATEDATA_SOCKET_URL, { transports: ['websocket'], });
-      socketRef.current = io(BASEURL, {
-        transports: ['websocket'],
-        auth: {
-          token: null
-        }
+      socketRef.current = io(CLIMATEDATA_SOCKET_URL, {
+        transports: ['websocket']
       });
 
-      socketRef.current.on("climateData", (data) => {
-        setLatestData(data);
+      const chanelName = !currentMonitoringStation ? "climateData" : `climateDataMonitoringStation${currentMonitoringStation}`;
 
-        if (currentMonitoringStation === data.monitoringStationId) {
-          fetchData();
-        }
+      // console.log({ chanelName, currentMonitoringStation, CLIMATEDATA_SOCKET_URL });
+
+      socketRef.current.on(chanelName, (data) => {
+        setLatestData(data);
       });
 
     } catch (error) {
@@ -92,12 +105,14 @@ export default function Home() {
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <Typography component="h2" variant="h4" gutterBottom>
-        Datos climáticos UNL
+      <Typography component="h2" variant="h4" gutterBottom mt={4}>
+        {currentStationName ? `Datos climáticos del ${currentStationName}` : `Datos climáticos UNL`}
       </Typography>
       <Box mb={4}>
         <Typography component="h2" variant="h5" gutterBottom color="textSecondary">
-          Últimos datos recibidos
+          {/* Últimos datos de la estación */}
+          {currentStationName ?
+            `Últimos datos de la estación` : "Últimos datos"}
         </Typography>
         <Card>
           <CardContent>
@@ -122,36 +137,45 @@ export default function Home() {
               </Box>
             </Box>
             <Typography variant="body2" color="text.secondary">
-              Última actualización: {new Date(latestData.createdAt).toLocaleString()}
+              Última actualización: {latestData.createdAt ? new Date(latestData.createdAt).toLocaleString() : "No se han enviado datos"}
             </Typography>
           </CardContent>
         </Card>
       </Box>
+
       <FormControl fullWidth variant="outlined" margin="normal">
         <InputLabel id="monitoring-station-label">Estación de Monitoreo</InputLabel>
         <Select
           labelId="monitoring-station-label"
           value={currentMonitoringStation || ""}
-          onChange={(e) => setCurrentMonitoringStation(e.target.value)}
+          onChange={(e) => {
+            const selectedStationId = e.target.value;
+            const selectedStation = monitoringStations.find(station => station._id === selectedStationId);
+            setCurrentMonitoringStation(selectedStationId);
+            setCurrentStationName(selectedStation ? selectedStation.name : "");
+          }}
           label="Estación de Monitoreo"
         >
-          <MenuItem key="" value="">
+          <MenuItem key="" value="" name="">
             Todo
           </MenuItem>
           {monitoringStations.map((station) => (
-            <MenuItem key={station._id} value={station._id}>
+            <MenuItem key={station._id} value={station._id} name={station.name}>
               {station.name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
+
+
       <Typography component="h2" variant="h5" gutterBottom color="textSecondary">
-        Nodos de sensores
+        {currentStationName ?
+          `Nodos de sensores` : "Todos los nodos de sensores"}
       </Typography>
       <Box>
         <Grid container spacing={4}>
           {nodes.map((node) => (
-            <Grid item xs={12} md={6} lg={4} key={node._id}>
+            <Grid item xs={15} md={8} lg={6} key={node._id}>
               <Card>
                 <CardHeader
                   avatar={
@@ -207,6 +231,7 @@ export default function Home() {
           ))}
         </Grid>
       </Box>
+      <br />
     </Container>
   );
 }

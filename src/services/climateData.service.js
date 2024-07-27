@@ -6,7 +6,7 @@ const BASEURL = `${BACKEND_BASEURL}/ms3/climate-datas`;
 export const CLIMATEDATA_SOCKET_URL = BASEURL;
 
 export const getAllClimateData = async (
-  token,
+  // token,
   skip = 0,
   limit = 10,
   filters = {}
@@ -20,9 +20,12 @@ export const getAllClimateData = async (
   }
 
   // Hacer la solicitud GET con axios
-  const { data } = await axios.get(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await axios.get(
+    url
+    //   {
+    //   headers: { Authorization: `Bearer ${token}` },
+    // }
+  );
 
   return data;
 };
