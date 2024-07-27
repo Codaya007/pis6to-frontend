@@ -20,24 +20,24 @@ import {
 } from "@mui/material";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// Datos mock para el ejemplo
-const mockHistoricalData = [
-  { id: 1, date: "2023-07-01", temperature: 25.5, humidity: 60, co2: 400 },
-  { id: 2, date: "2023-07-02", temperature: 26.0, humidity: 58, co2: 410 },
-  { id: 3, date: "2023-07-03", temperature: 24.8, humidity: 62, co2: 395 },
-  { id: 4, date: "2023-07-04", temperature: 25.2, humidity: 59, co2: 405 },
-  { id: 5, date: "2023-07-05", temperature: 26.5, humidity: 57, co2: 415 },
-];
-
 export default function HistoricalData() {
   const [data, setData] = useState([]);
   const [selectedData, setSelectedData] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    // Simulamos la carga de datos
-    setData(mockHistoricalData);
+    fetchClimateData();
   }, []);
+
+  const fetchClimateData = async () => {
+    try {
+      const response = await fetch('http://localhost:4006/climate-datas');
+      const result = await response.json();
+      setData(result.results || []);
+    } catch (error) {
+      console.error('Error fetching climate data:', error);
+    }
+  };
 
   const handleViewDetails = (item) => {
     setSelectedData(item);
@@ -79,13 +79,13 @@ export default function HistoricalData() {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
+            <XAxis dataKey="createdAt" />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="temperature" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="humidity" stroke="#82ca9d" />
-            <Line type="monotone" dataKey="co2" stroke="#ffc658" />
+            <Line type="monotone" dataKey="temp" name="Temperatura" stroke="#8884d8" activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="hum" name="Humedad" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="co2" name="CO2" stroke="#ffc658" />
           </LineChart>
         </ResponsiveContainer>
 
@@ -97,15 +97,19 @@ export default function HistoricalData() {
                 <TableCell>Temperatura (°C)</TableCell>
                 <TableCell>Humedad (%)</TableCell>
                 <TableCell>Nivel de CO2 (ppm)</TableCell>
+                <TableCell>Presión</TableCell>
+                <TableCell>Calor</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {data.map((item) => (
-                <TableRow key={item.id} onClick={() => handleViewDetails(item)} style={{cursor: 'pointer'}}>
-                  <TableCell>{item.date}</TableCell>
-                  <TableCell>{item.temperature}°C</TableCell>
-                  <TableCell>{item.humidity}%</TableCell>
+                <TableRow key={item._id} onClick={() => handleViewDetails(item)} style={{cursor: 'pointer'}}>
+                  <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
+                  <TableCell>{item.temp}°C</TableCell>
+                  <TableCell>{item.hum}%</TableCell>
                   <TableCell>{item.co2} ppm</TableCell>
+                  <TableCell>{item.press}</TableCell>
+                  <TableCell>{item.heat}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -136,16 +140,25 @@ export default function HistoricalData() {
             <Card>
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
-                  Detalles para {selectedData.date}
+                  Detalles para {new Date(selectedData.createdAt).toLocaleString()}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Temperatura: {selectedData.temperature}°C
+                  Temperatura: {selectedData.temp}°C
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Humedad: {selectedData.humidity}%
+                  Humedad: {selectedData.hum}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Nivel de CO2: {selectedData.co2} ppm
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Presión: {selectedData.press}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Calor: {selectedData.heat}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Estado: {selectedData.status}
                 </Typography>
               </CardContent>
             </Card>
