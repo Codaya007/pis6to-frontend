@@ -3,9 +3,8 @@ import { BACKEND_BASEURL } from "../constants/index";
 
 const BASEURL = `${BACKEND_BASEURL}/ms4/alerts`;
 
-
 export const getAllAlerts = async (token, skip = 0, limit = 10) => {
-  const url = `${BASEURL}?skip=${skip}&limit=${limit}`;
+  const url = `${BASEURL}?skip=${skip}&limit=${limit}&populate=true`;
 
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -37,15 +36,14 @@ export const resolveAlert = async (id, body, token) => {
 };
 
 export const getAlertById = async (token, id) => {
-  console.log('dentro de alertts');
+  console.log("dentro de alertts");
   console.log(token);
   const url = `${BASEURL}/${id}`;
 
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  console.log('alerta');
+  console.log("alerta");
   console.log(data);
   return data;
 };
-

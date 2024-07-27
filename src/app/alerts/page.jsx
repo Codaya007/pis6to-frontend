@@ -107,6 +107,7 @@ export default function Alerts() {
                                 <TableCell>Descripcion</TableCell>
                                 <TableCell>Tipo</TableCell>
                                 <TableCell>Nodo</TableCell>
+                                <TableCell>Estación</TableCell>
                                 <TableCell>Silenciada</TableCell>
                                 <TableCell>Resuelta</TableCell>
                                 <TableCell>Acciones</TableCell>
@@ -121,7 +122,8 @@ export default function Alerts() {
                                     <TableCell>{alert.title}</TableCell>
                                     <TableCell>{alert.description}</TableCell>
                                     <TableCell>{alert.type}</TableCell>
-                                    <TableCell>{alert.nodeName}</TableCell>
+                                    <TableCell>{alert.node?.name || ""}</TableCell>
+                                    <TableCell>{alert.node?.monitoringStation?.name || ""}</TableCell>
                                     <TableCell>{alert.emitSound == true ? "Si" : "No"}</TableCell>
                                     <TableCell>{alert.resolved == true ? 'Si' : 'No'}</TableCell>
                                     <TableCell>
@@ -134,22 +136,26 @@ export default function Alerts() {
                                         >
                                             Ver detalle
                                         </Button>
-                                        <Button
-                                            style={{ marginLeft: 10 }}
-                                            variant="contained"
-                                            color={alert.emitSound == true ? 'secondary' : 'inherit'}
-                                            onClick={() => handleMuteAlert(alert._id, !alert.emitSound)}
-                                        >
-                                            {alert.emitSound == true ? 'Activar' : 'Silenciar'}
-                                        </Button>
-                                        <Button
-                                            style={{ marginLeft: 10 }}
-                                            variant="contained"
-                                            color={alert.resolved == true ? 'secondary' : 'inherit'}
-                                            onClick={() => handleResolveAlert(alert._id, !alert.resolved)}
-                                        >
-                                            {alert.resolved == true ? 'No resuelta' : 'Resuelta'}
-                                        </Button>
+                                        {!alert.resolved ?
+                                            <>
+                                                <Button
+                                                    style={{ marginLeft: 10 }}
+                                                    variant="contained"
+                                                    color={alert.emitSound == true ? 'secondary' : 'inherit'}
+                                                    onClick={() => handleMuteAlert(alert._id, !alert.emitSound)}
+                                                >
+                                                    {alert.emitSound == true ? 'Activar sonido' : 'Silenciar'}
+                                                </Button>
+                                                <Button
+                                                    style={{ marginLeft: 10 }}
+                                                    variant="contained"
+                                                    color={alert.resolved == true ? 'secondary' : 'inherit'}
+                                                    onClick={() => handleResolveAlert(alert._id, !alert.resolved)}
+                                                >
+                                                    Resolver
+                                                </Button>
+                                            </> : <></>
+                                        }
                                     </TableCell>
                                 </TableRow>
                             ))}
