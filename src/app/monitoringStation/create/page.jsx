@@ -5,20 +5,19 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-// import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-// import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from "@mui/material";
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "../../../constants";
-// import MapWithDrawNodes from "../../components/MapWithDrawNodes";
 import { uploadImageToS3 } from "../../../services/image.service";
 import { createMonitoringStation } from "@/services/monitoringStation.service";
 import { toast } from "react-toastify";
 import mensajes from "@/app/components/Mensajes";
 import MapWithDrawNodes from '@/app/components/MapWithDrawNodes';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 // Dinamicamente importar MapContainer
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -39,7 +38,7 @@ const monitoringStationInitialState = {
     subEnviroment: null,
     status: true,
 };
-export const handleFileChange = async (e) => {
+export const handleFileChange = async (e, token) => {
     const files = Array.from(e.target.files);
     const MAX_IMG_SIZE_MB = 2;
     const maxSizeInBytes = MAX_IMG_SIZE_MB * 1024 * 1024;
@@ -55,7 +54,7 @@ export const handleFileChange = async (e) => {
         }
 
         try {
-            const imageURL = await uploadImageToS3(file);
+            const imageURL = await uploadImageToS3(file, token);
             uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
         } catch (error) {
             toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
@@ -66,10 +65,11 @@ export const handleFileChange = async (e) => {
 };
 
 export default function CreateMonitoringStation() {
-    const [area, setArea] = useState('');
+    // const [area, setArea] = useState('');
     const [statusMonitoringStation, setStatusMonitoringStation] = useState("Activo");
     const [campus, setCampus] = useState('');
     const [imagenes, setImagenes] = useState([]);
+    const { token } = useAuth();
     const [errors, setErrors] = useState({
         name: "",
         reference: "",
@@ -84,6 +84,7 @@ export default function CreateMonitoringStation() {
         piso: "",
     });
     const [monitoringStation, setMonitoringStation] = useState(monitoringStationInitialState);
+    const router = useRouter();
 
     const markerRef = useRef();
 
@@ -103,17 +104,22 @@ export default function CreateMonitoringStation() {
             .map(([field, error]) => `${error}`)
             .join("\n");
 
-        if (Object.values(errors).some((error) => error !== "")) {
+        console.log({ errors })
+
+        if (Object.values(errors).some((error) => error !== "" && error !== undefined)) {
+
             mensajes("Error al actualizar la estación de monitoreo", errorMessages || "No se ha podido actualizar la estación de monitoreo", "error");
             return;
         }
+
         const data = new FormData(event.currentTarget);
+
         const dataToSend = {
             name: data.get("name"),
             address: data.get("address"),
             reference: data.get("reference"),
             photos: imagenes,
-            coordinate: [parseFloat(data.get("longitude")), parseFloat(data.get("latitude"))],
+            coordinate: [parseFloat(monitoringStation.longitude), parseFloat(monitoringStation.latitude)],
             status: statusMonitoringStation,
             //Coodenadas
             nomenclature: {
@@ -124,13 +130,17 @@ export default function CreateMonitoringStation() {
                 subAmbiente: parseInt(data.get("subAmbiente")),
             }
         };
+
         try {
-            await createMonitoringStation(dataToSend);
-            mensajes("Creacion exitosa");
+            await createMonitoringStation(dataToSend, token);
+
+            mensajes("Éxito", "Creación exitosa");
+            router.push("/monitoringStation")
         } catch (error) {
             console.log('ERROR');
-            console.log(error?.response?.data || error.message);
-            mensajes("No se pudo crear estacion de monitoreo", error.response?.data?.customMessage || "No se ha podido crear estacion de monitoreo", "error");
+            console.log(error);
+
+            mensajes("No se pudo crear estacion de monitoreo", error?.response?.data?.customMessage || "No se ha podido crear estacion de monitoreo", "error");
         }
     };
 
@@ -188,12 +198,12 @@ export default function CreateMonitoringStation() {
                     ambiente: value ? "" : "El ambiente es requerido",
                 }));
                 break;
-            case "subAmbiente":
-                setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    subAmbiente: value ? "" : "El subambiente es requerido",
-                }));
-                break;
+            // case "subAmbiente":
+            //     setErrors((prevErrors) => ({
+            //         ...prevErrors,
+            //         subAmbiente: value ? "" : "El subambiente es requerido",
+            //     }));
+            //     break;
             case "longitude":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
@@ -288,7 +298,7 @@ export default function CreateMonitoringStation() {
                                 // autoComplete="photos"
                                 onChange={async (e) => {
                                     // setDetail({ ...detail, });
-                                    const newImg = await handleFileChange(e);
+                                    const newImg = await handleFileChange(e, token);
                                     console.log(newImg);
                                     setImagenes(newImg);
                                     // setDetail((prevDetail) => ({

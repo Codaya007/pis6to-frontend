@@ -3,10 +3,14 @@ import { BACKEND_BASEURL } from "../constants/index";
 
 const BASEURL = `${BACKEND_BASEURL}/ms2/monitoring-stations`;
 
-export const createMonitoringStation = async (body) => {
+export const createMonitoringStation = async (body, token) => {
   const url = `${BASEURL}`;
 
-  const { data } = await axios.post(url, body);
+  const { data } = await axios.post(url, body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return data;
 };
