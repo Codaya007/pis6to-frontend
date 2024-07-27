@@ -1,13 +1,17 @@
 import axios from "axios";
 import { BACKEND_BASEURL } from "../constants";
 
-export const updateImageToS3 = async (file) => {
+export const updateImageToS3 = async (file, token) => {
   try {
+    console.log(`token ${token}`);
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(`${BACKEND_BASEURL}/ms8/media`, formData);
-    // console.log(response.data.url);
+    // const response = await axios.post(`${BACKEND_BASEURL}/ms8/media`, formData);
+    const response = await axios.post(`${BACKEND_BASEURL}/ms8/media`, formData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log(response.data.url);
     const imageUrl = response.data.url;
 
     return imageUrl;

@@ -8,7 +8,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { CardMedia, CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Select } from "@mui/material";
+import { CardMedia, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, InputAdornment, InputLabel, MenuItem, Select } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getMonitoringStationById, updateMonitoringStation } from "@/services/monitoring-station.service";
@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { uploadImageToS3 } from "@/services/image.service";
 
 
-export const handleFileChange = async (e) => {
+export const handleFileChange = async (e, token) => {
     const files = Array.from(e.target.files);
     const MAX_IMG_SIZE_MB = 2;
     const maxSizeInBytes = MAX_IMG_SIZE_MB * 1024 * 1024;
@@ -36,7 +36,7 @@ export const handleFileChange = async (e) => {
         }
 
         try {
-            const imageURL = await uploadImageToS3(file);
+            const imageURL = await uploadImageToS3(file, token);
             uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
         } catch (error) {
             toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
@@ -53,6 +53,7 @@ export default function CreateMonitoringStation() {
     const [monitoringStation, setMonitoringStation] = useState({});
     const [loading, setLoading] = useState(true);
     const [imagenes, setImagenes] = useState([]);
+    const [statusMonitoringStation, setStatusMonitoringStation] = useState("Activo");
 
     const [formData, setFormData] = useState({
         name: "",
@@ -67,6 +68,7 @@ export default function CreateMonitoringStation() {
             piso: "",
         },
         coordinate: [],
+        status: "",
     });
     const [errors, setErrors] = useState({
         name: "",
@@ -79,6 +81,7 @@ export default function CreateMonitoringStation() {
         longitude: "",
         latitude: "",
         piso: "",
+        status: ""
     });
 
     const markerRef = useRef();
@@ -110,7 +113,7 @@ export default function CreateMonitoringStation() {
             case "campus":
                 setErrors((prevErrors) => ({
                     ...prevErrors,
-                    campus: value ? undefined : "El campus es requerida",
+                    campus: value ? "" : "El campus es requerida",
                 }));
                 break;
             case "bloque":
@@ -147,6 +150,12 @@ export default function CreateMonitoringStation() {
                 setErrors((prevErrors) => ({
                     ...prevErrors,
                     latitude: value ? "" : "La latitud es requerida",
+                }));
+                break;
+            case "status":
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    status: value ? "" : "El estado es requerido",
                 }));
                 break
 
@@ -270,6 +279,7 @@ export default function CreateMonitoringStation() {
         handleBlur({ target: { name: "piso", value: formData.nomenclature.piso } });
         handleBlur({ target: { name: "longitude", value: formData.coordinate[0] } });
         handleBlur({ target: { name: "latitude", value: formData.coordinate[1] } });
+        handleBlur({ target: { name: "status", value: formData.status } });
         console.log('FormData');
         console.log(formData);
         const errorMessages = Object.entries(errors)
@@ -286,7 +296,7 @@ export default function CreateMonitoringStation() {
                 return;
             }
             console.log('Dentro de formData');
-            console.log(formData.nomenclature);
+            console.log(formData);
             console.log(token);
             await updateMonitoringStation(id, formData, token);
 
@@ -409,7 +419,7 @@ export default function CreateMonitoringStation() {
                                 inputProps={{ multiple: true }}
                                 // autoComplete="photos"
                                 onChange={async (e) => {
-                                    const newImg = await handleFileChange(e);
+                                    const newImg = await handleFileChange(e, token);
                                     setImagenes(newImg);
                                     console.log(newImg);
                                     setFormData((prevFormData) => ({
@@ -547,7 +557,22 @@ export default function CreateMonitoringStation() {
                                 Coordenadas
                             </Typography>
                         </Grid>
-
+                        <Grid item xs={4} sm={6}>
+                            <TextField
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                error={!!errors.latitude}
+                                // helpertext={errors.latitude}
+                                required
+                                disabled
+                                fullWidth
+                                id="latitude"
+                                value={formData.coordinate ? formData.coordinate[1] : ""}
+                                label="Latitud"
+                                name="latitude"
+                                autoComplete="family-name"
+                            />
+                        </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 onBlur={handleBlur}
@@ -565,25 +590,9 @@ export default function CreateMonitoringStation() {
                                 value={formData.coordinate ? formData.coordinate[0] : ""}
                             />
                         </Grid>
-                        <Grid item xs={4} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.latitude}
-                                // helpertext={errors.latitude}
-                                required
-                                disabled
-                                fullWidth
-                                id="latitude"
-                                value={formData.coordinate ? formData.coordinate[1] : ""}
-                                label="Latitud"
-                                name="latitude"
-                                autoComplete="family-name"
-                            />
-                        </Grid>
                     </Grid>
                     <MapContainer
-                        style={{ width: "100%", height: "60vh" }}
+                        style={{ width: "100%", height: "60vh", marginTop: 20}}
                         center={DEFAULT_MAP_CENTER}
                         zoom={DEFAULT_MAP_ZOOM}
                         scrollWheelZoom={false}
@@ -601,7 +610,18 @@ export default function CreateMonitoringStation() {
                         />
                     </MapContainer>
                     {/* Información académica */}
-
+                    <FormGroup>
+                        <FormControlLabel control={<Checkbox defaultChecked />} label="Habilitado"
+                            onChange={(e) => {
+                                let valor = e.target.checked == true ? "Activo" : "Inactivo"
+                                console.log(valor);
+                                // setStatusMonitoringStation(valor)
+                                setFormData((prevFormData) => ({
+                                    ...prevFormData,
+                                    status: valor,
+                                }));
+                            }} />
+                    </FormGroup>
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Actualizar
                     </Button>
