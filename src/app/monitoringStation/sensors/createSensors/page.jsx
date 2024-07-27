@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   CssBaseline,
   Typography,
@@ -9,76 +9,114 @@ import {
   Paper,
   TextField,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Modal,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
+import mensajes from "@/app/components/Mensajes";
+import { createSensor } from "@/services/sensor.service";
+import { useAuth } from "@/context/AuthContext";
+import { getAllNodes } from "@/services/nodes.service";
+import { useParams, useRouter } from "next/navigation";
 
 export default function SensorManagement() {
-  const [sensors, setSensors] = useState([]);
+  const { token } = useAuth();
+  const [nodes, setNodes] = useState([]);
+  const router = useRouter();
+
   const [newSensor, setNewSensor] = useState({
-    tipo: "",
-    codigo: "",
-    estado: "activo",
-    modelo: "",
-    fabricante: "",
+    type: "",
+    node: "",
+    code: "",
+    status: "",
   });
-  const [editingSensor, setEditingSensor] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingSensor, setViewingSensor] = useState(null);
+  
+  const [errors, setErrors] = useState({
+    type: "",
+    node: "",
+    code: "",
+    status: "",
+  });
+  useEffect(() => {
+    const fetchNodes = async () => {
+        try {
+            const { data: data } = await getAllNodes(token, 0, 10);
+            console.log(data);
+            // const nodeNames = response.data.map(node => node.name);
+            setNodes(data);
+        } catch (error) {
+            console.error("Error fetching nodos", error);
+            mensajes("Error al obtener los nodos", error.response?.data?.customMessage || "No se pudo obtener los nodos", "error");
+        } 
+    }
+    if (token) {
+        fetchNodes();
+    }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewSensor({ ...newSensor, [name]: value });
+}, [token]);
+  const validateFields = (sensor) => {
+    const newErrors = {};
+    newErrors.type = sensor.type ? "" : "El tipo de sensor es requerido";
+    newErrors.node = sensor.node ? "" : "El nodo al que pertenece es requerido";
+    newErrors.code = sensor.code ? "" : "El código del sensor es requerido";
+    newErrors.status = sensor.status ? "" : "El estado del sensor es requerido";
+    return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleBlur = (event) => {
+    const { name, value } = event.target;
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: value ? "" : `El campo ${name} es requerido`,
+    }));
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setNewSensor((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSensors([...sensors, { ...newSensor, id: Date.now() }]);
-    setNewSensor({
-      tipo: "",
-      codigo: "",
-      estado: "activo",
-      modelo: "",
-      fabricante: "",
-    });
-  };
 
-  const handleEdit = (sensor) => {
-    setEditingSensor(sensor);
-    setIsEditModalOpen(true);
-  };
+    // Validar campos
+    const newErrors = validateFields(newSensor);
+    setErrors(newErrors);
 
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditingSensor({ ...editingSensor, [name]: value });
-  };
+    // Verificar si hay errores
+    const hasErrors = Object.values(newErrors).some((error) => error !== "");
 
-  const handleEditSubmit = () => {
-    setSensors(sensors.map((s) => (s.id === editingSensor.id ? editingSensor : s)));
-    setIsEditModalOpen(false);
-  };
+    if (hasErrors) {
+      const errorMessages = Object.entries(newErrors)
+        .filter(([field, error]) => error)
+        .map(([field, error]) => `${error}`)
+        .join("\n");
 
-  const handleDelete = (id) => {
-    setSensors(
-      sensors.map((sensor) =>
-        sensor.id === id ? { ...sensor, estado: "inactivo" } : sensor
-      )
-    );
-  };
+      mensajes(
+        "Error al crear el sensor",
+        errorMessages || "No se ha podido crear el sensor",
+        "error"
+      );
+      return;
+    }
 
-  const handleView = (sensor) => {
-    setViewingSensor(sensor);
-    setIsViewModalOpen(true);
+    // Si no hay errores, procesar el formulario
+    console.log('Sensor creado:', newSensor);
+    // Aquí puedes agregar la lógica para enviar el formulario al servidor
+
+    try {
+      await createSensor(newSensor, token);
+      mensajes("Éxito", "Creación exitosa");
+      router.push("/monitoringStation/sensors")
+    } catch (error) {
+      console.log('ERROR');
+      console.log(error);
+      mensajes("No se pudo crear estacion de monitoreo", error?.response?.data?.customMessage || "No se ha podido crear el sensor", "error");
+    }
   };
 
   return (
@@ -96,54 +134,92 @@ export default function SensorManagement() {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
-                <TextField
-                  required
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Tipo de sensor</InputLabel>
+                    <Select
+                      onBlur={handleBlur}
+                      error={!!errors.type}
+                      labelId="Tipo"
+                      name="type"
+                      id="type"
+                      required
+                      label="Tipo"
+                      onChange={handleChange}
+                    >
+                    <MenuItem value={""}></MenuItem>
+                    <MenuItem value={"Temperatura"}>Temperatura</MenuItem>
+                    <MenuItem value={"Humedad"}>Humedad</MenuItem>
+                    <MenuItem value={"CO2"}>CO2</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                {/* <TextField
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={!!errors.node}
+                  helperText={errors.node}
                   fullWidth
-                  name="tipo"
-                  label="Tipo de Sensor"
-                  value={newSensor.tipo}
-                  onChange={handleInputChange}
-                />
+                  name="node"
+                  id="node"
+                  label="Nodo"
+                  value={newSensor.node}
+                /> */}
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Nodo</InputLabel>
+                    <Select
+                      onBlur={handleBlur}
+                      error={!!errors.node}
+                      labelId="Tipo"
+                      name="node"
+                      id="node"
+                      required
+                      label="Nodo"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value={""}></MenuItem>
+                      {nodes.map( (nodo, index) => (
+                        <MenuItem value={nodo._id}>{nodo.name}</MenuItem>
+                      ) )}
+                    {/* <MenuItem value={""}></MenuItem>
+                    <MenuItem value={"Temperatura"}>Temperatura</MenuItem>
+                    <MenuItem value={"Humedad"}>Humedad</MenuItem>
+                    <MenuItem value={"CO2"}>CO2</MenuItem> */}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  required
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={!!errors.code}
+                  helperText={errors.code}
                   fullWidth
-                  name="codigo"
-                  label="Código"
-                  value={newSensor.codigo}
-                  onChange={handleInputChange}
+                  name="code"
+                  id="code"
+                  label="Codigo"
+                  value={newSensor.code}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <TextField
-                  required
-                  fullWidth
-                  name="estado"
-                  label="Estado"
-                  value={newSensor.estado}
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  required
-                  fullWidth
-                  name="modelo"
-                  label="Modelo"
-                  value={newSensor.modelo}
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  required
-                  fullWidth
-                  name="fabricante"
-                  label="Fabricante"
-                  value={newSensor.fabricante}
-                  onChange={handleInputChange}
-                />
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Estado</InputLabel>
+                    <Select
+                      onBlur={handleBlur}
+                      error={!!errors.status}
+                      // helpertext={errors.campus}
+                      labelId="status"
+                      name="status"
+                      id="status"
+                      required
+                      label="Estado"
+                      onChange={handleChange}
+                    >
+                    <MenuItem value={""}></MenuItem>
+                    <MenuItem value={"Activo"}>Activo</MenuItem>
+                    <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             <Button type="submit" variant="contained" sx={{ mt: 3 }}>
@@ -151,116 +227,7 @@ export default function SensorManagement() {
             </Button>
           </form>
         </Paper>
-
-        <TableContainer component={Paper} sx={{ mt: 4 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Tipo</TableCell>
-                <TableCell>Código</TableCell>
-                <TableCell>Estado</TableCell>
-                <TableCell>Modelo</TableCell>
-                <TableCell>Fabricante</TableCell>
-                <TableCell>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sensors.map((sensor) => (
-                <TableRow key={sensor.id}>
-                  <TableCell>{sensor.tipo}</TableCell>
-                  <TableCell>{sensor.codigo}</TableCell>
-                  <TableCell>{sensor.estado}</TableCell>
-                  <TableCell>{sensor.modelo}</TableCell>
-                  <TableCell>{sensor.fabricante}</TableCell>
-                  <TableCell>
-                    <Button color="primary" onClick={() => handleEdit(sensor)}>
-                      Editar
-                    </Button>
-                    <Button color="secondary" onClick={() => handleDelete(sensor.id)}>
-                      Dar de baja
-                    </Button>
-                    <Button color="info" onClick={() => handleView(sensor)}>
-                      Ver
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
       </Box>
-
-      <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <Typography variant="h6">Editar Sensor</Typography>
-          <TextField
-            fullWidth
-            margin="normal"
-            name="tipo"
-            label="Tipo"
-            value={editingSensor?.tipo || ""}
-            onChange={handleEditInputChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="codigo"
-            label="Código"
-            value={editingSensor?.codigo || ""}
-            onChange={handleEditInputChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="estado"
-            label="Estado"
-            value={editingSensor?.estado || ""}
-            onChange={handleEditInputChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="modelo"
-            label="Modelo"
-            value={editingSensor?.modelo || ""}
-            onChange={handleEditInputChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="fabricante"
-            label="Fabricante"
-            value={editingSensor?.fabricante || ""}
-            onChange={handleEditInputChange}
-          />
-          <Button onClick={handleEditSubmit}>Guardar cambios</Button>
-        </Box>
-      </Modal>
-
-      <Dialog open={isViewModalOpen} onClose={() => setIsViewModalOpen(false)}>
-        <DialogTitle>Detalles del Sensor</DialogTitle>
-        <DialogContent>
-          <Typography>Tipo: {viewingSensor?.tipo}</Typography>
-          <Typography>Código: {viewingSensor?.codigo}</Typography>
-          <Typography>Estado: {viewingSensor?.estado}</Typography>
-          <Typography>Modelo: {viewingSensor?.modelo}</Typography>
-          <Typography>Fabricante: {viewingSensor?.fabricante}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsViewModalOpen(false)}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 }
