@@ -4,25 +4,25 @@ import { Container, TextField, Typography, Grid, Button } from '@mui/material';
 import Loading from '@/app/components/Loading';
 import { useAuth } from '@/context/AuthContext';
 import mensajes from '@/app/components/Mensajes';
+import { getNormalLimitsConfig, updateNormalLimitsConfigById } from '@/services/normalLimitsConfig.service';
 import { useRouter } from 'next/navigation';
-import { getLimitsConfig, updateLimitsConfigById } from '@/services/limitsConfig.service';
 
 export default function SecurityLimitsPage() {
     const [limits, setLimits] = useState(null);
     const { token } = useAuth();
-    const [id, setId] = useState(null);
     const router = useRouter();
+    const [id, setId] = useState(null);
 
     const fetchNormalLimits = async () => {
         try {
-            const { results } = await getLimitsConfig(token);
+            const { results } = await getNormalLimitsConfig(token);
 
             setId(results._id);
             setLimits(results);
         } catch (error) {
             console.log(error);
 
-            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener los límites de seguridad de datos ambientales", "error");
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener los límites normales de datos ambientales", "error");
         }
     }
 
@@ -49,13 +49,13 @@ export default function SecurityLimitsPage() {
             delete limits.__v;
             delete limits._id;
 
-            await updateLimitsConfigById(token, id, limits);
+            await updateNormalLimitsConfigById(token, id, limits);
             mensajes("Exito", "Los límites se han actualizado correctamente");
 
-            router.push('/system-settings/security-limits');
+            router.push('/system-settings/normal-security-limits');
         } catch (error) {
             console.log(error)
-            mensajes("Error", error.response?.data?.customMessage || "No se ha podido actualizar los límites de seguridad de datos ambientales", "error");
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido actualizar los límites normales de datos ambientales", "error");
         }
     };
 
@@ -69,7 +69,7 @@ export default function SecurityLimitsPage() {
         limits ?
             <Container maxWidth="md" sx={{ marginTop: '20px' }}>
                 <Typography variant="h5" gutterBottom>
-                    Actualizar límites de Seguridad
+                    Actualizar límites normales de Seguridad
                 </Typography>
                 <Grid container spacing={3}>
                     {["temp", "press", "hum", "co2", "heat"].map((param) => (

@@ -15,7 +15,7 @@ export const getNormalLimitsConfig = async (token) => {
   return data;
 };
 
-export const getNormalLimitsConfigById = async (token, id, body) => {
+export const updateNormalLimitsConfigById = async (token, id, body) => {
   const url = `${BASEURL}/${id}`;
 
   const { data } = await axios.put(url, body, {

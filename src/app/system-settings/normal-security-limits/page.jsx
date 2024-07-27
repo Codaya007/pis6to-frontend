@@ -2,10 +2,10 @@
 import { useEffect, useState } from 'react';
 import { Container, TextField, Typography, Grid, Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { getNormalLimitsConfig } from '@/services/normalLimitsConfig.service';
 import { useAuth } from '@/context/AuthContext';
 import mensajes from '@/app/components/Mensajes';
 import Loading from '@/app/components/Loading';
-import { getLimitsConfig } from '@/services/limitsConfig.service';
 
 export default function SecurityLimitsPage() {
     const [limits, setLimits] = useState();
@@ -15,11 +15,11 @@ export default function SecurityLimitsPage() {
     const fetchNormalLimits = async () => {
 
         try {
-            const { results } = await getLimitsConfig(token);
+            const { results } = await getNormalLimitsConfig(token);
 
             setLimits(results);
         } catch (error) {
-            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener los límites de seguridad de datos ambientales", "error");
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener los límites normales de datos ambientales", "error");
         }
     }
 
@@ -39,7 +39,7 @@ export default function SecurityLimitsPage() {
 
     const handleEdit = () => {
         // Redirigir a la página /edit
-        router.push('/system-settings/security-limits/edit');
+        router.push('/system-settings/normal-security-limits/edit');
     };
 
     useEffect(() => {
@@ -48,14 +48,19 @@ export default function SecurityLimitsPage() {
         }
     }, [token]);
 
+    console.log({ limits })
+
     return limits ?
         <Container maxWidth="md" sx={{ marginTop: '20px' }}>
             <Typography variant="h5" gutterBottom>
-                Límites de seguridad de datos climáticos
+                Límites normales de datos climáticos
             </Typography>
 
             <Typography variant="body2" color="text.secondary">
-                Estos límites son utilizados para identificar cuándo una estación de monitoreo deja de tener un ambiente saludable.
+                Estos límites son utilizados para identificar nodos con comportamientos anómalos y asegurar un ambiente controlado mediante la identificación de sensores dañados.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+                Estos valores se utilizan para mantener el ambiente en condiciones óptimas y detectar cualquier anomalía que pueda afectar el funcionamiento normal de los sistemas.
             </Typography>
 
             <Grid container spacing={3} justifyContent="flex-end">

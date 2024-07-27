@@ -6,6 +6,7 @@ import { getAllAlerts, muteAlert, resolveAlert } from "@/services/alert.service"
 import { useAuth } from "@/context/AuthContext";
 import { getAllNodes } from "@/services/nodes.service";
 import mensajes from "../components/Mensajes";
+import CustomPagination from "../components/CustomPagination";
 
 
 export default function Alerts() {
@@ -20,24 +21,11 @@ export default function Alerts() {
     const getAlerts = async () => {
         try {
             const { totalCount, results } = await getAllAlerts(token, skip, limit);
-            const nodes = await getAllNodes(token, skip, limit);
-            const nodesMap = new Map();
-            nodes.data.forEach(node => {
-                nodesMap.set(node._id, node); // Mapear el _id del nodo al nodo completo
-            });
 
-            // Añadir el nombre del nodo a cada alerta
-            const alertsWithNodeNames = results.map(alert => {
-                const nodeId = nodesMap.get(alert.node); // Buscar el nodo correspondiente
-                return {
-                    ...alert,
-                    nodeName: nodeId ? nodeId.name : null // Agregar el nombre del nodo a la alerta
-                };
-            });
             setTotalCount(totalCount);
-            setAlerts(alertsWithNodeNames);
-            
+            setAlerts(results);
         } catch (error) {
+            console.log(error);
             mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener las alertas", "error");
         }
     }
@@ -47,7 +35,6 @@ export default function Alerts() {
         if (token) {
             getAlerts();
         }
-
         // setResearchers(mockResearchers);
     }, [token, skip, limit, modifiedAlert]);
 
@@ -55,7 +42,6 @@ export default function Alerts() {
     const handleSeeAlert = (id) => {
         // Lógica para dar de baja al usuario administrador
         console.log(`Ver alerta id: ${id}`);
-        // TODO:  llamada al backend para eliminar al usuario
         router.push(`/alerts/${id}`);
     };
 
@@ -76,10 +62,10 @@ export default function Alerts() {
     const handleResolveAlert = async (id, resolvedId) => {
         try {
             const item = {
-                resolved : resolvedId,
+                resolved: resolvedId,
                 resolvedBy: user._id
             }
-            await resolveAlert(id, item , token);
+            await resolveAlert(id, item, token);
             setModifiedAlert(!modifiedAlert);
 
             mensajes("Éxito", "Alerta actualizada exitosamente", "info");
@@ -87,9 +73,9 @@ export default function Alerts() {
             console.log(error)
             console.log(error?.response?.data || error.message);
 
-            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar la alerta", "error");            
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar la alerta", "error");
         }
-    }   
+    }
     const handlePageChange = (newSkip) => {
         setSkip(newSkip);
     };
@@ -140,24 +126,24 @@ export default function Alerts() {
                                     <TableCell>{alert.resolved == true ? 'Si' : 'No'}</TableCell>
                                     <TableCell>
                                         <Button
-                                            style={{marginLeft: 10}}    
+                                            style={{ marginLeft: 10 }}
                                             variant="contained"
                                             color="info"
                                             onClick={() => handleSeeAlert(alert._id)}
-                            
+
                                         >
                                             Ver detalle
                                         </Button>
                                         <Button
-                                            style={{marginLeft: 10}}
+                                            style={{ marginLeft: 10 }}
                                             variant="contained"
-                                            color= {alert.emitSound == true ? 'secondary' : 'inherit'}
+                                            color={alert.emitSound == true ? 'secondary' : 'inherit'}
                                             onClick={() => handleMuteAlert(alert._id, !alert.emitSound)}
                                         >
-                                            {alert.emitSound == true ? 'Desmutear' : 'Silenciar'}
+                                            {alert.emitSound == true ? 'Activar' : 'Silenciar'}
                                         </Button>
                                         <Button
-                                            style={{marginLeft: 10}}
+                                            style={{ marginLeft: 10 }}
                                             variant="contained"
                                             color={alert.resolved == true ? 'secondary' : 'inherit'}
                                             onClick={() => handleResolveAlert(alert._id, !alert.resolved)}
@@ -170,6 +156,12 @@ export default function Alerts() {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <CustomPagination
+                    skip={skip}
+                    limit={limit}
+                    totalCount={totalCount}
+                    onPageChange={handlePageChange}
+                />
             </Box>
         </Container>
     );

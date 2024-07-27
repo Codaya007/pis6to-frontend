@@ -25,6 +25,8 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import HistoryIcon from "@mui/icons-material/History";
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import LoginIcon from '@mui/icons-material/Login';
+import GppGoodIcon from '@mui/icons-material/GppGood';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useAuth } from "@/context/AuthContext";
 import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
 
@@ -89,8 +91,9 @@ const NavigationMenu = () => {
             // { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
             { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors" },
             // { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors/createSensors" },
-            { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },
-            { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/activities" },
+            { label: "Límites de Seguridad", icon: <GppGoodIcon />, path: "/system-settings/security-limits" },
+            { label: "Límites normales", icon: <SettingsIcon />, path: "/system-settings/normal-security-limits" },
+            { label: "Actividades del Sistema", icon: <AssignmentIcon />, path: "/activities" },
             // { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" },
         );
     } else if (user?.role.name === RESEARCHER_ROLE_NAME) {
