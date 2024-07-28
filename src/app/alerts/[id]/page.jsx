@@ -59,9 +59,6 @@ export default function SeeAlertDetail() {
         return <Loading />
     }
 
-    const handlePageChange = (newSkip) => {
-        setSkip(newSkip);
-    };
 
     return (
         <Container component="main" maxWidth="md" sx={{ marginTop: 2, paddingBottom: 5, borderRadius: 5, border: '4px solid black', alignItems: 'center' }}>

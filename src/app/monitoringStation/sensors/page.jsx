@@ -9,16 +9,16 @@ import { useEffect, useState } from "react";
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Avatar, Badge, Box, CardMedia, Container, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import mensajes from "../components/Mensajes";
-import CustomPagination from "../components/CustomPagination";
+import { Box, CardMedia, Container, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { deleteMonitoringStationById, getAllMonitoringStations, updateMonitoringStationById } from "@/services/monitoringStation.service";
 import { ACTIVE_MONITORING_STATION, INACTIVE_MONITORING_STATION } from "@/constants";
-import MensajeConfirmacion from "../components/MensajeConfirmacion";
+import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
+import mensajes from "@/app/components/Mensajes";
+import CustomPagination from "@/app/components/CustomPagination";
+import { deleteSensorById, getAllSensors, updateSensor } from "@/services/sensor.service";
 
-export default function MonitoringStationDashboard() {
-    const [monitoringStations, setMonitoringStations] = useState([]);
-    const [campus, setCampus] = useState('');
+export default function CreateSensor() {
+    const [sensors, setSensors] = useState([]);
 
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
@@ -26,32 +26,42 @@ export default function MonitoringStationDashboard() {
     const { token } = useAuth();
     const router = useRouter();
 
-    const getMonitoringStations = async () => {
-        const { totalCount, results } = await getAllMonitoringStations(token, skip, limit);
+    const getSensors = async () => {
+        const { totalCount, results } = await getAllSensors(token, skip, limit);
+        const transformedResults = results.map(sensor => {
+            const { node, ...rest } = sensor;
+            return {
+                ...rest,
+                node: node.name // Extraemos el nombre del nodo y lo asignamos a nodeName
+            };
+        });
         setTotalCount(totalCount);
-        setMonitoringStations(results);
+        setSensors(transformedResults);
+        
     };
 
     useEffect(() => {
         if (token) {
-            getMonitoringStations();
+            getSensors();
         }
     }, [token, skip]);
 
-    const handleCreateAdmin = () => {
-        router.push("/monitoringStation/create");
+    const handleCreateSensor = () => {
+        router.push("/monitoringStation/sensors/createSensors/");
     };
 
-    const handleUpdateMonitoringStationById = (id) => {
-        router.push(`/monitoringStation/update/${id}`);
+    const handleUpdateSensorById = (id) => {
+        router.push(`/monitoringStation/sensors/update/${id}`);
     };
 
-    const handleUpdateMonitoringStationByIdStatus = async (id, state) => {
+    const handleUpdateSensorStatusById = async (id, state) => {
         try {
             console.log(token);
-            await updateMonitoringStationById(token, id, { status: state },);
-            await getMonitoringStations();
-            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente");
+            console.log('idddd');
+            console.log(id);
+            await updateSensor(id, { status: state }, token);
+            await getSensors();
+            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente", "success");
         } catch (error) {
             console.log(error);
             console.log(error?.response?.data || error.message);
@@ -59,17 +69,17 @@ export default function MonitoringStationDashboard() {
         }
     };
 
-    const handleDeleteMonitoringStation = async (id) => {
+    const handleDeleteSensor = async (id) => {
         MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
             .then(async () => {
                 try {
-                    await deleteMonitoringStationById(token, id);
-                    await getMonitoringStations();
-                    mensajes("Éxito", "Estación de monitoreo eliminada exitosamente");
+                    await deleteSensorById(token, id);
+                    await getSensors();
+                    mensajes("Éxito", "Sensor eliminado exitosamente", "success");
                 } catch (error) {
                     console.log(error);
                     console.log(error?.response?.data || error.message);
-                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar la estación de monitoreo", "error");
+                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el sensor", "error");
                 }
             })
             .catch((error) => {
@@ -94,12 +104,12 @@ export default function MonitoringStationDashboard() {
                 <Grid container justifyContent="space-between" alignItems="center">
                     <Grid item>
                         <Typography component="h1" variant="h5">
-                            Estaciones de monitoreo
+                            Sensores
                         </Typography>
                     </Grid>
                     <Grid item>
-                        <Button variant="contained" onClick={handleCreateAdmin}>
-                            Crear estación de monitoreo
+                        <Button variant="contained" onClick={handleCreateSensor}>
+                            Agregar sensor
                         </Button>
                     </Grid>
                 </Grid>
@@ -107,41 +117,30 @@ export default function MonitoringStationDashboard() {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Nombre</TableCell>
-                                <TableCell>Dirección</TableCell>
-                                <TableCell>Fotos</TableCell>
-                                <TableCell>Información</TableCell>
+                                <TableCell>Tipo</TableCell>
+                                <TableCell>Nodo</TableCell>
+                                <TableCell>Codigo</TableCell>
                                 <TableCell>Estado</TableCell>
-
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {monitoringStations.map((monitoringStation) => (
-                                <TableRow key={monitoringStation._id}>
+                            {sensors.map((sensor) => (
+                                <TableRow key={sensor._id}>
                                     <TableCell>
-                                        {monitoringStation.name}
-                                    </TableCell>
-                                    <TableCell>{monitoringStation.address}</TableCell>
-                                    <TableCell>
-                                        <CardMedia
-                                            sx={{ height: 80, width: 100 }}
-                                            image={monitoringStation.photos[0]}
-                                            title="green iguana"
-                                        />
+                                        {sensor.type}
                                     </TableCell>
                                     <TableCell>
-                                        Campus: {monitoringStation.nomenclature.campus} <br />
-                                        Bloque: {monitoringStation.nomenclature.bloque} <br />
-                                        Piso: {monitoringStation.nomenclature.piso}
+                                        {sensor.node}
                                     </TableCell>
-
-
-                                    <TableCell>{monitoringStation.status}</TableCell>
+                                    <TableCell>
+                                        {sensor.code}
+                                    </TableCell>
+                                    <TableCell>{sensor.status}</TableCell>
                                     <TableCell>
                                         <Button
                                             variant="outlined"
                                             color="primary"
-                                            onClick={() => handleUpdateMonitoringStationById(monitoringStation._id)}
+                                            onClick={() => handleUpdateSensorById(sensor._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Actualizar
@@ -150,16 +149,16 @@ export default function MonitoringStationDashboard() {
                                             variant="outlined"
                                             color="secondary"
                                             onClick={() =>
-                                                handleUpdateMonitoringStationByIdStatus(monitoringStation._id, monitoringStation.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
+                                                handleUpdateSensorStatusById(sensor._id, sensor.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
                                             }
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
-                                            {monitoringStation.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
+                                            {sensor.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="secondary"
-                                            onClick={() => handleDeleteMonitoringStation(monitoringStation._id)}
+                                            onClick={() => handleDeleteSensor(sensor._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Dar de baja
@@ -181,4 +180,4 @@ export default function MonitoringStationDashboard() {
     );
 }
 
-// export default WithAuth(MonitoringStationDashboard)
+// export default WithAuth(MonitoringStationDashboard)  

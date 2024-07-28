@@ -50,7 +50,7 @@ export default function Alerts() {
             await muteAlert(id, { emitSound }, token);
             setModifiedAlert(!modifiedAlert);
 
-            mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+            mensajes("Éxito", "Alerta actualizada exitosamente");
         } catch (error) {
             console.log(error)
             console.log(error?.response?.data || error.message);
@@ -68,7 +68,7 @@ export default function Alerts() {
             await resolveAlert(id, item, token);
             setModifiedAlert(!modifiedAlert);
 
-            mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+            mensajes("Éxito", "Alerta actualizada exitosamente");
         } catch (error) {
             console.log(error)
             console.log(error?.response?.data || error.message);
