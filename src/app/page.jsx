@@ -114,25 +114,25 @@ export default function Home() {
           {currentStationName ?
             `Últimos datos de la estación` : "Últimos datos"}
         </Typography>
-        <Card>
+        {latestData.createdAt ? <Card>
           <CardContent>
             <Box display="flex" justifyContent="space-between" mb={2}>
               <Box display="flex" alignItems="center">
                 <ThermostatIcon color="error" />
                 <Typography variant="h6" sx={{ ml: 1 }}>
-                  {latestData.temp}°C
+                  {parseFloat(latestData.temp).toFixed(2)}°C
                 </Typography>
               </Box>
               <Box display="flex" alignItems="center">
                 <OpacityIcon color="primary" />
                 <Typography variant="h6" sx={{ ml: 1 }}>
-                  {latestData.hum}%
+                  {parseFloat(latestData.hum).toFixed(2)}%
                 </Typography>
               </Box>
               <Box display="flex" alignItems="center">
                 <CloudIcon color="action" />
                 <Typography variant="h6" sx={{ ml: 1 }}>
-                  {latestData.co2} ppm
+                  {parseFloat(latestData.co2).toFixed(2)} ppm
                 </Typography>
               </Box>
             </Box>
@@ -140,7 +140,11 @@ export default function Home() {
               Última actualización: {latestData.createdAt ? new Date(latestData.createdAt).toLocaleString() : "No se han enviado datos"}
             </Typography>
           </CardContent>
-        </Card>
+        </Card> :
+          <Typography variant="body2" color="text.secondary">
+            El nodo aún no ha registrado datos
+          </Typography>
+        }
       </Box>
 
       <FormControl fullWidth variant="outlined" margin="normal">
@@ -199,19 +203,19 @@ export default function Home() {
                       <Box display="flex" alignItems="center">
                         <ThermostatIcon color="error" />
                         <Typography variant="h6" sx={{ ml: 1 }}>
-                          {node.lastClimateData?.temp}°C
+                          {parseFloat(node.lastClimateData?.temp).toFixed(2)}°C
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center">
                         <OpacityIcon color="primary" />
                         <Typography variant="h6" sx={{ ml: 1 }}>
-                          {node.lastClimateData?.hum}%
+                          {parseFloat(node.lastClimateData?.hum).toFixed(2)}%
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center">
                         <CloudIcon color="action" />
                         <Typography variant="h6" sx={{ ml: 1 }}>
-                          {node.lastClimateData?.co2} ppm
+                          {parseFloat(node.lastClimateData?.co2).toFixed(2)} ppm
                         </Typography>
                       </Box>
                     </Box>

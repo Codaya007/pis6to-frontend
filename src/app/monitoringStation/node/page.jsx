@@ -1,77 +1,94 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
+// import { deleteNode, getAllNodes } from "@/services/nodes.service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+// import mensajeConfirmacion from "../components/MensajeConfirmacion";
+// import { WithAuth } from "../components/WithAuth";
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Avatar, Badge, Box, CardMedia, Container, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import mensajes from "../components/Mensajes";
-import CustomPagination from "../components/CustomPagination";
-import { deleteMonitoringStationById, getAllMonitoringStations, updateMonitoringStationById } from "@/services/monitoringStation.service";
 import { ACTIVE_MONITORING_STATION, INACTIVE_MONITORING_STATION } from "@/constants";
-import MensajeConfirmacion from "../components/MensajeConfirmacion";
+import { deleteNodeById, getAllNodes, updateNodeById } from "@/services/nodes.service";
+import mensajes from "@/app/components/Mensajes";
+import CustomPagination from "@/app/components/CustomPagination";
+import { getAllMonitoringStation } from "@/services/monitoring-station.service";
+import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
 
-export default function MonitoringStationDashboard() {
-    const [monitoringStations, setMonitoringStations] = useState([]);
-    const [campus, setCampus] = useState('');
+export default function Nodes() {
+    const [nodes, setNodes] = useState([]);
+
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
-    const [totalCount, setTotalCount] = useState(0);
     const { token } = useAuth();
     const router = useRouter();
 
-    const getMonitoringStations = async () => {
+    const getNodes = async () => {
         try {
-            const { totalCount, results } = await getAllMonitoringStations(token, skip, limit);
-            setTotalCount(totalCount);
-            setMonitoringStations(results);
+            const { data } = await getAllNodes(token, skip, limit);
+            const { results } = await getAllMonitoringStation(token, skip, limit);
+            console.log('RESULTSSSS');
+            console.log(data);
+            const nodosConNombreEstacion = data.map((nodo) => {
+                const estacion = results.find(
+                    (estacion) => estacion._id == nodo.monitoringStation
+                );
+
+                return {
+                    ...nodo,
+                    nombreEstacion: estacion ? estacion.name : 'Nombre no encontrado',
+                };
+            });
+            console.log('Nodos con estaciones');
+            console.log(nodosConNombreEstacion);
+            setNodes(nodosConNombreEstacion);
         } catch (error) {
             console.log(error);
             console.log(error?.response?.data || error.message);
-            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener las estaciones de monitoreo", "error");
+            mensajes("Error", error.response?.data?.customMessage || "No se han podido obtener los nodos", "error");
         }
     };
 
     useEffect(() => {
         if (token) {
-            getMonitoringStations();
+            getNodes();
         }
     }, [token, skip]);
 
-    const handleCreateAdmin = () => {
-        router.push("/monitoringStation/create");
+    const handleCreateNode = () => {
+        router.push("/monitoringStation/node/createNode");
     };
 
-    const handleUpdateMonitoringStationById = (id) => {
-        router.push(`/monitoringStation/update/${id}`);
+    const handleUpdateNodeById = (id) => {
+        router.push(`/monitoringStation/node/update/${id}`);
     };
 
-    const handleUpdateMonitoringStationByIdStatus = async (id, state) => {
+    const handleUpdateNodeByIdStatus = async (id, state) => {
         try {
             console.log(token);
-            await updateMonitoringStationById(token, id, { status: state },);
-            await getMonitoringStations();
-            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente");
+            await updateNodeById(token, id, { status: state },);
+            await getNodes();
+            mensajes("Éxito", "Nodo actualizado exitosamente");
         } catch (error) {
             console.log(error);
             console.log(error?.response?.data || error.message);
-            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el nodo", "error");
         }
     };
 
-    const handleDeleteMonitoringStation = async (id) => {
+    const handleDeleteNode = async (id) => {
         MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
             .then(async () => {
                 try {
-                    await deleteMonitoringStationById(token, id);
-                    await getMonitoringStations();
-                    mensajes("Éxito", "Estación de monitoreo eliminada exitosamente");
+                    await deleteNodeById(token, id);
+                    await getNodes();
+                    mensajes("Éxito", "Sensor eliminado exitosamente");
                 } catch (error) {
                     console.log(error);
                     console.log(error?.response?.data || error.message);
-                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar la estación de monitoreo", "error");
+                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el nodo", "error");
                 }
             })
             .catch((error) => {
@@ -82,11 +99,6 @@ export default function MonitoringStationDashboard() {
     const handlePageChange = (newSkip) => {
         setSkip(newSkip);
     };
-
-    const handleShowNodes = (stationId) => {
-        router.push(`/monitoringStation/node/${stationId}`);
-    };
-
     return (
         <Container component="main" maxWidth="xl">
             <CssBaseline />
@@ -101,12 +113,12 @@ export default function MonitoringStationDashboard() {
                 <Grid container justifyContent="space-between" alignItems="center">
                     <Grid item>
                         <Typography component="h1" variant="h5">
-                            Estaciones de monitoreo
+                            Nodos
                         </Typography>
                     </Grid>
                     <Grid item>
-                        <Button variant="contained" onClick={handleCreateAdmin}>
-                            Crear estación de monitoreo
+                        <Button variant="contained" onClick={handleCreateNode}>
+                            Crear nodo
                         </Button>
                     </Grid>
                 </Grid>
@@ -115,38 +127,38 @@ export default function MonitoringStationDashboard() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Nombre</TableCell>
-                                <TableCell>Dirección</TableCell>
+                                <TableCell>Codigo</TableCell>
+                                <TableCell>Ubicacion</TableCell>
+                                <TableCell>Estación de monitoreo</TableCell>
                                 <TableCell>Fotos</TableCell>
-                                <TableCell>Información</TableCell>
                                 <TableCell>Estado</TableCell>
                                 <TableCell>Acciones</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {monitoringStations.map((monitoringStation) => (
-                                <TableRow key={monitoringStation._id}>
+                            {nodes.map((node) => (
+                                <TableRow key={node._id}>
                                     <TableCell>
-                                        {monitoringStation.name}
+                                        {node.name}
                                     </TableCell>
-                                    <TableCell>{monitoringStation.address}</TableCell>
-                                    <TableCell>
+                                    <TableCell>{node.code}</TableCell>
+                                    <TableCell>{node.location}</TableCell>
+                                    <TableCell>{node.nombreEstacion}</TableCell>
+                                    {node.photos.length > 0 ? <TableCell>
                                         <CardMedia
                                             sx={{ height: 80, width: 100 }}
-                                            image={monitoringStation.photos[0]}
+                                            image={node.photos[0]}
                                             title="green iguana"
                                         />
-                                    </TableCell>
-                                    <TableCell>
-                                        Campus: {monitoringStation.nomenclature.campus} <br />
-                                        Bloque: {monitoringStation.nomenclature.bloque} <br />
-                                        Piso: {monitoringStation.nomenclature.piso}
-                                    </TableCell>
-                                    <TableCell>{monitoringStation.status}</TableCell>
+                                    </TableCell> :
+                                        <TableCell> No hay fotos</TableCell>}
+
+                                    <TableCell>{node.status}</TableCell>
                                     <TableCell>
                                         <Button
                                             variant="outlined"
                                             color="primary"
-                                            onClick={() => handleUpdateMonitoringStationById(monitoringStation._id)}
+                                            onClick={() => handleUpdateNodeById(node._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Actualizar
@@ -155,27 +167,19 @@ export default function MonitoringStationDashboard() {
                                             variant="outlined"
                                             color="secondary"
                                             onClick={() =>
-                                                handleUpdateMonitoringStationByIdStatus(monitoringStation._id, monitoringStation.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
+                                                handleUpdateNodeByIdStatus(node._id, node.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
                                             }
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
-                                            {monitoringStation.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
+                                            {node.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
                                         </Button>
                                         <Button
                                             variant="outlined"
                                             color="secondary"
-                                            onClick={() => handleDeleteMonitoringStation(monitoringStation._id)}
+                                            onClick={() => handleDeleteNode(node._id)}
                                             sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
                                         >
                                             Dar de baja
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => handleShowNodes(monitoringStation._id)}
-                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
-                                        >
-                                            Gestionar nodos
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -186,10 +190,12 @@ export default function MonitoringStationDashboard() {
                 <CustomPagination
                     skip={skip}
                     limit={limit}
-                    totalCount={totalCount}
+                    // totalCount={totalCount}
                     onPageChange={handlePageChange}
                 />
             </Box>
         </Container>
     );
 }
+
+// export default WithAuth(MonitoringStationDashboard)

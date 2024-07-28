@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   CssBaseline,
   Typography,
@@ -9,269 +9,283 @@ import {
   Paper,
   TextField,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
   MenuItem,
-  FormControl,
+  Select,
   InputLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  FormControl,
+  CardMedia,
 } from "@mui/material";
+import mensajes from "@/app/components/Mensajes";
+import { createSensor } from "@/services/sensor.service";
+import { useAuth } from "@/context/AuthContext";
+import { createNode, getAllNodes } from "@/services/nodes.service";
+import { useRouter } from "next/navigation";
+import { getAllMonitoringStation } from "@/services/monitoring-station.service";
+import { uploadImageToS3 } from "@/services/image.service";
 
-export default function NodeManagement() {
-  const [nodes, setNodes] = useState([]);
-  const [newNode, setNewNode] = useState({
+
+
+export const handleFileChange = async (e, token) => {
+  const files = Array.from(e.target.files);
+  const MAX_IMG_SIZE_MB = 2;
+  const maxSizeInBytes = MAX_IMG_SIZE_MB * 1024 * 1024;
+
+  const uploadedImages = [];
+
+  for (const file of files) {
+    if (file.size > maxSizeInBytes) {
+      toast.error(
+        `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
+      );
+      continue; // Continúa con el siguiente archivo
+    }
+
+    try {
+      const imageURL = await uploadImageToS3(file, token);
+      uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
+    } catch (error) {
+      toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
+    }
+  }
+  console.log(uploadedImages);
+  return uploadedImages; // Devuelve el array con las URLs de las imágenes
+};
+
+
+export default function CreateNode() {
+  const { token } = useAuth();
+  const router = useRouter();
+  const [monitoringStation, setMonitoringStation] = useState([]);
+  const [node, setNode] = useState({
     name: "",
     location: "",
-    status: "active",
     code: "",
     photos: [],
+    status: "Activo",
+    monitoringStation: "",
   });
-  const [editingNode, setEditingNode] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingNode, setViewingNode] = useState(null);
 
-  const handleNodeInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewNode({ ...newNode, [name]: value });
+  const [errors, setErrors] = useState({
+    name: "",
+    location: "",
+    code: "",
+    monitoringStation: "",
+  });
+
+  useEffect(() => {
+    const fetchMonitoringStation = async () => {
+      try {
+        const { results } = await getAllMonitoringStation(token, 0, 10);
+        setMonitoringStation(results);
+      } catch (error) {
+        console.error("Error fetching estacion de monitoreo", error);
+        mensajes("Error al obtener las estaciones de monitoreo", error.response?.data?.customMessage || "No se pudo obtener las estacione de monitoreo", "error");
+      }
+    }
+    if (token) {
+      fetchMonitoringStation();
+    }
+
+  }, [token]);
+  const validateFields = (node) => {
+    const newErrors = {};
+    newErrors.name = node.name ? "" : "El nombre del nodo es requerido";
+    newErrors.location = node.location ? "" : "La ubicacion del nodo es requerida";
+    newErrors.code = node.code ? "" : "El código del nodo es requerido";
+    newErrors.monitoringStation = node.monitoringStation ? "" : "La estación de monitoreo es requerida";
+    return newErrors;
   };
 
-  const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setNewNode({ ...newNode, photos: files });
+  const handleBlur = (event) => {
+    const { name, value } = event.target;
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: value ? "" : `El campo ${name} es requerido`,
+    }));
   };
 
-  const handleNodeSubmit = (e) => {
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setNode((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setNodes([...nodes, { ...newNode, id: Date.now(), photos: newNode.photos.map(photo => URL.createObjectURL(photo)) }]);
-    setNewNode({
-      name: "",
-      location: "",
-      status: "active",
-      code: "",
-      photos: [],
-    });
-  };
 
-  const handleEdit = (node) => {
-    setEditingNode(node);
-    setIsEditModalOpen(true);
-  };
+    // Validar campos
+    const newErrors = validateFields(node);
+    setErrors(newErrors);
 
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditingNode({ ...editingNode, [name]: value });
-  };
+    // Verificar si hay errores
+    const hasErrors = Object.values(newErrors).some((error) => error !== "");
 
-  const handleEditSubmit = () => {
-    setNodes(nodes.map(node => node.id === editingNode.id ? editingNode : node));
-    setIsEditModalOpen(false);
-  };
+    if (hasErrors) {
+      const errorMessages = Object.entries(newErrors)
+        .filter(([field, error]) => error)
+        .map(([field, error]) => `${error}`)
+        .join("\n");
 
-  const handleStatusChange = (id, newStatus) => {
-    setNodes(nodes.map(node => node.id === id ? { ...node, status: newStatus } : node));
-  };
+      mensajes(
+        "Error al crear el nodo",
+        errorMessages || "No se ha podido crear el nodo",
+        "error"
+      );
+      return;
+    }
 
-  const handleView = (node) => {
-    setViewingNode(node);
-    setIsViewModalOpen(true);
+    // Si no hay errores, procesar el formulario
+    console.log('Sensor creado:', node);
+    // Aquí puedes agregar la lógica para enviar el formulario al servidor
+
+    try {
+      await createNode(node, token);
+      mensajes("Éxito", "Creación exitosa");
+      router.push("/monitoringStation/node")
+    } catch (error) {
+      console.log('ERROR');
+      console.log(error);
+      mensajes("No se pudo crear el nodo", error?.response?.data?.customMessage || "No se ha podido crear el nodo", "error");
+    }
   };
 
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
       <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <Typography component="h1" variant="h5">
-          Gestión de Nodos
+        <Typography component="h1" variant="h4">
+          Crear un nuevo nodo
         </Typography>
 
-        {/* Formulario para crear nuevo nodo */}
-        <Paper elevation={3} sx={{ p: 4, mt: 4, width: '100%' }}>
-          <Typography variant="h6" gutterBottom>
-            Crear Nuevo Nodo
-          </Typography>
-          <form onSubmit={handleNodeSubmit}>
+        <Paper elevation={3} sx={{ p: 4, mt: 4, width: "100%" }}>
+
+          <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
-                  required
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={!!errors.name}
+                  helperText={errors.name}
                   fullWidth
                   name="name"
-                  label="Nombre del Nodo"
-                  value={newNode.name}
-                  onChange={handleNodeInputChange}
+                  id="name"
+                  label="Nombre"
+                  value={node.name}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
-                  required
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={!!errors.location}
+                  helperText={errors.location}
                   fullWidth
                   name="location"
-                  label="Ubicación"
-                  value={newNode.location}
-                  onChange={handleNodeInputChange}
+                  id="location"
+                  label="Localización"
+                  value={node.location}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Estado</InputLabel>
-                  <Select
-                    name="status"
-                    value={newNode.status}
-                    onChange={handleNodeInputChange}
-                  >
-                    <MenuItem value=""></MenuItem>
-                    <MenuItem value="active">Activo</MenuItem>
-                    <MenuItem value="inactive">Inactivo</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
-                  required
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={!!errors.code}
+                  helperText={errors.code}
                   fullWidth
                   name="code"
+                  id="code"
                   label="Código"
-                  value={newNode.code}
-                  onChange={handleNodeInputChange}
+                  value={node.code}
                 />
               </Grid>
               <Grid item xs={12}>
-                <input
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="raised-button-file"
-                  multiple
+                <TextField
+                  onBlur={handleBlur}
+                  error={!!errors.photos}
+                  fullWidth
+                  id="photos"
                   type="file"
-                  onChange={handlePhotoUpload}
+                  // value={detail.img.length}
+                  inputProps={{ multiple: true }}
+                  // autoComplete="photos"
+                  onChange={async (e) => {
+                    // setDetail({ ...detail, });
+                    const newImg = await handleFileChange(e, token);
+                    console.log(newImg);
+                    setNode((prevFormData) => ({
+                      ...prevFormData,
+                      photos: newImg,
+                    }));
+                  }}
                 />
-                <label htmlFor="raised-button-file">
-                  <Button variant="contained" component="span">
-                    Subir Fotos
-                  </Button>
-                </label>
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  {newNode.photos.length} foto(s) seleccionada(s)
-                </Typography>
+              </Grid>
+              <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", textAlign: "center", alignItems: "center" }}>
+                {node.photos.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    {node.photos.map((photo, index) => (
+                      <CardMedia
+                        key={index}
+                        sx={{ height: 120, width: 150, borderRadius: 30, margin: '0 10px' }}
+                        image={photo}
+                        title={`Imagen ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Estación de monitoreo</InputLabel>
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.monitoringStation}
+                    labelId="monitoringStation"
+                    name="monitoringStation"
+                    id="monitoringStation"
+                    label="Estación de monitoreo"
+                    onChange={handleChange}
+                  >
+                    <MenuItem value={""}></MenuItem>
+                    {monitoringStation.map((monitoringStation, index) => (
+                      <MenuItem key={index} value={monitoringStation._id}>{monitoringStation.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Estado</InputLabel>
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.status}
+                    // helpertext={errors.campus}
+                    labelId="status"
+                    name="status"
+                    id="status"
+                    label="Estado"
+                    onChange={handleChange}
+                    value={node.status}
+                    defaultValue="Activo"
+                  >
+                    <MenuItem value={"Activo"}>Activo</MenuItem>
+                    <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
-            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-              Crear Nodo
-            </Button>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+              <Button type="submit" variant="contained" sx={{ mt: 3, width: 350 }} sm={8}>
+                Crear nodo
+              </Button>
+            </div>
           </form>
         </Paper>
-
-        {/* Tabla de nodos */}
-        <TableContainer component={Paper} sx={{ mt: 4 }}>
-          <Typography variant="h6" gutterBottom sx={{ p: 2 }}>
-            Nodos
-          </Typography>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Ubicación</TableCell>
-                <TableCell>Estado</TableCell>
-                <TableCell>Código</TableCell>
-                <TableCell>Fotos</TableCell>
-                <TableCell>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {nodes.map((node) => (
-                <TableRow key={node.id}>
-                  <TableCell>{node.name}</TableCell>
-                  <TableCell>{node.location}</TableCell>
-                  <TableCell>{node.status}</TableCell>
-                  <TableCell>{node.code}</TableCell>
-                  <TableCell>{node.photos.length} foto(s)</TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleEdit(node)}>Editar</Button>
-                    <Button onClick={() => handleView(node)}>Ver</Button>
-                    {node.status === 'active' ? (
-                      <Button onClick={() => handleStatusChange(node.id, 'inactive')}>Desactivar</Button>
-                    ) : (
-                      <Button onClick={() => handleStatusChange(node.id, 'active')}>Activar</Button>
-                    )}
-                    <Button onClick={() => handleStatusChange(node.id, 'retired')}>Dar de baja</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
       </Box>
-
-      {/* Modal de edición */}
-      <Dialog open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <DialogTitle>Editar Nodo</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            margin="normal"
-            name="name"
-            label="Nombre"
-            value={editingNode?.name || ''}
-            onChange={handleEditInputChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="location"
-            label="Ubicación"
-            value={editingNode?.location || ''}
-            onChange={handleEditInputChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="code"
-            label="Código"
-            value={editingNode?.code || ''}
-            onChange={handleEditInputChange}
-          />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Estado</InputLabel>
-            <Select
-              name="status"
-              value={editingNode?.status || ''}
-              onChange={handleEditInputChange}
-            >
-              <MenuItem value="active">Activo</MenuItem>
-              <MenuItem value="inactive">Inactivo</MenuItem>
-              <MenuItem value="retired">Dado de baja</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsEditModalOpen(false)}>Cancelar</Button>
-          <Button onClick={handleEditSubmit}>Guardar</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Modal de visualización */}
-      <Dialog open={isViewModalOpen} onClose={() => setIsViewModalOpen(false)}>
-        <DialogTitle>Detalles del Nodo</DialogTitle>
-        <DialogContent>
-          <Typography>Nombre: {viewingNode?.name}</Typography>
-          <Typography>Ubicación: {viewingNode?.location}</Typography>
-          <Typography>Estado: {viewingNode?.status}</Typography>
-          <Typography>Código: {viewingNode?.code}</Typography>
-          <Typography>Número de fotos: {viewingNode?.photos.length}</Typography>
-          {/* Aquí podrías añadir una galería de imágenes para mostrar las fotos */}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsViewModalOpen(false)}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 }
