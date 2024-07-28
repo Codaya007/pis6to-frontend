@@ -9,7 +9,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from "@mui/material";
+import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Paper, Select } from "@mui/material";
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "../../../constants";
 import { uploadImageToS3 } from "../../../services/image.service";
 import { createMonitoringStation } from "@/services/monitoringStation.service";
@@ -222,9 +222,10 @@ export default function CreateMonitoringStation() {
     };
 
     return (
-        <Container component="main" maxWidth="md">
+        <Container component="main" maxWidth="lg">
             <CssBaseline />
             <Box
+                elevation={3}
                 sx={{
                     marginTop: 8,
                     display: "flex",
@@ -236,207 +237,210 @@ export default function CreateMonitoringStation() {
                 <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
                     <MyLocationIcon />
                 </Avatar>
-                <Typography component="h1" variant="h4">
-                    Crear Estacion de monitoreo
-                </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        {/* Información básica */}
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.name}
-                                // // helpertext={errors.name}
-                                autoComplete="given-name"
-                                name="name"
-                                required
-                                fullWidth
-                                id="name"
-                                label="Nombre"
-                                autoFocus
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.reference}
-                                // helpertext={errors.reference}
-                                required
-                                fullWidth
-                                id="reference"
-                                label="Referecia"
-                                name="reference"
-                                autoComplete="family-name"
-
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.address}
-                                // helpertext={errors.address}
-                                required
-                                fullWidth
-                                id="address"
-                                label="Direccion"
-                                name="address"
-                                autoComplete="family-name"
-
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.photos}
-                                // helpertext={errors.photos}
-                                required
-                                fullWidth
-                                id="photos"
-                                type="file"
-                                // value={detail.img.length}
-                                inputProps={{ multiple: true }}
-                                // autoComplete="photos"
-                                onChange={async (e) => {
-                                    // setDetail({ ...detail, });
-                                    const newImg = await handleFileChange(e, token);
-                                    console.log(newImg);
-                                    setImagenes(newImg);
-                                    // setDetail((prevDetail) => ({
-                                    //     ...prevDetail,
-                                    //     img: [...prevDetail.img, newImg], // Agrega las nuevas imágenes al array existente
-                                    //   }));
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Typography component="h6" variant="h6">
-                                Nomenclatura
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={3}>
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Campus</InputLabel>
-                                <Select
+                    <Typography component="h1" variant="h4">
+                        Crear Estacion de monitoreo
+                    </Typography>
+                <Paper elevation={3} sx={{ p: 4, mt: 4, width: '100%' }}>
+                
+                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                        <Grid  container spacing={2}>
+                            {/* Información básica */}
+                            <Grid item xs={12} sm={6}>
+                                <TextField
                                     onBlur={handleBlur}
-                                    error={!!errors.campus}
-                                    // helpertext={errors.campus}
-                                    labelId="campus"
-                                    name="campus"
-                                    id="campus"
+                                    error={!!errors.name}
+                                    // // helpertext={errors.name}
+                                    autoComplete="given-name"
+                                    name="name"
                                     required
-                                    // value={age}
-                                    label="Campus"
-                                    onChange={(e) => {
-                                        setCampus(e.target.value);
-                                        console.log(e.target.value);
+                                    fullWidth
+                                    id="name"
+                                    label="Nombre"
+                                    autoFocus
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.reference}
+                                    // helpertext={errors.reference}
+                                    required
+                                    fullWidth
+                                    id="reference"
+                                    label="Referecia"
+                                    name="reference"
+                                    autoComplete="family-name"
+
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.address}
+                                    // helpertext={errors.address}
+                                    required
+                                    fullWidth
+                                    id="address"
+                                    label="Direccion"
+                                    name="address"
+                                    autoComplete="family-name"
+
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.photos}
+                                    // helpertext={errors.photos}
+                                    required
+                                    fullWidth
+                                    id="photos"
+                                    type="file"
+                                    // value={detail.img.length}
+                                    inputProps={{ multiple: true }}
+                                    // autoComplete="photos"
+                                    onChange={async (e) => {
+                                        // setDetail({ ...detail, });
+                                        const newImg = await handleFileChange(e, token);
+                                        console.log(newImg);
+                                        setImagenes(newImg);
+                                        // setDetail((prevDetail) => ({
+                                        //     ...prevDetail,
+                                        //     img: [...prevDetail.img, newImg], // Agrega las nuevas imágenes al array existente
+                                        //   }));
                                     }}
-                                >
-                                    <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"Argelia"}>Argelia</MenuItem>
-                                    <MenuItem value={"Motupe"}>Motupe</MenuItem>
-                                    <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
-                                    <MenuItem value={"Nueva Loja"}>Nueva Loja</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.bloque}
-                                // helpertext={errors.bloque}
-                                required
-                                fullWidth
-                                name="bloque"
-                                label="Bloque"
-                                type="number"
-                                id="bloque"
-                                autoComplete="bloque"
-                            />
-                        </Grid>
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.piso}
-                                // helpertext={errors.piso}
-                                required
-                                fullWidth
-                                name="piso"
-                                label="Piso"
-                                type="number"
-                                id="piso"
-                                autoComplete="piso"
-                            />
-                        </Grid>
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.ambiente}
-                                // helpertext={errors.ambiente}
-                                required
-                                fullWidth
-                                name="ambiente"
-                                label="Ambiente"
-                                type="number"
-                                id="ambiente"
-                                autoComplete="ambiente"
-                            />
-                        </Grid>
+                                />
+                            </Grid>
 
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.subAmbiente}
-                                // helpertext={errors.subAmbiente}
-                                fullWidth
-                                name="subAmbiente"
-                                label="Subambiente"
-                                type="number"
-                                id="subAmbiente"
-                                autoComplete="subAmbiente"
-                            />
-                        </Grid>
+                            <Grid item xs={12}>
+                                <Typography component="h6" variant="h6">
+                                    Nomenclatura
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <FormControl fullWidth>
+                                    <InputLabel id="demo-simple-select-label">Campus</InputLabel>
+                                    <Select
+                                        onBlur={handleBlur}
+                                        error={!!errors.campus}
+                                        // helpertext={errors.campus}
+                                        labelId="campus"
+                                        name="campus"
+                                        id="campus"
+                                        required
+                                        // value={age}
+                                        label="Campus"
+                                        onChange={(e) => {
+                                            setCampus(e.target.value);
+                                            console.log(e.target.value);
+                                        }}
+                                    >
+                                        <MenuItem value={""}></MenuItem>
+                                        <MenuItem value={"Argelia"}>Argelia</MenuItem>
+                                        <MenuItem value={"Motupe"}>Motupe</MenuItem>
+                                        <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
+                                        <MenuItem value={"Nueva Loja"}>Nueva Loja</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.bloque}
+                                    // helpertext={errors.bloque}
+                                    required
+                                    fullWidth
+                                    name="bloque"
+                                    label="Bloque"
+                                    type="number"
+                                    id="bloque"
+                                    autoComplete="bloque"
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.piso}
+                                    // helpertext={errors.piso}
+                                    required
+                                    fullWidth
+                                    name="piso"
+                                    label="Piso"
+                                    type="number"
+                                    id="piso"
+                                    autoComplete="piso"
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.ambiente}
+                                    // helpertext={errors.ambiente}
+                                    required
+                                    fullWidth
+                                    name="ambiente"
+                                    label="Ambiente"
+                                    type="number"
+                                    id="ambiente"
+                                    autoComplete="ambiente"
+                                />
+                            </Grid>
 
-                        <Grid item xs={9}>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Typography component="h6" variant="h6">
-                                Coordenadas
-                            </Typography>
-                        </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.subAmbiente}
+                                    // helpertext={errors.subAmbiente}
+                                    fullWidth
+                                    name="subAmbiente"
+                                    label="Subambiente"
+                                    type="number"
+                                    id="subAmbiente"
+                                    autoComplete="subAmbiente"
+                                />
+                            </Grid>
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.longitude}
-                                // helpertext={errors.longitude}
-                                autoComplete="given-name"
-                                name="longitude"
-                                required
-                                disabled
-                                fullWidth
-                                id="longitude"
-                                label="Longitud"
-                                autoFocus
-                                value={monitoringStation.longitude}
-                            />
+                            <Grid item xs={9}>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography component="h6" variant="h6">
+                                    Coordenadas
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.longitude}
+                                    // helpertext={errors.longitude}
+                                    autoComplete="given-name"
+                                    name="longitude"
+                                    required
+                                    disabled
+                                    fullWidth
+                                    id="longitude"
+                                    label="Longitud"
+                                    autoFocus
+                                    value={monitoringStation.longitude}
+                                />
+                            </Grid>
+                            <Grid item xs={4} sm={6}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.latitude}
+                                    // helpertext={errors.latitude}
+                                    required
+                                    fullWidth
+                                    disabled
+                                    id="latitude"
+                                    value={monitoringStation.latitude}
+                                    label="Latitud"
+                                    name="latitude"
+                                    autoComplete="family-name"
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={4} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.latitude}
-                                // helpertext={errors.latitude}
-                                required
-                                fullWidth
-                                disabled
-                                id="latitude"
-                                value={monitoringStation.latitude}
-                                label="Latitud"
-                                name="latitude"
-                                autoComplete="family-name"
-                            />
-                        </Grid>
-                    </Grid>
+                
                     <MapContainer
                         style={{ width: "100%", height: "60vh", marginTop: 20 }}
                         center={DEFAULT_MAP_CENTER}
@@ -469,6 +473,8 @@ export default function CreateMonitoringStation() {
                     </Button>
 
                 </Box>
+                </Paper>
+
             </Box>
         </Container>
     );
