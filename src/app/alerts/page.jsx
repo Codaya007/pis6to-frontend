@@ -72,9 +72,9 @@ export default function Alerts() {
     }, [token, skip, limit]);
 
 
-    const handleMuteAlert = async (id) => {
+    const handleMuteAlert = async (id, emitSound) => {
         try {
-            await muteAlert(id, { emitSound: false }, token);
+            await muteAlert(id, { emitSound }, token);
             setModifiedAlert(!modifiedAlert);
             getAlerts();
 
