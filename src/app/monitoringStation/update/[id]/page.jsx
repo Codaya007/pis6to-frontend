@@ -8,7 +8,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import MyLocationIcon from '@mui/icons-material/MyLocation'; import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { CardMedia, CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Select } from "@mui/material";
+import { CardMedia, CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Paper, Select } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getMonitoringStationById, updateMonitoringStation } from "@/services/monitoring-station.service";
@@ -333,7 +333,7 @@ export default function CreateMonitoringStation() {
     };
 
     return (
-        <Container component="main" maxWidth="md">
+        <Container component="main" maxWidth="lg">
             <CssBaseline />
             <Box
                 sx={{
@@ -347,276 +347,279 @@ export default function CreateMonitoringStation() {
                 <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
                     <MyLocationIcon />
                 </Avatar>
-                <Typography component="h1" variant="h5">
+                <Typography component="h1" variant="h4">
                     Actualizar estación de monitoreo
                 </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        {/* Información básica */}
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.name}
-                                // helpertext={errors.name}
-                                autoComplete="given-name"
-                                name="name"
-                                required
-                                fullWidth
-                                id="name"
-                                label="Nombre"
-                                value={formData.name}
-                                autoFocus
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.reference}
-                                // helpertext={errors.reference}
-                                required
-                                fullWidth
-                                id="reference"
-                                label="Referecia"
-                                value={formData.reference}
-                                name="reference"
-                                autoComplete="family-name"
+                <Paper elevation={3} sx={{ p: 4, mt: 4, width: '100%' }}>
 
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={12}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.address}
-                                // helpertext={errors.address}
-                                required
-                                fullWidth
-                                id="address"
-                                value={formData.address}
-                                label="Direccion"
-                                name="address"
-                                autoComplete="family-name"
-
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                // onBlur={handleBlur}
-                                required
-                                fullWidth
-                                id="photos"
-                                type="file"
-                                // value={detail.img.length}
-                                inputProps={{ multiple: true }}
-                                // autoComplete="photos"
-                                onChange={async (e) => {
-                                    const newImg = await handleFileChange(e);
-                                    setImagenes(newImg);
-                                    console.log(newImg);
-                                    setFormData((prevFormData) => ({
-                                        ...prevFormData,
-                                        photos: newImg,
-                                    }));
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", textAlign: "center", alignItems: "center" }}>
-                            {formData.photos.length > 0 && (
-                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                    {formData.photos.map((photo, index) => (
-                                        <CardMedia
-                                            key={index}
-                                            sx={{ height: 120, width: 150, borderRadius: 30, margin: '0 10px' }}
-                                            image={photo}
-                                            title={`Imagen ${index + 1}`}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Typography component="h6" variant="h6">
-                                Nomenclatura
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={3}>
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Campus</InputLabel>
-                                <Select
+                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                        <Grid container spacing={2}>
+                            {/* Información básica */}
+                            <Grid item xs={12} sm={6}>
+                                <TextField
                                     onBlur={handleBlur}
-                                    error={!!errors.campus}
-                                    // helpertext={errors.campus}
-                                    labelId="campus"
-                                    name="campus"
-                                    id="campus"
-
+                                    onChange={handleChange}
+                                    error={!!errors.name}
+                                    // helpertext={errors.name}
+                                    autoComplete="given-name"
+                                    name="name"
                                     required
-                                    value={formData.nomenclature.campus}
-                                    label="Campus"
-                                    onChange={(e) => {
+                                    fullWidth
+                                    id="name"
+                                    label="Nombre"
+                                    value={formData.name}
+                                    autoFocus
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.reference}
+                                    // helpertext={errors.reference}
+                                    required
+                                    fullWidth
+                                    id="reference"
+                                    label="Referecia"
+                                    value={formData.reference}
+                                    name="reference"
+                                    autoComplete="family-name"
+
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.address}
+                                    // helpertext={errors.address}
+                                    required
+                                    fullWidth
+                                    id="address"
+                                    value={formData.address}
+                                    label="Direccion"
+                                    name="address"
+                                    autoComplete="family-name"
+
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    // onBlur={handleBlur}
+                                    required
+                                    fullWidth
+                                    id="photos"
+                                    type="file"
+                                    // value={detail.img.length}
+                                    inputProps={{ multiple: true }}
+                                    // autoComplete="photos"
+                                    onChange={async (e) => {
+                                        const newImg = await handleFileChange(e);
+                                        setImagenes(newImg);
+                                        console.log(newImg);
                                         setFormData((prevFormData) => ({
                                             ...prevFormData,
-                                            nomenclature: {
-                                                ...prevFormData.nomenclature,
-                                                campus: e.target.value,
-                                            },
+                                            photos: newImg,
                                         }));
                                     }}
-                                >
-                                    <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"Argelia"}>Argelia</MenuItem>
-                                    <MenuItem value={"Motupe"}>Motupe</MenuItem>
-                                    <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
-                                    <MenuItem value={"Nueva Loja"}>Nueva Loja</MenuItem>
-                                </Select>
-                            </FormControl>
+                                />
+                            </Grid>
+                            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", textAlign: "center", alignItems: "center" }}>
+                                {formData.photos.length > 0 && (
+                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        {formData.photos.map((photo, index) => (
+                                            <CardMedia
+                                                key={index}
+                                                sx={{ height: 120, width: 150, borderRadius: 30, margin: '0 10px' }}
+                                                image={photo}
+                                                title={`Imagen ${index + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography component="h6" variant="h6">
+                                    Nomenclatura
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <FormControl fullWidth>
+                                    <InputLabel id="demo-simple-select-label">Campus</InputLabel>
+                                    <Select
+                                        onBlur={handleBlur}
+                                        error={!!errors.campus}
+                                        // helpertext={errors.campus}
+                                        labelId="campus"
+                                        name="campus"
+                                        id="campus"
+
+                                        required
+                                        value={formData.nomenclature.campus}
+                                        label="Campus"
+                                        onChange={(e) => {
+                                            setFormData((prevFormData) => ({
+                                                ...prevFormData,
+                                                nomenclature: {
+                                                    ...prevFormData.nomenclature,
+                                                    campus: e.target.value,
+                                                },
+                                            }));
+                                        }}
+                                    >
+                                        <MenuItem value={""}></MenuItem>
+                                        <MenuItem value={"Argelia"}>Argelia</MenuItem>
+                                        <MenuItem value={"Motupe"}>Motupe</MenuItem>
+                                        <MenuItem value={"Facultad de la Salud Humana"}>Facultad de la Salud Humana</MenuItem>
+                                        <MenuItem value={"Nueva Loja"}>Nueva Loja</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.bloque}
+                                    // helpertext={errors.bloque}
+                                    required
+                                    fullWidth
+                                    value={formData.nomenclature.bloque}
+                                    name="bloque"
+                                    label="Bloque"
+                                    min="1"
+                                    type="number"
+                                    id="bloque"
+                                    autoComplete="bloque"
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.piso}
+                                    // helpertext={errors.piso}
+                                    required
+                                    fullWidth
+                                    value={formData.nomenclature.piso}
+                                    name="piso"
+                                    label="Piso"
+                                    type="number"
+                                    id="piso"
+                                    min="1"
+                                    autoComplete="piso"
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.ambiente}
+                                    // helpertext={errors.ambiente}
+                                    required
+                                    fullWidth
+                                    value={formData.nomenclature.ambiente}
+                                    name="ambiente"
+                                    label="Ambiente"
+                                    type="number"
+                                    id="ambiente"
+                                    min="1"
+                                    autoComplete="ambiente"
+                                />
+                            </Grid>
+
+                            <Grid item xs={3}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.subAmbiente}
+                                    // helpertext={errors.subAmbiente}
+                                    required
+                                    fullWidth
+                                    value={formData.nomenclature.subAmbiente}
+                                    name="subAmbiente"
+                                    label="Subambiente"
+                                    type="number"
+                                    id="subAmbiente"
+                                    min="1"
+                                    autoComplete="subAmbiente"
+                                />
+                            </Grid>
+
+                            <Grid item xs={9}>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography component="h6" variant="h6">
+                                    Coordenadas
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    error={!!errors.longitude}
+                                    onChange={handleChange}
+                                    // helpertext={errors.longitude}
+                                    autoComplete="given-name"
+                                    name="longitude"
+                                    required
+                                    disabled
+                                    fullWidth
+                                    id="longitude"
+                                    label="Longitud"
+                                    autoFocus
+                                    value={formData.coordinate ? formData.coordinate[0] : ""}
+                                />
+                            </Grid>
+                            <Grid item xs={4} sm={6}>
+                                <TextField
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    error={!!errors.latitude}
+                                    // helpertext={errors.latitude}
+                                    required
+                                    disabled
+                                    fullWidth
+                                    id="latitude"
+                                    value={formData.coordinate ? formData.coordinate[1] : ""}
+                                    label="Latitud"
+                                    name="latitude"
+                                    autoComplete="family-name"
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.bloque}
-                                // helpertext={errors.bloque}
-                                required
-                                fullWidth
-                                value={formData.nomenclature.bloque}
-                                name="bloque"
-                                label="Bloque"
-                                min="1"
-                                type="number"
-                                id="bloque"
-                                autoComplete="bloque"
+                        <MapContainer
+                            style={{ width: "100%", height: "60vh" }}
+                            center={DEFAULT_MAP_CENTER}
+                            zoom={DEFAULT_MAP_ZOOM}
+                            scrollWheelZoom={false}
+                        >
+                            <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                        </Grid>
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.piso}
-                                // helpertext={errors.piso}
-                                required
-                                fullWidth
-                                value={formData.nomenclature.piso}
-                                name="piso"
-                                label="Piso"
-                                type="number"
-                                id="piso"
-                                min="1"
-                                autoComplete="piso"
+
+                            <MapWithDrawNodes
+                                onMarkerDrawn={handleMarkerDrawn}
+                                markerRef={markerRef}
+                                latitude={formData.coordinate ? formData.coordinate[1] : null}
+                                longitude={formData.coordinate ? formData.coordinate[0] : null}
                             />
-                        </Grid>
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.ambiente}
-                                // helpertext={errors.ambiente}
-                                required
-                                fullWidth
-                                value={formData.nomenclature.ambiente}
-                                name="ambiente"
-                                label="Ambiente"
-                                type="number"
-                                id="ambiente"
-                                min="1"
-                                autoComplete="ambiente"
-                            />
-                        </Grid>
+                        </MapContainer>
+                        {/* Información académica */}
 
-                        <Grid item xs={3}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.subAmbiente}
-                                // helpertext={errors.subAmbiente}
-                                required
-                                fullWidth
-                                value={formData.nomenclature.subAmbiente}
-                                name="subAmbiente"
-                                label="Subambiente"
-                                type="number"
-                                id="subAmbiente"
-                                min="1"
-                                autoComplete="subAmbiente"
-                            />
-                        </Grid>
+                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                            Actualizar
+                        </Button>
 
-                        <Grid item xs={9}>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Typography component="h6" variant="h6">
-                                Coordenadas
-                            </Typography>
-                        </Grid>
+                        {/* <Button type="submit" fullWidth variant="contained" sx={{ mt: 1, mb: 2,backgroundColor: 'rgba(255, 165, 0, 0.8)', // Naranja opaco
+                    '&:hover': {
+                        backgroundColor: 'rgba(255, 140, 0, 0.8)', // Un poco más oscuro al hacer hover
+                    } }}>
+                            Cancelar
+                        </Button> */}
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                error={!!errors.longitude}
-                                onChange={handleChange}
-                                // helpertext={errors.longitude}
-                                autoComplete="given-name"
-                                name="longitude"
-                                required
-                                disabled
-                                fullWidth
-                                id="longitude"
-                                label="Longitud"
-                                autoFocus
-                                value={formData.coordinate ? formData.coordinate[0] : ""}
-                            />
-                        </Grid>
-                        <Grid item xs={4} sm={6}>
-                            <TextField
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                error={!!errors.latitude}
-                                // helpertext={errors.latitude}
-                                required
-                                disabled
-                                fullWidth
-                                id="latitude"
-                                value={formData.coordinate ? formData.coordinate[1] : ""}
-                                label="Latitud"
-                                name="latitude"
-                                autoComplete="family-name"
-                            />
-                        </Grid>
-                    </Grid>
-                    <MapContainer
-                        style={{ width: "100%", height: "60vh" }}
-                        center={DEFAULT_MAP_CENTER}
-                        zoom={DEFAULT_MAP_ZOOM}
-                        scrollWheelZoom={false}
-                    >
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-
-                        <MapWithDrawNodes
-                            onMarkerDrawn={handleMarkerDrawn}
-                            markerRef={markerRef}
-                            latitude={formData.coordinate ? formData.coordinate[1] : null}
-                            longitude={formData.coordinate ? formData.coordinate[0] : null}
-                        />
-                    </MapContainer>
-                    {/* Información académica */}
-
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Actualizar
-                    </Button>
-
-                    {/* <Button type="submit" fullWidth variant="contained" sx={{ mt: 1, mb: 2,backgroundColor: 'rgba(255, 165, 0, 0.8)', // Naranja opaco
-                '&:hover': {
-                    backgroundColor: 'rgba(255, 140, 0, 0.8)', // Un poco más oscuro al hacer hover
-                } }}>
-                        Cancelar
-                    </Button> */}
-
-                </Box>
+                    </Box>
+                </Paper>
             </Box>
         </Container>
     );

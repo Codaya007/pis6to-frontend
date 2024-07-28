@@ -6,7 +6,11 @@ const BASEURL = `${BACKEND_BASEURL}/ms2/nodes`;
 export const createNode = async (body) => {
   const url = `${BASEURL}`;
 
-  const { data } = await axios.post(url, body);
+  const { data } = await axios.post(url, body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return data;
 };

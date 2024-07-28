@@ -29,7 +29,7 @@ export default function SensorManagement() {
     type: "",
     node: "",
     code: "",
-    status: "",
+    status: "Activo",
   });
   
   const [errors, setErrors] = useState({
@@ -122,13 +122,11 @@ export default function SensorManagement() {
       <CssBaseline />
       <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <Typography component="h1" variant="h5">
-          Gestión de Sensores
+          Crear un nuevo sensor
         </Typography>
 
         <Paper elevation={3} sx={{ p: 4, mt: 4, width: "100%" }}>
-          <Typography variant="h6" gutterBottom>
-            Crear Nuevo Sensor
-          </Typography>
+
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
@@ -140,7 +138,6 @@ export default function SensorManagement() {
                       labelId="Tipo"
                       name="type"
                       id="type"
-                      required
                       label="Tipo"
                       onChange={handleChange}
                     >
@@ -160,7 +157,6 @@ export default function SensorManagement() {
                       labelId="Tipo"
                       name="node"
                       id="node"
-                      required
                       label="Nodo"
                       onChange={handleChange}
                     >
@@ -194,10 +190,9 @@ export default function SensorManagement() {
                       labelId="status"
                       name="status"
                       id="status"
-                      required
                       label="Estado"
                       onChange={handleChange}
-                      value={"Activo"}
+                      value={newSensor.status}
                     >
                     <MenuItem value={"Activo"}>Activo</MenuItem>
                     <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
@@ -205,9 +200,11 @@ export default function SensorManagement() {
                 </FormControl>
               </Grid>
             </Grid>
-            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-              Crear Sensor
-            </Button>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+              <Button type="submit" variant="contained" sx={{ mt: 3, width: 350 }} sm={8}>
+                Crear sensor
+              </Button>
+            </div>
           </form>
         </Paper>
       </Box>
