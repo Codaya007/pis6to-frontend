@@ -44,158 +44,158 @@ export default function Nodes() {
             console.log('Nodos con estaciones');
             console.log(nodosConNombreEstacion);
             setNodes(nodosConNombreEstacion);
-         catch (error) {
-                console.log(error);
-                console.log(error?.response?.data || error.message);
-                mensajes("Error", error.response?.data?.customMessage || "No se han podido obtener los nodos", "error");
-            }
-        };
+        } catch (error) {
+            console.log(error);
+            console.log(error?.response?.data || error.message);
+            mensajes("Error", error.response?.data?.customMessage || "No se han podido obtener los nodos", "error");
+        }
+    };
 
-        useEffect(() => {
-            if (token) {
-                getNodes();
-            }
-        }, [token, skip]);
+    useEffect(() => {
+        if (token) {
+            getNodes();
+        }
+    }, [token, skip]);
 
-        const handleCreateNode = () => {
-            router.push("/monitoringStation/node/createNode");
-        };
+    const handleCreateNode = () => {
+        router.push("/monitoringStation/node/createNode");
+    };
 
-        const handleUpdateNodeById = (id) => {
-            router.push(`/monitoringStation/node/update/${id}`);
-        };
+    const handleUpdateNodeById = (id) => {
+        router.push(`/monitoringStation/node/update/${id}`);
+    };
 
-        const handleUpdateNodeByIdStatus = async (id, state) => {
-            try {
-                console.log(token);
-                await updateNodeById(token, id, { status: state },);
-                await getNodes();
-                mensajes("Éxito", "Nodo actualizado exitosamente");
-            } catch (error) {
-                console.log(error);
-                console.log(error?.response?.data || error.message);
-                mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el nodo", "error");
-            }
-        };
+    const handleUpdateNodeByIdStatus = async (id, state) => {
+        try {
+            console.log(token);
+            await updateNodeById(token, id, { status: state },);
+            await getNodes();
+            mensajes("Éxito", "Nodo actualizado exitosamente");
+        } catch (error) {
+            console.log(error);
+            console.log(error?.response?.data || error.message);
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el nodo", "error");
+        }
+    };
 
-        const handleDeleteNode = async (id) => {
-            MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
-                .then(async () => {
-                    try {
-                        await deleteNodeById(token, id);
-                        await getNodes();
-                        mensajes("Éxito", "Sensor eliminado exitosamente");
-                    } catch (error) {
-                        console.log(error);
-                        console.log(error?.response?.data || error.message);
-                        mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el nodo", "error");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        };
+    const handleDeleteNode = async (id) => {
+        MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning")
+            .then(async () => {
+                try {
+                    await deleteNodeById(token, id);
+                    await getNodes();
+                    mensajes("Éxito", "Sensor eliminado exitosamente");
+                } catch (error) {
+                    console.log(error);
+                    console.log(error?.response?.data || error.message);
+                    mensajes("Error en eliminación", error.response?.data?.customMessage || "No se ha podido eliminar el nodo", "error");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
-        const handlePageChange = (newSkip) => {
-            setSkip(newSkip);
-        };
-        return (
-            <Container component="main" maxWidth="xl">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        marginTop: 8,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                    }}
-                >
-                    <Grid container justifyContent="space-between" alignItems="center">
-                        <Grid item>
-                            <Typography component="h1" variant="h5">
-                                Nodos
-                            </Typography>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="contained" onClick={handleCreateNode}>
-                                Crear nodo
-                            </Button>
-                        </Grid>
+    const handlePageChange = (newSkip) => {
+        setSkip(newSkip);
+    };
+    return (
+        <Container component="main" maxWidth="xl">
+            <CssBaseline />
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                }}
+            >
+                <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid item>
+                        <Typography component="h1" variant="h5">
+                            Nodos
+                        </Typography>
                     </Grid>
-                    <TableContainer component={Paper} sx={{ mt: 4 }}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Nombre</TableCell>
-                                    <TableCell>Codigo</TableCell>
-                                    <TableCell>Ubicacion</TableCell>
-                                    <TableCell>Estación de monitoreo</TableCell>
-                                    <TableCell>Fotos</TableCell>
-                                    <TableCell>Estado</TableCell>
-                                    <TableCell>Acciones</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {nodes.map((node) => (
-                                    <TableRow key={node._id}>
-                                        <TableCell>
-                                            {node.name}
-                                        </TableCell>
-                                        <TableCell>{node.code}</TableCell>
-                                        <TableCell>{node.location}</TableCell>
-                                        <TableCell>{node.nombreEstacion}</TableCell>
-                                        {node.photos.length > 0 ? <TableCell>
-                                            <CardMedia
-                                                sx={{ height: 80, width: 100 }}
-                                                image={node.photos[0]}
-                                                title="green iguana"
-                                            />
-                                        </TableCell> :
-                                            <TableCell> No hay fotos</TableCell>}
+                    <Grid item>
+                        <Button variant="contained" onClick={handleCreateNode}>
+                            Crear nodo
+                        </Button>
+                    </Grid>
+                </Grid>
+                <TableContainer component={Paper} sx={{ mt: 4 }}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Nombre</TableCell>
+                                <TableCell>Codigo</TableCell>
+                                <TableCell>Ubicacion</TableCell>
+                                <TableCell>Estación de monitoreo</TableCell>
+                                <TableCell>Fotos</TableCell>
+                                <TableCell>Estado</TableCell>
+                                <TableCell>Acciones</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {nodes.map((node) => (
+                                <TableRow key={node._id}>
+                                    <TableCell>
+                                        {node.name}
+                                    </TableCell>
+                                    <TableCell>{node.code}</TableCell>
+                                    <TableCell>{node.location}</TableCell>
+                                    <TableCell>{node.nombreEstacion}</TableCell>
+                                    {node.photos.length > 0 ? <TableCell>
+                                        <CardMedia
+                                            sx={{ height: 80, width: 100 }}
+                                            image={node.photos[0]}
+                                            title="green iguana"
+                                        />
+                                    </TableCell> :
+                                        <TableCell> No hay fotos</TableCell>}
 
-                                        <TableCell>{node.status}</TableCell>
-                                        <TableCell>
-                                            <Button
-                                                variant="outlined"
-                                                color="primary"
-                                                onClick={() => handleUpdateNodeById(node._id)}
-                                                sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
-                                            >
-                                                Actualizar
-                                            </Button>
-                                            <Button
-                                                variant="outlined"
-                                                color="secondary"
-                                                onClick={() =>
-                                                    handleUpdateNodeByIdStatus(node._id, node.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
-                                                }
-                                                sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
-                                            >
-                                                {node.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
-                                            </Button>
-                                            <Button
-                                                variant="outlined"
-                                                color="secondary"
-                                                onClick={() => handleDeleteNode(node._id)}
-                                                sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
-                                            >
-                                                Dar de baja
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <CustomPagination
-                        skip={skip}
-                        limit={limit}
-                        // totalCount={totalCount}
-                        onPageChange={handlePageChange}
-                    />
-                </Box>
-            </Container>
-        );
-    }
+                                    <TableCell>{node.status}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => handleUpdateNodeById(node._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            Actualizar
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() =>
+                                                handleUpdateNodeByIdStatus(node._id, node.status === INACTIVE_MONITORING_STATION ? ACTIVE_MONITORING_STATION : INACTIVE_MONITORING_STATION)
+                                            }
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            {node.status === INACTIVE_MONITORING_STATION ? "Activar" : "Desactivar"}
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() => handleDeleteNode(node._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            Dar de baja
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <CustomPagination
+                    skip={skip}
+                    limit={limit}
+                    // totalCount={totalCount}
+                    onPageChange={handlePageChange}
+                />
+            </Box>
+        </Container>
+    );
+}
 
 // export default WithAuth(MonitoringStationDashboard)

@@ -20,9 +20,11 @@ import {
   Pagination,
 } from "@mui/material";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BACKEND_BASEURL } from "@/constants";
 
 export default function HistoricalData() {
   const [data, setData] = useState([]);
+  const [allData, setAllData] = useState([]);
   const [selectedData, setSelectedData] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [page, setPage] = useState(1);
@@ -34,16 +36,31 @@ export default function HistoricalData() {
     fetchClimateData();
   }, [page]);
 
+  useEffect(() => {
+    fetchClimateDataAll();
+  }, []);
+
   const fetchClimateData = async () => {
     try {
       const skip = (page - 1) * limit;
-      const response = await fetch(`http://localhost:4000/ms3/climate-datas?skip=${skip}&limit=${limit}`);
+      const response = await fetch(`${BACKEND_BASEURL}/ms3/climate-datas?skip=${skip}&limit=${limit}`);
       const result = await response.json();
       setData(result.results || []);
       setTotalCount(result.totalCount || 0);
       setTotalPages(Math.ceil(result.totalCount / limit));
     } catch (error) {
       console.error('Error fetching climate data:', error);
+    }
+  };
+
+  const fetchClimateDataAll = async () => {
+    try {
+      const skip = (page - 1) * limit;
+      const response = await fetch(`${BACKEND_BASEURL}/ms3/climate-datas?skip=${skip}&limit=200`);
+      const result = await response.json();
+
+      setAllData(result.results || []);
+    } catch (error) {
     }
   };
 
@@ -82,7 +99,7 @@ export default function HistoricalData() {
 
         <ResponsiveContainer width="100%" height={300}>
           <LineChart
-            data={data}
+            data={allData}
             margin={{
               top: 5,
               right: 30,
@@ -114,7 +131,7 @@ export default function HistoricalData() {
             </TableHead>
             <TableBody>
               {data.map((item) => (
-                <TableRow key={item._id} onClick={() => handleViewDetails(item)} style={{cursor: 'pointer'}}>
+                <TableRow key={item._id} onClick={() => handleViewDetails(item)} style={{ cursor: 'pointer' }}>
                   <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
                   <TableCell>{item.temp}°C</TableCell>
                   <TableCell>{item.hum}%</TableCell>
