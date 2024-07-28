@@ -33,19 +33,19 @@ export const handleFileChange = async (e, token) => {
   const uploadedImages = [];
 
   for (const file of files) {
-      if (file.size > maxSizeInBytes) {
-          toast.error(
-              `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
-          );
-          continue; // Continúa con el siguiente archivo
-      }
+    if (file.size > maxSizeInBytes) {
+      toast.error(
+        `El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es de ${MAX_IMG_SIZE_MB} MB.`
+      );
+      continue; // Continúa con el siguiente archivo
+    }
 
-      try {
-          const imageURL = await uploadImageToS3(file, token);
-          uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
-      } catch (error) {
-          toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
-      }
+    try {
+      const imageURL = await uploadImageToS3(file, token);
+      uploadedImages.push(imageURL); // Agrega la URL de la imagen al array
+    } catch (error) {
+      toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
+    }
   }
   console.log(uploadedImages);
   return uploadedImages; // Devuelve el array con las URLs de las imágenes
@@ -64,7 +64,7 @@ export default function CreateNode() {
     status: "Activo",
     monitoringStation: "",
   });
-  
+
   const [errors, setErrors] = useState({
     name: "",
     location: "",
@@ -74,19 +74,19 @@ export default function CreateNode() {
 
   useEffect(() => {
     const fetchMonitoringStation = async () => {
-        try {
-            const { results } = await getAllMonitoringStation(token, 0, 10);
-            setMonitoringStation(results);
-        } catch (error) {
-            console.error("Error fetching estacion de monitoreo", error);
-            mensajes("Error al obtener las estaciones de monitoreo", error.response?.data?.customMessage || "No se pudo obtener las estacione de monitoreo", "error");
-        } 
+      try {
+        const { results } = await getAllMonitoringStation(token, 0, 10);
+        setMonitoringStation(results);
+      } catch (error) {
+        console.error("Error fetching estacion de monitoreo", error);
+        mensajes("Error al obtener las estaciones de monitoreo", error.response?.data?.customMessage || "No se pudo obtener las estacione de monitoreo", "error");
+      }
     }
     if (token) {
-        fetchMonitoringStation();
+      fetchMonitoringStation();
     }
 
-}, [token]);
+  }, [token]);
   const validateFields = (node) => {
     const newErrors = {};
     newErrors.name = node.name ? "" : "El nombre del nodo es requerido";
@@ -163,7 +163,7 @@ export default function CreateNode() {
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-             <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   onBlur={handleBlur}
                   onChange={handleChange}
@@ -211,9 +211,9 @@ export default function CreateNode() {
                   type="file"
                   // value={detail.img.length}
                   inputProps={{ multiple: true }}
-                                    // autoComplete="photos"
+                  // autoComplete="photos"
                   onChange={async (e) => {
-                 // setDetail({ ...detail, });
+                    // setDetail({ ...detail, });
                     const newImg = await handleFileChange(e, token);
                     console.log(newImg);
                     setNode((prevFormData) => ({
@@ -224,54 +224,54 @@ export default function CreateNode() {
                 />
               </Grid>
               <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", textAlign: "center", alignItems: "center" }}>
-                  {node.photos.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                      {node.photos.map((photo, index) => (
-                        <CardMedia
-                          key={index}
-                          sx={{ height: 120, width: 150, borderRadius: 30, margin: '0 10px' }}
-                          image={photo}
-                          title={`Imagen ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  )}
+                {node.photos.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    {node.photos.map((photo, index) => (
+                      <CardMedia
+                        key={index}
+                        sx={{ height: 120, width: 150, borderRadius: 30, margin: '0 10px' }}
+                        image={photo}
+                        title={`Imagen ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </Grid>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Estación de monitoreo</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.monitoringStation}
-                      labelId="monitoringStation"
-                      name="monitoringStation"
-                      id="monitoringStation"
-                      label="Estación de monitoreo"
-                      onChange={handleChange}
-                    >
-                      <MenuItem value={""}></MenuItem>
-                      {monitoringStation.map( (monitoringStation, index) => (
-                        <MenuItem value={monitoringStation._id}>{monitoringStation.name}</MenuItem>
-                      ) )}
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.monitoringStation}
+                    labelId="monitoringStation"
+                    name="monitoringStation"
+                    id="monitoringStation"
+                    label="Estación de monitoreo"
+                    onChange={handleChange}
+                  >
+                    <MenuItem value={""}></MenuItem>
+                    {monitoringStation.map((monitoringStation, index) => (
+                      <MenuItem key={index} value={monitoringStation._id}>{monitoringStation.name}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
-              
+
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Estado</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.status}
-                      // helpertext={errors.campus}
-                      labelId="status"
-                      name="status"
-                      id="status"
-                      label="Estado"
-                      onChange={handleChange}
-                      value={node.status}
-                      defaultValue="Activo"
-                    >
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.status}
+                    // helpertext={errors.campus}
+                    labelId="status"
+                    name="status"
+                    id="status"
+                    label="Estado"
+                    onChange={handleChange}
+                    value={node.status}
+                    defaultValue="Activo"
+                  >
                     <MenuItem value={"Activo"}>Activo</MenuItem>
                     <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
                   </Select>

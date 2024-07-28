@@ -31,7 +31,7 @@ export default function SensorManagement() {
     code: "",
     status: "Activo",
   });
-  
+
   const [errors, setErrors] = useState({
     type: "",
     node: "",
@@ -40,19 +40,22 @@ export default function SensorManagement() {
   });
   useEffect(() => {
     const fetchNodes = async () => {
-        try {
-            const { data: data } = await getAllNodes(token, 0, 10);
-            setNodes(data);
-        } catch (error) {
-            console.error("Error fetching nodos", error);
-            mensajes("Error al obtener los nodos", error.response?.data?.customMessage || "No se pudo obtener los nodos", "error");
-        } 
-    }
+      try {
+        const { data } = await getAllNodes(token, 0, 10);
+        setNodes(data);
+      } catch (error) {
+        console.error("Error fetching nodos", error);
+        mensajes(
+          "Error al obtener los nodos",
+          error.response?.data?.customMessage || "No se pudo obtener los nodos",
+          "error",
+        );
+      }
+    };
     if (token) {
-        fetchNodes();
+      fetchNodes();
     }
-
-}, [token]);
+  }, [token]);
   const validateFields = (sensor) => {
     const newErrors = {};
     newErrors.type = sensor.type ? "" : "El tipo de sensor es requerido";
@@ -97,50 +100,63 @@ export default function SensorManagement() {
       mensajes(
         "Error al crear el sensor",
         errorMessages || "No se ha podido crear el sensor",
-        "error"
+        "error",
       );
       return;
     }
 
     // Si no hay errores, procesar el formulario
-    console.log('Sensor creado:', newSensor);
+    console.log("Sensor creado:", newSensor);
     // Aquí puedes agregar la lógica para enviar el formulario al servidor
 
     try {
       await createSensor(newSensor, token);
       mensajes("Éxito", "Creación exitosa");
-      router.push("/monitoringStation/sensors")
+      router.push("/monitoringStation/sensors");
     } catch (error) {
-      console.log('ERROR');
+      console.log("ERROR");
       console.log(error);
-      mensajes("No se pudo crear estacion de monitoreo", error?.response?.data?.customMessage || "No se ha podido crear el sensor", "error");
+      mensajes(
+        "No se pudo crear estacion de monitoreo",
+        error?.response?.data?.customMessage ||
+        "No se ha podido crear el sensor",
+        "error",
+      );
     }
   };
 
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <Typography component="h1" variant="h5">
           Crear un nuevo sensor
         </Typography>
 
         <Paper elevation={3} sx={{ p: 4, mt: 4, width: "100%" }}>
-
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">Tipo de sensor</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.type}
-                      labelId="Tipo"
-                      name="type"
-                      id="type"
-                      label="Tipo"
-                      onChange={handleChange}
-                    >
+                  <InputLabel id="demo-simple-select-label">
+                    Tipo de sensor
+                  </InputLabel>
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.type}
+                    labelId="Tipo"
+                    name="type"
+                    id="type"
+                    label="Tipo"
+                    onChange={handleChange}
+                  >
                     <MenuItem value={""}></MenuItem>
                     <MenuItem value={"Temperatura"}>Temperatura</MenuItem>
                     <MenuItem value={"Humedad"}>Humedad</MenuItem>
@@ -151,19 +167,21 @@ export default function SensorManagement() {
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Nodo</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.node}
-                      labelId="Tipo"
-                      name="node"
-                      id="node"
-                      label="Nodo"
-                      onChange={handleChange}
-                    >
-                      <MenuItem value={""}></MenuItem>
-                      {nodes.map( (nodo, index) => (
-                        <MenuItem value={nodo._id}>{nodo.name}</MenuItem>
-                      ) )}
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.node}
+                    labelId="Tipo"
+                    name="node"
+                    id="node"
+                    label="Nodo"
+                    onChange={handleChange}
+                  >
+                    <MenuItem value={""}></MenuItem>
+                    {nodes.map((nodo, index) => (
+                      <MenuItem key={index} value={nodo._id}>
+                        {nodo.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -183,25 +201,37 @@ export default function SensorManagement() {
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Estado</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.status}
-                      // helpertext={errors.campus}
-                      labelId="status"
-                      name="status"
-                      id="status"
-                      label="Estado"
-                      onChange={handleChange}
-                      value={newSensor.status}
-                    >
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.status}
+                    // helpertext={errors.campus}
+                    labelId="status"
+                    name="status"
+                    id="status"
+                    label="Estado"
+                    onChange={handleChange}
+                    value={newSensor.status}
+                  >
                     <MenuItem value={"Activo"}>Activo</MenuItem>
                     <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
             </Grid>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Button type="submit" variant="contained" sx={{ mt: 3, width: 350 }} sm={8}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ mt: 3, width: 350 }}
+                sm={8}
+              >
                 Crear sensor
               </Button>
             </div>

@@ -15,7 +15,11 @@ import {
   FormControl,
 } from "@mui/material";
 import mensajes from "@/app/components/Mensajes";
-import { createSensor, getSensorById, updateSensor } from "@/services/sensor.service";
+import {
+  createSensor,
+  getSensorById,
+  updateSensor,
+} from "@/services/sensor.service";
 import { useAuth } from "@/context/AuthContext";
 import { getAllNodes } from "@/services/nodes.service";
 import { useParams, useRouter } from "next/navigation";
@@ -32,7 +36,7 @@ export default function UpdateSensor() {
     code: "",
     status: "",
   });
-  
+
   const [errors, setErrors] = useState({
     type: "",
     node: "",
@@ -41,35 +45,44 @@ export default function UpdateSensor() {
   });
   useEffect(() => {
     const fetchNodes = async () => {
-        try {
-            const { data: data } = await getAllNodes(token, 0, 10);
-            setNodes(data);
-        } catch (error) {
-            console.error("Error fetching nodos", error);
-            mensajes("Error al obtener los nodos", error.response?.data?.customMessage || "No se pudo obtener los nodos", "error");
-        } 
-    }
+      try {
+        const { data } = await getAllNodes(token, 0, 10);
+        setNodes(data);
+      } catch (error) {
+        console.error("Error fetching nodos", error);
+        mensajes(
+          "Error al obtener los nodos",
+          error.response?.data?.customMessage || "No se pudo obtener los nodos",
+          "error",
+        );
+      }
+    };
     const fetchSensorById = async () => {
-        try {
-            const {results: sensorGet } = await getSensorById(token, id);
-            setSensor({
-                type: sensorGet.type,
-                node: sensorGet.node._id,
-                code: sensorGet.code,
-                status: sensorGet.status
-            });
-        } catch (error) {
-            console.error("Error fetching estacion de monitoreo", error);
-            mensajes("Error al obtener el sensor", error.response?.data?.customMessage || "No se pudo obtener la estacion de monitoreo", "error");
-        }
-    }
+      try {
+        const { results: sensorGet } = await getSensorById(token, id);
+        setSensor({
+          type: sensorGet.type,
+          node: sensorGet.node._id,
+          code: sensorGet.code,
+          status: sensorGet.status,
+        });
+      } catch (error) {
+        console.error("Error fetching estacion de monitoreo", error);
+        mensajes(
+          "Error al obtener el sensor",
+          error.response?.data?.customMessage ||
+          "No se pudo obtener la estacion de monitoreo",
+          "error",
+        );
+      }
+    };
 
     if (token) {
-        fetchSensorById()
-        fetchNodes();
+      fetchSensorById();
+      fetchNodes();
     }
+  }, [token]);
 
-}, [token]);
   const validateFields = (sensor) => {
     const newErrors = {};
     newErrors.type = sensor.type ? "" : "El tipo de sensor es requerido";
@@ -114,30 +127,42 @@ export default function UpdateSensor() {
       mensajes(
         "Error al modificar el sensor",
         errorMessages || "No se ha podido modificar sensor",
-        "error"
+        "error",
       );
       return;
     }
 
     // Si no hay errores, procesar el formulario
-    console.log('Sensor modificado:', sensor);
+    console.log("Sensor modificado:", sensor);
     // Aquí puedes agregar la lógica para enviar el formulario al servidor
 
     try {
       await updateSensor(id, sensor, token);
       mensajes("Éxito", "Creación exitosa");
-      router.push("/monitoringStation/sensors")
+      router.push("/monitoringStation/sensors");
     } catch (error) {
-      console.log('ERROR');
+      console.log("ERROR");
       console.log(error);
-      mensajes("No se pudo crear estacion de monitoreo", error?.response?.data?.customMessage || "No se ha podido crear el sensor", "error");
+      mensajes(
+        "No se pudo crear estacion de monitoreo",
+        error?.response?.data?.customMessage ||
+        "No se ha podido crear el sensor",
+        "error",
+      );
     }
   };
 
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <Typography component="h1" variant="h4">
           Actualizar sensor
         </Typography>
@@ -147,18 +172,20 @@ export default function UpdateSensor() {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">Tipo de sensor</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.type}
-                      labelId="Tipo"
-                      name="type"
-                      id="type"
-                      required
-                      label="Tipo"
-                      onChange={handleChange}
-                      value={sensor.type}
-                    >
+                  <InputLabel id="demo-simple-select-label">
+                    Tipo de sensor
+                  </InputLabel>
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.type}
+                    labelId="Tipo"
+                    name="type"
+                    id="type"
+                    required
+                    label="Tipo"
+                    onChange={handleChange}
+                    value={sensor.type}
+                  >
                     <MenuItem value={""}></MenuItem>
                     <MenuItem value={"Temperatura"}>Temperatura</MenuItem>
                     <MenuItem value={"Humedad"}>Humedad</MenuItem>
@@ -169,21 +196,23 @@ export default function UpdateSensor() {
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Nodo</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.node}
-                      labelId="Tipo"
-                      name="node"
-                      id="node"
-                      required
-                      label="Nodo"
-                      onChange={handleChange}
-                      value={sensor.node}
-                    >
-                      <MenuItem value={""}></MenuItem>
-                      {nodes.map( (nodo, index) => (
-                        <MenuItem value={nodo._id}>{nodo.name}</MenuItem>
-                      ) )}
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.node}
+                    labelId="Tipo"
+                    name="node"
+                    id="node"
+                    required
+                    label="Nodo"
+                    onChange={handleChange}
+                    value={sensor.node}
+                  >
+                    <MenuItem value={""}></MenuItem>
+                    {nodes.map((nodo, index) => (
+                      <MenuItem key={index} value={nodo._id}>
+                        {nodo.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -203,18 +232,18 @@ export default function UpdateSensor() {
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Estado</InputLabel>
-                    <Select
-                      onBlur={handleBlur}
-                      error={!!errors.status}
-                      // helpertext={errors.campus}
-                      labelId="status"
-                      name="status"
-                      id="status"
-                      required
-                      label="Estado"
-                      onChange={handleChange}
-                      value={sensor.status}
-                    >
+                  <Select
+                    onBlur={handleBlur}
+                    error={!!errors.status}
+                    // helpertext={errors.campus}
+                    labelId="status"
+                    name="status"
+                    id="status"
+                    required
+                    label="Estado"
+                    onChange={handleChange}
+                    value={sensor.status}
+                  >
                     <MenuItem value={""}></MenuItem>
                     <MenuItem value={"Activo"}>Activo</MenuItem>
                     <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
@@ -222,8 +251,20 @@ export default function UpdateSensor() {
                 </FormControl>
               </Grid>
             </Grid>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Button type="submit" variant="contained" sx={{ mt: 3, width: 350 }} sm={8}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ mt: 3, width: 350 }}
+                sm={8}
+              >
                 Guardar cambios
               </Button>
             </div>
