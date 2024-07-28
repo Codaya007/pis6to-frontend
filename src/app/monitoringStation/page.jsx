@@ -51,7 +51,7 @@ export default function MonitoringStationDashboard() {
             console.log(token);
             await updateMonitoringStationById(token, id, { status: state },);
             await getMonitoringStations();
-            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente", "info");
+            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente");
         } catch (error) {
             console.log(error);
             console.log(error?.response?.data || error.message);
@@ -65,7 +65,7 @@ export default function MonitoringStationDashboard() {
                 try {
                     await deleteMonitoringStationById(token, id);
                     await getMonitoringStations();
-                    mensajes("Éxito", "Estación de monitoreo eliminada exitosamente", "info");
+                    mensajes("Éxito", "Estación de monitoreo eliminada exitosamente");
                 } catch (error) {
                     console.log(error);
                     console.log(error?.response?.data || error.message);

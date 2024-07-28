@@ -17,7 +17,7 @@ import mensajes from "@/app/components/Mensajes";
 import CustomPagination from "@/app/components/CustomPagination";
 import { deleteSensorById, getAllSensors, updateSensor } from "@/services/sensor.service";
 
-export default function MonitoringStationDashboard() {
+export default function CreateSensor() {
     const [sensors, setSensors] = useState([]);
 
     const [skip, setSkip] = useState(0);
@@ -37,6 +37,7 @@ export default function MonitoringStationDashboard() {
         });
         setTotalCount(totalCount);
         setSensors(transformedResults);
+        
     };
 
     useEffect(() => {

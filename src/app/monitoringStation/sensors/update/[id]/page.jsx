@@ -15,17 +15,18 @@ import {
   FormControl,
 } from "@mui/material";
 import mensajes from "@/app/components/Mensajes";
-import { createSensor } from "@/services/sensor.service";
+import { createSensor, getSensorById, updateSensor } from "@/services/sensor.service";
 import { useAuth } from "@/context/AuthContext";
 import { getAllNodes } from "@/services/nodes.service";
 import { useParams, useRouter } from "next/navigation";
 
-export default function SensorManagement() {
+export default function UpdateSensor() {
   const { token } = useAuth();
   const [nodes, setNodes] = useState([]);
   const router = useRouter();
+  const { id } = useParams();
 
-  const [newSensor, setNewSensor] = useState({
+  const [sensor, setSensor] = useState({
     type: "",
     node: "",
     code: "",
@@ -48,7 +49,23 @@ export default function SensorManagement() {
             mensajes("Error al obtener los nodos", error.response?.data?.customMessage || "No se pudo obtener los nodos", "error");
         } 
     }
+    const fetchSensorById = async () => {
+        try {
+            const {results: sensorGet } = await getSensorById(token, id);
+            setSensor({
+                type: sensorGet.type,
+                node: sensorGet.node._id,
+                code: sensorGet.code,
+                status: sensorGet.status
+            });
+        } catch (error) {
+            console.error("Error fetching estacion de monitoreo", error);
+            mensajes("Error al obtener el sensor", error.response?.data?.customMessage || "No se pudo obtener la estacion de monitoreo", "error");
+        }
+    }
+
     if (token) {
+        fetchSensorById()
         fetchNodes();
     }
 
@@ -72,7 +89,7 @@ export default function SensorManagement() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setNewSensor((prevFormData) => ({
+    setSensor((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
@@ -82,7 +99,7 @@ export default function SensorManagement() {
     e.preventDefault();
 
     // Validar campos
-    const newErrors = validateFields(newSensor);
+    const newErrors = validateFields(sensor);
     setErrors(newErrors);
 
     // Verificar si hay errores
@@ -95,19 +112,19 @@ export default function SensorManagement() {
         .join("\n");
 
       mensajes(
-        "Error al crear el sensor",
-        errorMessages || "No se ha podido crear el sensor",
+        "Error al modificar el sensor",
+        errorMessages || "No se ha podido modificar sensor",
         "error"
       );
       return;
     }
 
     // Si no hay errores, procesar el formulario
-    console.log('Sensor creado:', newSensor);
+    console.log('Sensor modificado:', sensor);
     // Aquí puedes agregar la lógica para enviar el formulario al servidor
 
     try {
-      await createSensor(newSensor, token);
+      await updateSensor(id, sensor, token);
       mensajes("Éxito", "Creación exitosa");
       router.push("/monitoringStation/sensors")
     } catch (error) {
@@ -122,7 +139,7 @@ export default function SensorManagement() {
       <CssBaseline />
       <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <Typography component="h1" variant="h5">
-          Gestión de Sensores
+          Actualizacion de sensores
         </Typography>
 
         <Paper elevation={3} sx={{ p: 4, mt: 4, width: "100%" }}>
@@ -143,6 +160,7 @@ export default function SensorManagement() {
                       required
                       label="Tipo"
                       onChange={handleChange}
+                      value={sensor.type}
                     >
                     <MenuItem value={""}></MenuItem>
                     <MenuItem value={"Temperatura"}>Temperatura</MenuItem>
@@ -163,6 +181,7 @@ export default function SensorManagement() {
                       required
                       label="Nodo"
                       onChange={handleChange}
+                      value={sensor.node}
                     >
                       <MenuItem value={""}></MenuItem>
                       {nodes.map( (nodo, index) => (
@@ -181,7 +200,7 @@ export default function SensorManagement() {
                   name="code"
                   id="code"
                   label="Codigo"
-                  value={newSensor.code}
+                  value={sensor.code}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -197,8 +216,9 @@ export default function SensorManagement() {
                       required
                       label="Estado"
                       onChange={handleChange}
-                      value={"Activo"}
+                      value={sensor.status}
                     >
+                    <MenuItem value={""}></MenuItem>
                     <MenuItem value={"Activo"}>Activo</MenuItem>
                     <MenuItem value={"Inactivo"}>Inactivo</MenuItem>
                   </Select>
@@ -206,7 +226,7 @@ export default function SensorManagement() {
               </Grid>
             </Grid>
             <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-              Crear Sensor
+              Editar Sensor
             </Button>
           </form>
         </Paper>
