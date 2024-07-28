@@ -15,14 +15,15 @@ import { uploadImageToS3 } from "../../../services/image.service";
 import { createMonitoringStation } from "@/services/monitoringStation.service";
 import { toast } from "react-toastify";
 import mensajes from "@/app/components/Mensajes";
-import MapWithDrawNodes from '@/app/components/MapWithDrawNodes';
+// import MapWithDrawNodes from '@/app/components/MapWithDrawNodes';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 // Dinamicamente importar MapContainer
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
-
+// Dinamicamente importar MapContainer y TileLayer
+const MapWithDrawNodes = dynamic(() => import('@/app/components/MapWithDrawNodes'), { ssr: false });
 
 const monitoringStationInitialState = {
     name: "",
@@ -237,13 +238,13 @@ export default function CreateMonitoringStation() {
                 <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
                     <MyLocationIcon />
                 </Avatar>
-                    <Typography component="h1" variant="h4">
-                        Crear Estacion de monitoreo
-                    </Typography>
+                <Typography component="h1" variant="h4">
+                    Crear Estacion de monitoreo
+                </Typography>
                 <Paper elevation={3} sx={{ p: 4, mt: 4, width: '100%' }}>
-                
+
                     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                        <Grid  container spacing={2}>
+                        <Grid container spacing={2}>
                             {/* Información básica */}
                             <Grid item xs={12} sm={6}>
                                 <TextField
@@ -440,39 +441,39 @@ export default function CreateMonitoringStation() {
                                 />
                             </Grid>
                         </Grid>
-                
-                    <MapContainer
-                        style={{ width: "100%", height: "60vh", marginTop: 20 }}
-                        center={DEFAULT_MAP_CENTER}
-                        zoom={DEFAULT_MAP_ZOOM}
-                        scrollWheelZoom={false}
-                    >
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
 
-                        <MapWithDrawNodes
-                            onMarkerDrawn={handleMarkerDrawn}
-                            markerRef={markerRef}
-                            latitude={monitoringStation.latitude}
-                            longitude={monitoringStation.longitude}
-                        />
-                    </MapContainer>
+                        <MapContainer
+                            style={{ width: "100%", height: "60vh", marginTop: 20 }}
+                            center={DEFAULT_MAP_CENTER}
+                            zoom={DEFAULT_MAP_ZOOM}
+                            scrollWheelZoom={false}
+                        >
+                            <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
 
-                    <FormGroup>
-                        <FormControlLabel control={<Checkbox defaultChecked />} label="Habilitado"
-                            onChange={(e) => {
-                                let valor = e.target.checked == true ? "Activo" : "Inactivo"
-                                console.log(valor);
-                                setStatusMonitoringStation(valor)
-                            }} />
-                    </FormGroup>
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Crear
-                    </Button>
+                            <MapWithDrawNodes
+                                onMarkerDrawn={handleMarkerDrawn}
+                                markerRef={markerRef}
+                                latitude={monitoringStation.latitude}
+                                longitude={monitoringStation.longitude}
+                            />
+                        </MapContainer>
 
-                </Box>
+                        <FormGroup>
+                            <FormControlLabel control={<Checkbox defaultChecked />} label="Habilitado"
+                                onChange={(e) => {
+                                    let valor = e.target.checked == true ? "Activo" : "Inactivo"
+                                    console.log(valor);
+                                    setStatusMonitoringStation(valor)
+                                }} />
+                        </FormGroup>
+                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                            Crear
+                        </Button>
+
+                    </Box>
                 </Paper>
 
             </Box>
