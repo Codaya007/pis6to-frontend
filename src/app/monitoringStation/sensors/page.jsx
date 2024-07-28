@@ -19,7 +19,6 @@ import { deleteSensorById, getAllSensors, updateSensor } from "@/services/sensor
 
 export default function CreateSensor() {
     const [sensors, setSensors] = useState([]);
-
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
     const [totalCount, setTotalCount] = useState(0);
@@ -27,17 +26,22 @@ export default function CreateSensor() {
     const router = useRouter();
 
     const getSensors = async () => {
-        const { totalCount, results } = await getAllSensors(token, skip, limit);
-        const transformedResults = results.map(sensor => {
-            const { node, ...rest } = sensor;
-            return {
-                ...rest,
-                node: node.name // Extraemos el nombre del nodo y lo asignamos a nodeName
-            };
-        });
-        setTotalCount(totalCount);
-        setSensors(transformedResults);
-        
+        try {
+            const { totalCount, results } = await getAllSensors(token, skip, limit);
+            const transformedResults = results.map(sensor => {
+                const { node, ...rest } = sensor;
+                return {
+                    ...rest,
+                    node: node.name // Extraemos el nombre del nodo y lo asignamos a nodeName
+                };
+            });
+            setTotalCount(totalCount);
+            setSensors(transformedResults);
+        } catch (error) {
+            console.log(error);
+            console.log(error?.response?.data || error.message);
+            mensajes("Error", error.response?.data?.customMessage || "No se han podido obtener los sensores", "error");
+        }
     };
 
     useEffect(() => {

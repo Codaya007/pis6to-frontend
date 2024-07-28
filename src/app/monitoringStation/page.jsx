@@ -27,9 +27,15 @@ export default function MonitoringStationDashboard() {
     const router = useRouter();
 
     const getMonitoringStations = async () => {
-        const { totalCount, results } = await getAllMonitoringStations(token, skip, limit);
-        setTotalCount(totalCount);
-        setMonitoringStations(results);
+        try {
+            const { totalCount, results } = await getAllMonitoringStations(token, skip, limit);
+            setTotalCount(totalCount);
+            setMonitoringStations(results);
+        } catch (error) {
+            console.log(error);
+            console.log(error?.response?.data || error.message);
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener las estaciones de monitoreo", "error");
+        }
     };
 
     useEffect(() => {

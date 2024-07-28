@@ -83,7 +83,7 @@ const NavigationMenu = () => {
         menuItems.push(
             { label: "Administradores", icon: <PeopleIcon />, path: "/users/admins" },
             { label: "Investigadores", icon: <PeopleIcon />, path: "/researchers" },
-            { label: "Nodos", icon: <WifiIcon />, path: "/monitoringStation/nodes" },
+            { label: "Nodos", icon: <WifiIcon />, path: "/monitoringStation/node" },
             { label: "Estaciones de monitoreo", icon: <PlaceIcon />, path: "/monitoringStation" },
             { label: "Historial", icon: <HistoryIcon />, path: "/monitoringStation/sensors/history" },
             { label: "Alertas", icon: <NotificationsIcon />, path: "/alerts" },
