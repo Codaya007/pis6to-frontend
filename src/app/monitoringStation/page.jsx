@@ -1,11 +1,8 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
-// import { deleteNode, getAllNodes } from "@/services/nodes.service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-// import mensajeConfirmacion from "../components/MensajeConfirmacion";
-// import { WithAuth } from "../components/WithAuth";
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -19,7 +16,6 @@ import MensajeConfirmacion from "../components/MensajeConfirmacion";
 export default function MonitoringStationDashboard() {
     const [monitoringStations, setMonitoringStations] = useState([]);
     const [campus, setCampus] = useState('');
-
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
     const [totalCount, setTotalCount] = useState(0);
@@ -80,6 +76,11 @@ export default function MonitoringStationDashboard() {
     const handlePageChange = (newSkip) => {
         setSkip(newSkip);
     };
+
+    const handleShowNodes = (stationId) => {
+        router.push(`/monitoringStation/node/${stationId}`);
+    };
+
     return (
         <Container component="main" maxWidth="xl">
             <CssBaseline />
@@ -112,7 +113,7 @@ export default function MonitoringStationDashboard() {
                                 <TableCell>Fotos</TableCell>
                                 <TableCell>Información</TableCell>
                                 <TableCell>Estado</TableCell>
-
+                                <TableCell>Acciones</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -134,8 +135,6 @@ export default function MonitoringStationDashboard() {
                                         Bloque: {monitoringStation.nomenclature.bloque} <br />
                                         Piso: {monitoringStation.nomenclature.piso}
                                     </TableCell>
-
-
                                     <TableCell>{monitoringStation.status}</TableCell>
                                     <TableCell>
                                         <Button
@@ -164,6 +163,14 @@ export default function MonitoringStationDashboard() {
                                         >
                                             Dar de baja
                                         </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => handleShowNodes(monitoringStation._id)}
+                                            sx={{ mr: 1, mb: 1, textTransform: "none", fontSize: "0.875rem" }}
+                                        >
+                                            Gestionar nodos
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -180,5 +187,3 @@ export default function MonitoringStationDashboard() {
         </Container>
     );
 }
-
-// export default WithAuth(MonitoringStationDashboard)
