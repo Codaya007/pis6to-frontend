@@ -52,5 +52,4 @@ steps:
       appName: "pis6tofront"
       package: "$(Build.ArtifactStagingDirectory)/app.zip"
       runtimeStack: "NODE|20-lts"
-      startUpCommand: "npm start"
     displayName: "Desplegar a Azure App Service"
