@@ -52,11 +52,10 @@ export const handleFileChange = async (e, token) => {
 };
 
 
-export default function SensorManagement() {
+export default function CreateNode() {
   const { token } = useAuth();
   const router = useRouter();
   const [monitoringStation, setMonitoringStation] = useState([]);
-  const [imagenes, setImagenes] = useState([]);
   const [node, setNode] = useState({
     name: "",
     location: "",
@@ -156,7 +155,7 @@ export default function SensorManagement() {
     <Container component="main" maxWidth="lg">
       <CssBaseline />
       <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h4">
           Crear un nuevo nodo
         </Typography>
 
@@ -279,9 +278,11 @@ export default function SensorManagement() {
                 </FormControl>
               </Grid>
             </Grid>
-            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-              Crear Nodo
-            </Button>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+              <Button type="submit" variant="contained" sx={{ mt: 3, width: 350 }} sm={8}>
+                Crear nodo
+              </Button>
+            </div>
           </form>
         </Paper>
       </Box>

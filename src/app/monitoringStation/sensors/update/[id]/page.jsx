@@ -138,14 +138,11 @@ export default function UpdateSensor() {
     <Container component="main" maxWidth="lg">
       <CssBaseline />
       <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <Typography component="h1" variant="h5">
-          Actualizacion de sensores
+        <Typography component="h1" variant="h4">
+          Actualizar sensor
         </Typography>
 
         <Paper elevation={3} sx={{ p: 4, mt: 4, width: "100%" }}>
-          <Typography variant="h6" gutterBottom>
-            Crear Nuevo Sensor
-          </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
@@ -225,9 +222,11 @@ export default function UpdateSensor() {
                 </FormControl>
               </Grid>
             </Grid>
-            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-              Editar Sensor
-            </Button>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+              <Button type="submit" variant="contained" sx={{ mt: 3, width: 350 }} sm={8}>
+                Guardar cambios
+              </Button>
+            </div>
           </form>
         </Paper>
       </Box>
