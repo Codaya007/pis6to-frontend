@@ -15,6 +15,7 @@ import { deleteNodeById, getAllNodes, updateNodeById } from "@/services/nodes.se
 import mensajes from "@/app/components/Mensajes";
 import CustomPagination from "@/app/components/CustomPagination";
 import { getAllMonitoringStation } from "@/services/monitoring-station.service";
+import MensajeConfirmacion from "@/app/components/MensajeConfirmacion";
 
 export default function Nodes() {
     const [nodes, setNodes] = useState([]);
@@ -28,7 +29,7 @@ export default function Nodes() {
         const { data } = await getAllNodes(token, skip, limit);
         const {results} = await getAllMonitoringStation(token, skip, limit);
         console.log('RESULTSSSS');
-        console.log(results);
+        console.log(data);
         const nodosConNombreEstacion = data.map((nodo) => {
             const estacion = results.find(
               (estacion) => estacion._id == nodo.monitoringStation
@@ -63,11 +64,11 @@ export default function Nodes() {
             console.log(token);
             await updateNodeById(token, id, { status: state },);
             await getNodes();
-            mensajes("Éxito", "Estacion de monitoreo actualizada exitosamente");
+            mensajes("Éxito", "Nodo actualizado exitosamente");
         } catch (error) {
             console.log(error);
             console.log(error?.response?.data || error.message);
-            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el usuario", "error");
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar el nodo", "error");
         }
     };
 

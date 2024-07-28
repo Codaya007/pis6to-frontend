@@ -3,7 +3,7 @@ import { BACKEND_BASEURL } from "../constants/index";
 
 const BASEURL = `${BACKEND_BASEURL}/ms2/nodes`;
 
-export const createNode = async (body, token) => {
+export const createNode = async (body) => {
   const url = `${BASEURL}`;
 
   const { data } = await axios.post(url, body, {
