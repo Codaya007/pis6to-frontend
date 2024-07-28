@@ -5,42 +5,44 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import mensajes from "../components/Mensajes";
 import CustomPagination from "../components/CustomPagination";
+import { getAllAlerts, muteAlert, resolveAlert } from "@/services/alert.service";
+import { getAllNodes } from "@/services/nodes.service";
 
-const initialAlerts = [
-    {
-        _id: "1",
-        title: "Alerta de temperatura alta",
-        description: "La temperatura ha superado el umbral",
-        type: "Crítica",
-        node: { name: "Nodo 1", monitoringStation: { name: "Estación 1" } },
-        emitSound: true,
-        resolved: false
-    },
-    {
-        _id: "2",
-        title: "Alerta de humedad baja",
-        description: "La humedad está por debajo del nivel aceptable",
-        type: "Advertencia",
-        node: { name: "Nodo 2", monitoringStation: { name: "Estación 2" } },
-        emitSound: false,
-        resolved: false
-    },
-    {
-        _id: "3",
-        title: "Alerta de presión alta",
-        description: "La presión ha superado el umbral",
-        type: "Crítica",
-        node: { name: "Nodo 3", monitoringStation: { name: "Estación 3" } },
-        emitSound: true,
-        resolved: true
-    }
-];
+// const initialAlerts = [
+//     {
+//         _id: "1",
+//         title: "Alerta de temperatura alta",
+//         description: "La temperatura ha superado el umbral",
+//         type: "Crítica",
+//         node: { name: "Nodo 1", monitoringStation: { name: "Estación 1" } },
+//         emitSound: true,
+//         resolved: false
+//     },
+//     {
+//         _id: "2",
+//         title: "Alerta de humedad baja",
+//         description: "La humedad está por debajo del nivel aceptable",
+//         type: "Advertencia",
+//         node: { name: "Nodo 2", monitoringStation: { name: "Estación 2" } },
+//         emitSound: false,
+//         resolved: false
+//     },
+//     {
+//         _id: "3",
+//         title: "Alerta de presión alta",
+//         description: "La presión ha superado el umbral",
+//         type: "Crítica",
+//         node: { name: "Nodo 3", monitoringStation: { name: "Estación 3" } },
+//         emitSound: true,
+//         resolved: true
+//     }
+// ];
 
 export default function Alerts() {
-    const [alerts, setAlerts] = useState(initialAlerts);
+    const [alerts, setAlerts] = useState([]);
     const [skip, setSkip] = useState(0);
     const [limit, setLimit] = useState(10);
-    const [totalCount, setTotalCount] = useState(initialAlerts.length);
+    const [totalCount, setTotalCount] = useState(0);
     const [modifiedAlert, setModifiedAlert] = useState(true);
     const { token, user } = useAuth();
     const router = useRouter();
@@ -49,37 +51,104 @@ export default function Alerts() {
     const [currentAlertId, setCurrentAlertId] = useState(null);
     const [appliedActions, setAppliedActions] = useState("");
 
+    const getAlerts = async () => {
+        try {
+            const { totalCount, results } = await getAllAlerts(token, skip, limit);
+
+            setTotalCount(totalCount)
+            setAlerts(results);
+        } catch (error) {
+            mensajes("Error", error.response?.data?.customMessage || "No se ha podido obtener las alertas", "error");
+        }
+    }
+
     useEffect(() => {
-        // Aquí no llamamos a getAlerts porque usamos datos ficticios
-    }, [modifiedAlert]);
+        // Llamada a backend
+        if (token) {
+            getAlerts();
+        }
+
+        // setResearchers(mockResearchers);
+    }, [token, skip, limit]);
+
+
+    const handleMuteAlert = async (id) => {
+        try {
+            await muteAlert(id, { emitSound: false }, token);
+            setModifiedAlert(!modifiedAlert);
+            getAlerts();
+
+            mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+        } catch (error) {
+            console.log(error)
+            console.log(error?.response?.data || error.message);
+
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar la alerta", "error");
+        }
+    }
+
+    // const handleResolveAlert = async (id, resolved) => {
+    //     try {
+    //         const item = {
+    //             resolved: resolved,
+    //             resolvedBy: user._id
+    //         }
+    //         await resolveAlert(id, item, token);
+    //         setModifiedAlert(!modifiedAlert);
+
+    //         mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+    //     } catch (error) {
+    //         console.log(error)
+    //         console.log(error?.response?.data || error.message);
+
+    //         mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar la alerta", "error");
+    //     }
+    // }
 
     const handleSeeAlert = (id) => {
         console.log(`Ver alerta id: ${id}`);
         router.push(`/alerts/${id}`);
     };
 
-    const handleMuteAlert = (id, emitSound) => {
-        setAlerts(alerts.map(alert => alert._id === id ? { ...alert, emitSound } : alert));
-        setModifiedAlert(!modifiedAlert);
-        mensajes("Éxito", "Alerta actualizada exitosamente", "info");
-    }
+    // const handleMuteAlert = (id, emitSound) => {
+    //     setAlerts(alerts.map(alert => alert._id === id ? { ...alert, emitSound } : alert));
+    //     setModifiedAlert(!modifiedAlert);
+    //     mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+    // }
 
     const handleResolveAlert = (id) => {
         setCurrentAlertId(id);
         setOpen(true);
     }
 
-    const handleSubmitActions = () => {
-        setAlerts(alerts.map(alert => alert._id === currentAlertId ? { ...alert, resolved: true, appliedActions } : alert));
-        setModifiedAlert(!modifiedAlert);
-        mensajes("Éxito", "Alerta actualizada exitosamente", "info");
-        setOpen(false);
-        setAppliedActions("");
+    const handleSubmitActions = async () => {
+        // setAlerts(alerts.map(alert => alert._id === currentAlertId ? { ...alert, resolved: true, appliedActions } : alert));
+        // setModifiedAlert(!modifiedAlert);
+        // mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+
+        try {
+            setModifiedAlert(!modifiedAlert);
+
+            setOpen(false);
+            setAppliedActions("");
+
+            await resolveAlert(currentAlertId, { appliedActions }, token);
+            getAlerts();
+
+            mensajes("Éxito", "Alerta actualizada exitosamente", "info");
+        } catch (error) {
+            console.log(error)
+            console.log(error?.response?.data || error.message);
+
+            mensajes("Error en actualización", error.response?.data?.customMessage || "No se ha podido actualizar la alerta", "error");
+        }
     }
 
     const handlePageChange = (newSkip) => {
         setSkip(newSkip);
     };
+
+    // console.log({ currentAlertId })
 
     return (
         <Container component="main" maxWidth="lg">
@@ -114,47 +183,47 @@ export default function Alerts() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-    {alerts.map((alert) => (
-        <TableRow key={alert._id}>
-            <TableCell>{alert.title}</TableCell>
-            <TableCell>{alert.description}</TableCell>
-            <TableCell>{alert.type}</TableCell>
-            <TableCell>{alert.node?.name || ""}</TableCell>
-            <TableCell>{alert.node?.monitoringStation?.name || ""}</TableCell>
-            <TableCell>{alert.emitSound == true ? "Si" : "No"}</TableCell>
-            <TableCell>{alert.resolved == true ? 'Si' : 'No'}</TableCell>
-            <TableCell>
-                <Box display="flex" flexDirection="column" gap={1}>
-                    <Button
-                        variant="contained"
-                        color="info"
-                        onClick={() => handleSeeAlert(alert._id)}
-                    >
-                        Ver detalle
-                    </Button>
-                    {!alert.resolved && (
-                        <>
-                            <Button
-                                variant="contained"
-                                color={alert.emitSound == true ? 'secondary' : 'inherit'}
-                                onClick={() => handleMuteAlert(alert._id, !alert.emitSound)}
-                            >
-                                {alert.emitSound == true ? 'Activar sonido' : 'Silenciar'}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="inherit"
-                                onClick={() => handleResolveAlert(alert._id)}
-                            >
-                                Resolver
-                            </Button>
-                        </>
-                    )}
-                </Box>
-            </TableCell>
-        </TableRow>
-    ))}
-</TableBody>
+                            {alerts.map((alert) => (
+                                <TableRow key={alert._id}>
+                                    <TableCell>{alert.title}</TableCell>
+                                    <TableCell>{alert.description}</TableCell>
+                                    <TableCell>{alert.type}</TableCell>
+                                    <TableCell>{alert.node?.name || ""}</TableCell>
+                                    <TableCell>{alert.node?.monitoringStation?.name || ""}</TableCell>
+                                    <TableCell>{alert.emitSound == true ? "Si" : "No"}</TableCell>
+                                    <TableCell>{alert.resolved == true ? 'Si' : 'No'}</TableCell>
+                                    <TableCell>
+                                        <Box display="flex" flexDirection="column" gap={1}>
+                                            <Button
+                                                variant="contained"
+                                                color="info"
+                                                onClick={() => handleSeeAlert(alert._id)}
+                                            >
+                                                Ver detalle
+                                            </Button>
+                                            {!alert.resolved && (
+                                                <>
+                                                    <Button
+                                                        variant="contained"
+                                                        color={alert.emitSound == true ? 'secondary' : 'inherit'}
+                                                        onClick={() => handleMuteAlert(alert._id, !alert.emitSound)}
+                                                    >
+                                                        {alert.emitSound === false ? 'Activar sonido' : 'Silenciar'}
+                                                    </Button>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="inherit"
+                                                        onClick={() => handleResolveAlert(alert._id)}
+                                                    >
+                                                        Resolver
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
 
                     </Table>
                 </TableContainer>
