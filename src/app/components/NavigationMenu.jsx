@@ -92,7 +92,7 @@ const NavigationMenu = () => {
                 transports: ['websocket'],
             });
 
-            const chanelName = monitoringStation ? "alertsMonitoringStation" + monitoringStation : "alerts"
+            const chanelName = monitoringStation ? "alertsMonitoginStation" + monitoringStation : "alerts"
 
             socketRef.current.on(chanelName, ({ alert }) => {
                 console.log(alert)
