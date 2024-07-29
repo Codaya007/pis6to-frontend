@@ -89,8 +89,15 @@ const NavigationMenu = () => {
             // { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
             { label: "Sensores", icon: <WifiIcon />, path: "monitoringStation/sensors" },
             // { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors/createSensors" },
+<<<<<<< Updated upstream
             { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },
             { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/activities" },
+=======
+            { label: "Límites de Seguridad", icon: <GppGoodIcon />, path: "/system-settings/security-limits" },
+            { label: "Límites normales", icon: <SettingsIcon />, path: "/system-settings/normal-security-limits" },
+            { label: "Actividades del Sistema", icon: <AssignmentIcon />, path: "/activities" },
+            { label: "Chat bot", icon: <LockIcon />, path: "/Chat" },
+>>>>>>> Stashed changes
             // { label: "Actividades del Sistema", icon: <SettingsIcon />, path: "/system-settings/system-activities" },
         );
     } else if (user?.role.name === RESEARCHER_ROLE_NAME) {
