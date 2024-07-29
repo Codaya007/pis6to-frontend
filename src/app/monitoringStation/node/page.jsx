@@ -26,29 +26,23 @@ export default function Nodes() {
     const router = useRouter();
 
     const getNodes = async () => {
-        try {
-            const { data } = await getAllNodes(token, skip, limit);
-            const { results } = await getAllMonitoringStation(token, skip, limit);
-            console.log('RESULTSSSS');
-            console.log(data);
-            const nodosConNombreEstacion = data.map((nodo) => {
-                const estacion = results.find(
-                    (estacion) => estacion._id == nodo.monitoringStation
-                );
+        const { results: data } = await getAllNodes(token, skip, limit);
+        const { results } = await getAllMonitoringStation(token, skip, limit);
+        console.log('RESULTSSSS');
+        console.log(data);
+        const nodosConNombreEstacion = data.map((nodo) => {
+            const estacion = results.find(
+                (estacion) => estacion._id == nodo.monitoringStation
+            );
 
-                return {
-                    ...nodo,
-                    nombreEstacion: estacion ? estacion.name : 'Nombre no encontrado',
-                };
-            });
-            console.log('Nodos con estaciones');
-            console.log(nodosConNombreEstacion);
-            setNodes(nodosConNombreEstacion);
-        } catch (error) {
-            console.log(error);
-            console.log(error?.response?.data || error.message);
-            mensajes("Error", error.response?.data?.customMessage || "No se han podido obtener los nodos", "error");
-        }
+            return {
+                ...nodo,
+                nombreEstacion: estacion ? estacion.name : 'Nombre no encontrado',
+            };
+        });
+        console.log('Nodos con estaciones');
+        console.log(nodosConNombreEstacion);
+        setNodes(nodosConNombreEstacion);
     };
 
     useEffect(() => {
