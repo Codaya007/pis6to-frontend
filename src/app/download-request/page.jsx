@@ -103,8 +103,10 @@ export default function DownloadRequests() {
                             <TableRow>
                                 <TableCell>Nombre solicitante</TableCell>
                                 <TableCell>Apellido solicitante</TableCell>
+                                <TableCell>Tipo</TableCell>
                                 <TableCell>Email solicitante</TableCell>
                                 <TableCell>Estado</TableCell>
+                                <TableCell>Enviada</TableCell>
                                 {/* <TableCell>Ocupación</TableCell>
                                 <TableCell>Area</TableCell>
                                 <TableCell>Cargo</TableCell>
@@ -117,8 +119,10 @@ export default function DownloadRequests() {
                                 <TableRow key={downloadrequest._id}>
                                     <TableCell>{downloadrequest.researcher?.user?.name}</TableCell>
                                     <TableCell>{downloadrequest.researcher?.user?.lastname}</TableCell>
+                                    <TableCell>{downloadrequest.downloadType}</TableCell>
                                     <TableCell>{downloadrequest.researcher?.user?.email}</TableCell>
                                     <TableCell>{downloadrequest.status}</TableCell>
+                                    <TableCell>{downloadrequest.sent ? "Si" : "No"}</TableCell>
                                     {/* <TableCell>{downloadrequest.occupation}</TableCell>
                                     <TableCell>{downloadrequest.area}</TableCell>
                                     <TableCell>{downloadrequest.position}</TableCell>
