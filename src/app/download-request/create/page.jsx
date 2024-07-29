@@ -10,23 +10,32 @@ import Container from "@mui/material/Container";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import Button from "@mui/material/Button";
 import DownloadIcon from "@mui/icons-material/Download";
+import { createDownloadRequest } from "@/services/downloadRequest.service";
+import mensajes from "@/app/components/Mensajes";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
+// "Alertas", "Datos Climáticos"
 const requestTypes = [
-    { value: "climatic", label: "Datos Climáticos" },
-    { value: "nodeFailure", label: "Fallo de Nodos" }
+    { value: "Datos Climáticos", label: "Datos Climáticos" },
+    { value: "Alertas", label: "Fallo de Nodos" }
 ];
 
 export default function GenerateDownloadRequest() {
     const [requestType, setRequestType] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [comment, setComment] = useState("");
+    const { token, user } = useAuth();
+    const router = useRouter();
     const [errors, setErrors] = useState({
         requestType: "",
         startDate: "",
-        endDate: ""
+        endDate: "",
+        comment: ""
     });
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
@@ -55,14 +64,37 @@ export default function GenerateDownloadRequest() {
             newErrors.endDate = "";
         }
 
+        if (!data.get("comment")) {
+            newErrors.comment = "El comentario es requerido";
+            valid = false;
+        } else {
+            newErrors.comment = "";
+        }
+
         setErrors(newErrors);
 
         if (valid) {
-            console.log({
-                requestType: data.get("requestType"),
-                startDate: data.get("startDate"),
-                endDate: data.get("endDate")
-            });
+            const body = {
+                downloadType: data.get("requestType"),
+                filterDate: {
+                    from: data.get("startDate"),
+                    to: data.get("endDate"),
+                },
+                comment: data.get("comment"),
+                researcher: user.researcher._id
+            };
+
+            try {
+
+                await createDownloadRequest(body, token);
+
+                mensajes("Solicitud registrada exitosamente", "");
+                router.push("/my-request")
+            } catch (error) {
+                console.log(error);
+
+                mensajes("Error", error.response?.data?.customMessage || "No se ha podido registrar la solicitud", "error");
+            }
 
             // Aquí puedes agregar lógica adicional, como enviar los datos al backend
         }
@@ -87,6 +119,11 @@ export default function GenerateDownloadRequest() {
                 </Typography>
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography component="span" variant="body2" color="textPrimary">
+                                Un administrador revisará su solicitud y decidirá si se acepta o se rechaza. Por favor, complete todos los datos requeridos con información verídica para asegurar la aceptación de su solicitud.
+                            </Typography>
+                        </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth required>
                                 <InputLabel id="requestType-label">Tipo de Solicitud</InputLabel>
@@ -138,6 +175,20 @@ export default function GenerateDownloadRequest() {
                                 onChange={(e) => setEndDate(e.target.value)}
                                 error={!!errors.endDate}
                                 helperText={errors.endDate}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="comment"
+                                label="Proporcione información adicional sobre el uso de los datos"
+                                fullWidth
+                                multiline
+                                rows={4}
+                                name="comment"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                error={!!errors.comment}
+                                helperText={errors.comment}
                             />
                         </Grid>
                     </Grid>
