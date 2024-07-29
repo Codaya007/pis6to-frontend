@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Avatar, Button, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Container, Box, Grid, Paper, Modal, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -7,6 +7,7 @@ import mensajes from "../components/Mensajes";
 import CustomPagination from "../components/CustomPagination";
 import { getAllAlerts, muteAlert, resolveAlert } from "@/services/alert.service";
 import { getAllNodes } from "@/services/nodes.service";
+import io from "socket.io-client";
 
 // const initialAlerts = [
 //     {
@@ -46,6 +47,7 @@ export default function Alerts() {
     const [modifiedAlert, setModifiedAlert] = useState(true);
     const { token, user } = useAuth();
     const router = useRouter();
+    const socketRef = useRef(null);
 
     const [open, setOpen] = useState(false);
     const [currentAlertId, setCurrentAlertId] = useState(null);
@@ -149,6 +151,29 @@ export default function Alerts() {
     };
 
     // console.log({ currentAlertId })
+    const CLIMATEDATA_SOCKET_URL = `http://localhost:5005`
+
+    useEffect(() => {
+        try {
+            socketRef.current = io(CLIMATEDATA_SOCKET_URL, {
+                transports: ['websocket'],
+            });
+
+            const chanelName = "alerts"
+
+            socketRef.current.on(chanelName, ({ alert }) => {
+                if (token)
+                    getAlerts();
+            });
+
+        } catch (error) {
+            console.error(error)
+        }
+
+        return () => {
+            socketRef.current?.disconnect();
+        };
+    }, [token]);
 
     return (
         <Container component="main" maxWidth="lg">

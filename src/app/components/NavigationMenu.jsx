@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
     AppBar,
@@ -29,12 +29,16 @@ import GppGoodIcon from '@mui/icons-material/GppGood';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useAuth } from "@/context/AuthContext";
 import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
+import io from "socket.io-client";
+import mensajes from "./Mensajes";
 
 const NavigationMenu = () => {
     let { user, logoutUser, loginUser } = useAuth();
     const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+    const socketRef = useRef(null);
     // user = { role: { name: "Administrador" } }
+    const monitoringStation = localStorage.getItem("monitoringStation")
 
     const handleMobileMenuOpen = () => {
         setMobileMenuOpen(true);
@@ -78,6 +82,32 @@ const NavigationMenu = () => {
             }
         }
     }, []);
+
+    const CLIMATEDATA_SOCKET_URL = `http://localhost:5005`
+
+
+    useEffect(() => {
+        try {
+            socketRef.current = io(CLIMATEDATA_SOCKET_URL, {
+                transports: ['websocket'],
+            });
+
+            const chanelName = monitoringStation ? "alertsMonitoringStation" + monitoringStation : "alerts"
+
+            socketRef.current.on(chanelName, ({ alert }) => {
+                console.log(alert)
+                if (alert.type !== "FallaNodo")
+                    mensajes(alert?.title || "Alerta", alert?.description || "Alerta!", "warning")
+            });
+
+        } catch (error) {
+            console.error(error)
+        }
+
+        return () => {
+            socketRef.current?.disconnect();
+        };
+    }, [monitoringStation]);
 
     if (user?.role.name === ADMIN_ROLE_NAME) {
         menuItems.push(

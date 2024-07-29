@@ -23,6 +23,7 @@ import io from "socket.io-client";
 import { getAllClimateData, getClimateDataByNodes } from "@/services/climateData.service";
 import mensajes from "./components/Mensajes";
 import { getAllMonitoringStation } from "@/services/monitoring-station.service";
+import { BACKEND_BASEURL } from "@/constants";
 
 const nullLastValue = { temp: null, hum: null, co2: null }
 
@@ -78,11 +79,13 @@ export default function Home() {
     fetchMonitoringStations();
   }, []);
 
-  const CLIMATEDATA_SOCKET_URL = "http://localhost:5000"
+  const CLIMATEDATA_SOCKET_URL = `http://localhost:5000`
+  // const CLIMATEDATA_SOCKET_URL = `${BACKEND_BASEURL}:5000`;
+
   useEffect(() => {
     try {
       socketRef.current = io(CLIMATEDATA_SOCKET_URL, {
-        transports: ['websocket']
+        transports: ['websocket'],
       });
 
       const chanelName = !currentMonitoringStation ? "climateData" : `climateDataMonitoringStation${currentMonitoringStation}`;
@@ -157,6 +160,7 @@ export default function Home() {
             const selectedStation = monitoringStations.find(station => station._id === selectedStationId);
             setCurrentMonitoringStation(selectedStationId);
             setCurrentStationName(selectedStation ? selectedStation.name : "");
+            localStorage.setItem("monitoringStation", selectedStationId || "");
           }}
           label="Estación de Monitoreo"
         >
@@ -236,6 +240,6 @@ export default function Home() {
         </Grid>
       </Box>
       <br />
-    </Container>
+    </Container >
   );
 }
