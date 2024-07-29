@@ -44,7 +44,7 @@ const NavigationMenu = () => {
 
     const handleLogout = () => {
         logoutUser();
-        router.push("/auth/login");
+        router.push("/");
         handleMobileMenuClose(); // Cerrar menú después de cerrar sesión
     };
 
@@ -87,7 +87,7 @@ const NavigationMenu = () => {
             { label: "Alertas", icon: <NotificationsIcon />, path: "/alerts" },
             { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/download-request" },
             // { label: "Solicitudes de descarga", icon: <LockIcon />, path: "/application-form" },
-            { label: "Sensores", icon: <WifiIcon />, path: "monitoringStation/sensors" },
+            { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors" },
             // { label: "Sensores", icon: <WifiIcon />, path: "/monitoringStation/sensors/createSensors" },
 <<<<<<< Updated upstream
             { label: "Límites de Seguridad", icon: <SettingsIcon />, path: "/system-settings/security-limits" },

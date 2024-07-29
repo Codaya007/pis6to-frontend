@@ -16,12 +16,12 @@ export const createMonitoringStation = async (body) => {
 export const updateMonitoringStation =  async(id, body, token ) => {
   const url = `${BASEURL}/${id}`;
   console.log(`urlll ${url}`);
-  console.log('bodyyy');
+  // console.log('bodyyy');
   console.log(body);
-  // const {data} = await axios.put(url, body, {
-  //   headers: { Authorization: `Bearer ${token}` },
-  // });
-  const {data} = await axios.put(url, body);
+  const {data} = await axios.put(url, body, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  // const {data} = await axios.put(url, body);
 
   console.log('dataaaa');
   console.log(data);
