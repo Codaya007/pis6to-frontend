@@ -11,6 +11,7 @@ import CustomPagination from "../../../components/CustomPagination";
 import MensajeConfirmacion from "../../../components/MensajeConfirmacion";
 
 import { getMonitoringStationById } from "@/services/monitoringStation.service";
+import { BACKEND_BASEURL } from "@/constants";
 
 const modalStyle = {
     position: 'absolute',
@@ -44,22 +45,22 @@ export default function NodesDashboard({ params }) {
 
     const getNodes = async () => {
         try {
-            const response = await fetch(`http://localhost:4000/ms2/nodes?monitoringStation=${stationId}`, {
+            const response = await fetch(`${BACKEND_BASEURL}/ms2/nodes?monitoringStation=${stationId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-            
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.customMessage || 'Network response was not ok');
             }
 
             const data = await response.json();
-            
+
             setTotalCount(data.totalCount || data.length);
             setNodes(data.results || data);
-            
+
         } catch (error) {
             console.error("Error fetching nodes:", error);
             mensajes("Error", error.message || "No se pudieron obtener los nodos", "error");
@@ -104,17 +105,17 @@ export default function NodesDashboard({ params }) {
     const handleSubmitUpdate = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:4000/ms2/nodes/${selectedNode._id}`, {
+            const response = await fetch(`${BACKEND_BASEURL}/ms2/nodes/${selectedNode._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ 
-                    name: editName, 
-                    location: editLocation, 
-                    code: editCode, 
-                    status: editStatus 
+                body: JSON.stringify({
+                    name: editName,
+                    location: editLocation,
+                    code: editCode,
+                    status: editStatus
                 }),
             });
 
@@ -136,20 +137,20 @@ export default function NodesDashboard({ params }) {
     const handleDeleteNode = async (nodeId) => {
         try {
             const confirmed = await MensajeConfirmacion("Esta acción es irreversible. ¿Desea continuar?", "Confirmación", "warning");
-    
+
             if (confirmed) {
-                const response = await fetch(`http://localhost:4000/ms2/nodes/${nodeId}`, {
+                const response = await fetch(`${BACKEND_BASEURL}/ms2/nodes/${nodeId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-    
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.customMessage || 'Error deleting node');
                 }
-    
+
                 const responseData = await response.json();
                 mensajes("Éxito", responseData.customMessage, "success");
                 await getNodes();
@@ -158,7 +159,7 @@ export default function NodesDashboard({ params }) {
             console.error("Error deleting node:", error);
             mensajes("Error", error.message || "No se ha podido eliminar el nodo", "error");
         }
-    };  
+    };
 
     const handlePageChange = (newSkip) => {
         setSkip(newSkip);

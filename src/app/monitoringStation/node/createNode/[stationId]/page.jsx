@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from "@/context/AuthContext";
 import { Box, Button, Container, CssBaseline, TextField, Typography } from '@mui/material';
 import mensajes from "../../../../components/Mensajes";
+import { BACKEND_BASEURL } from '@/constants';
 
 export default function CreateNode({ params }) {
     const { stationId } = params;
@@ -28,7 +29,7 @@ export default function CreateNode({ params }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:4000/ms2/nodes', {
+            const response = await fetch(`${BACKEND_BASEURL}/ms2/nodes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
