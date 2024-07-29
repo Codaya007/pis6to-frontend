@@ -33,7 +33,9 @@ export default function Home() {
   const [currentMonitoringStation, setCurrentMonitoringStation] = useState(null);
   const [currentStationName, setCurrentStationName] = useState("");
   const [latestData, setLatestData] = useState(nullLastValue);
+  const [environmentState, setEnvironmentState] = useState(null);
   const socketRef = useRef(null);
+  const socketRef2 = useRef(null);
 
   const fetchData = async () => {
     try {
@@ -80,6 +82,7 @@ export default function Home() {
   }, []);
 
   const CLIMATEDATA_SOCKET_URL = `http://localhost:5000`
+  const ALERTS_SOCKET_URL = `http://localhost:5005`
   // const CLIMATEDATA_SOCKET_URL = `${BACKEND_BASEURL}:5000`;
 
   useEffect(() => {
@@ -105,12 +108,43 @@ export default function Home() {
     };
   }, [currentMonitoringStation]);
 
+  useEffect(() => {
+    try {
+      socketRef2.current = io(ALERTS_SOCKET_URL, {
+        transports: ['websocket'],
+      });
+
+      const chanelName2 = `monitoringStationState${currentMonitoringStation}`;
+
+      socketRef2.current.on(chanelName2, ({ status }) => {
+        console.log("ESTADO RECIBIDO SOCKET: ", status)
+        setEnvironmentState(status || "Malo");
+      });
+
+    } catch (error) {
+      console.error(error)
+    }
+
+    return () => {
+      socketRef2.current?.disconnect();
+    };
+  }, [currentMonitoringStation]);
+
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
       <Typography component="h2" variant="h4" gutterBottom mt={4}>
         {currentStationName ? `Datos climáticos del ${currentStationName}` : `Datos climáticos UNL`}
       </Typography>
+      {environmentState ?
+        <Typography
+          component="p" // Cambiar h2 a p para que no parezca título
+          variant="h6" // Usar un variant menor que h5 para menos énfasis
+          gutterBottom
+          sx={{ color: '#3f51b5' }} // Azul medio de Material-UI
+        >
+          Estado ambiental actual: {environmentState}
+        </Typography> : <></>}
       <Box mb={4}>
         <Typography component="h2" variant="h5" gutterBottom color="textSecondary">
           {/* Últimos datos de la estación */}
@@ -161,6 +195,7 @@ export default function Home() {
             setCurrentMonitoringStation(selectedStationId);
             setCurrentStationName(selectedStation ? selectedStation.name : "");
             localStorage.setItem("monitoringStation", selectedStationId || "");
+            setEnvironmentState(selectedStation ? (selectedStation.environmentalState || "Saludable") : null);
           }}
           label="Estación de Monitoreo"
         >
