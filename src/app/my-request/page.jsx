@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -12,47 +11,35 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Divider from "@mui/material/Divider";
 import DescriptionIcon from "@mui/icons-material/Description";
-// import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-
-const sampleRequests = [
-    {
-        id: 1,
-        title: "Solicitud 1",
-        content: "Necesito esta información para un proyecto de análisis climático",
-        url: "https://example.com/1",
-        type: "Datos climáticos",
-        createdAt: "2023-07-01 10:00:00",
-        status: "Aceptada"
-    },
-    {
-        id: 2,
-        title: "Solicitud 2",
-        content: "Necesito esta información para un proyecto de análisis climático",
-        url: "https://example.com/2",
-        type: "Alertas",
-        createdAt: "2023-07-02 11:00:00",
-        status: "Aceptada"
-    },
-    {
-        id: 3,
-        title: "Solicitud 3",
-        content: "Probando solicitud",
-        url: "https://example.com/3",
-        type: "Alertas",
-        createdAt: "2023-07-03 12:00:00",
-        status: "Denegada"
-    },
-];
+import { getAllDownloadRequests } from "@/services/downloadRequest.service"; // Ajusta la ruta según tu estructura
+import { useAuth } from "@/context/AuthContext";
 
 export default function MyRequests() {
     const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { token } = useAuth();
 
     useEffect(() => {
-        // Aquí puedes hacer una llamada a tu API para obtener las solicitudes
-        // Por ahora usaremos datos de ejemplo
-        setRequests(sampleRequests);
-    }, []);
+        const fetchRequests = async () => {
+            try {
+                const { results } = await getAllDownloadRequests(token);
+                setRequests(results);
+            } catch (err) {
+                setError(err.message || "Error fetching requests");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (token) {
+            fetchRequests();
+        }
+    }, [token]);
+
+    
+    if (error) return <Typography color="error">{error}</Typography>;
 
     return (
         <Container component="main" maxWidth="md">
@@ -99,7 +86,9 @@ export default function MyRequests() {
                                                 <br />
                                                 Fecha solicitud: {new Date(request.createdAt).toLocaleString()}
                                                 <br />
-                                                <span style={{ color: request.status === "Aceptada" ? "green" : "red" }}>Estado: {request.status}</span>
+                                                <span style={{ color: request.status === "Aceptada" ? "green" : request.status === "Denegada" ? "red" : "orange" }}>
+                                                    Estado: {request.status}
+                                                </span>
                                             </>
                                         }
                                     />
@@ -109,7 +98,6 @@ export default function MyRequests() {
                         ))}
                     </List>
                 </Box>
-
             </Box>
         </Container>
     );
