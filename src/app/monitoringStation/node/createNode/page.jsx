@@ -47,7 +47,7 @@ export const handleFileChange = async (e, token) => {
       toast.error(`Error al subir el archivo ${file.name}: ${error.message}`);
     }
   }
-  console.log(uploadedImages);
+  // console.log(uploadedImages);
   return uploadedImages; // Devuelve el array con las URLs de las imágenes
 };
 
@@ -137,7 +137,7 @@ export default function CreateNode() {
     }
 
     // Si no hay errores, procesar el formulario
-    console.log('Sensor creado:', node);
+    // console.log('Sensor creado:', node);
     // Aquí puedes agregar la lógica para enviar el formulario al servidor
 
     try {
@@ -145,8 +145,8 @@ export default function CreateNode() {
       mensajes("Éxito", "Creación exitosa");
       router.push("/monitoringStation/node")
     } catch (error) {
-      console.log('ERROR');
-      console.log(error);
+      // console.log('ERROR');
+      // console.log(error);
       mensajes("No se pudo crear el nodo", error?.response?.data?.customMessage || "No se ha podido crear el nodo", "error");
     }
   };

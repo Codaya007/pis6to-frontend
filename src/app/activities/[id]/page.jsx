@@ -60,9 +60,9 @@ export default function SeeActivityDetail() {
                         <Grid item xs={12} sm={12} >
                             <Typography variant="subtitle1"><strong>Tipo:</strong> {activityData.type}</Typography>
                         </Grid>
-                        <Grid item xs={12} sm={12}>
+                        {/* <Grid item xs={12} sm={12}>
                             <Typography variant="subtitle1"><strong>Modelo:</strong> {activityData.model}</Typography>
-                        </Grid>
+                        </Grid> */}
                         <Grid item xs={12} sm={12}>
                             <Typography variant="subtitle1"><strong>Ruta:</strong> {activityData.route}</Typography>
                         </Grid>

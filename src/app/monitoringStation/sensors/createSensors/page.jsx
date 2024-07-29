@@ -41,8 +41,8 @@ export default function SensorManagement() {
   useEffect(() => {
     const fetchNodes = async () => {
       try {
-        const { data } = await getAllNodes(token, 0, 10);
-        setNodes(data);
+        const { results } = await getAllNodes(token, 0, 100);
+        setNodes(results);
       } catch (error) {
         console.error("Error fetching nodos", error);
         mensajes(
@@ -56,6 +56,7 @@ export default function SensorManagement() {
       fetchNodes();
     }
   }, [token]);
+
   const validateFields = (sensor) => {
     const newErrors = {};
     newErrors.type = sensor.type ? "" : "El tipo de sensor es requerido";
@@ -177,7 +178,7 @@ export default function SensorManagement() {
                     onChange={handleChange}
                   >
                     <MenuItem value={""}></MenuItem>
-                    {nodes.map((nodo, index) => (
+                    {nodes?.map((nodo, index) => (
                       <MenuItem key={index} value={nodo._id}>
                         {nodo.name}
                       </MenuItem>

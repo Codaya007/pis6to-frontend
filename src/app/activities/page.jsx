@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getAllSystemActivities } from "@/services/systemActivity.service";
 import { useAuth } from "@/context/AuthContext";
 import CustomPagination from "../components/CustomPagination";
+import mensajes from "../components/Mensajes";
 
 export default function Activities() {
     const [activities, setActivities] = useState([]);
@@ -68,7 +69,7 @@ export default function Activities() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Tipo</TableCell>
-                                <TableCell>Modelo</TableCell>
+                                {/* <TableCell>Modelo</TableCell> */}
                                 <TableCell>Ruta</TableCell>
                                 <TableCell>Contenido petición</TableCell>
                                 <TableCell>Usuario</TableCell>
@@ -79,7 +80,7 @@ export default function Activities() {
                             {activities.map((activity) => (
                                 <TableRow key={activity._id}>
                                     <TableCell>{activity.type}</TableCell>
-                                    <TableCell>{activity.model}</TableCell>
+                                    {/* <TableCell>{activity.model}</TableCell> */}
                                     <TableCell>{activity.route}</TableCell>
                                     <TableCell>{JSON.stringify(activity.body)}</TableCell>
                                     <TableCell>{activity.user?.name || ""} {activity.user?.lastname || ""} ({activity.user?.email || ""})</TableCell>
