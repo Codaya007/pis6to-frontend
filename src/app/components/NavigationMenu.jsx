@@ -38,8 +38,10 @@ const NavigationMenu = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const socketRef = useRef(null);
     // user = { role: { name: "Administrador" } }
-    const monitoringStation = localStorage.getItem("monitoringStation")
-
+    let monitoringStation;
+    if (global?.window !== undefined) {
+        monitoringStation = window?.localStorage?.getItem("monitoringStation")
+    }
     const handleMobileMenuOpen = () => {
         setMobileMenuOpen(true);
     };
@@ -73,13 +75,16 @@ const NavigationMenu = () => {
 
     useEffect(() => {
         if (!user) {
-            const userData = window.localStorage.getItem("user")
-            const token = window.localStorage.getItem("token")
+            if (global?.window !== undefined) {
 
-            // Si ya hay sesión, logueo al usuario, sino, lo mando al login
-            if (userData && token) {
-                loginUser(JSON.parse(userData), token)
+                const userData = window?.localStorage?.getItem("user")
+                const token = window?.localStorage?.getItem("token")
+                if (userData && token) {
+                    loginUser(JSON.parse(userData), token)
+                }
             }
+            // Si ya hay sesión, logueo al usuario, sino, lo mando al login
+            
         }
     }, []);
 

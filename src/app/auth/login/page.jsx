@@ -67,15 +67,17 @@ export default function SignIn() {
 
     useEffect(() => {
         if (!user) {
-            const userData = window.localStorage.getItem("user")
-            const token = window.localStorage.getItem("token")
-
-            // Si ya hay sesión, logueo al usuario, sino, lo mando al login
-            if (userData && token) {
-                loginUser(JSON.parse(userData), token)
-
-                router.push("/")
+            if (global?.window !== undefined) {
+                const userData = window?.localStorage?.getItem("user")
+                const token = window?.localStorage?.getItem("token")
+                if (userData && token) {
+                    loginUser(JSON.parse(userData), token)
+    
+                    router.push("/")
+                }
             }
+            // Si ya hay sesión, logueo al usuario, sino, lo mando al login
+            
         }
     }, []);
 

@@ -194,10 +194,12 @@ export default function Home() {
             const selectedStation = monitoringStations.find(station => station._id === selectedStationId);
             setCurrentMonitoringStation(selectedStationId);
             setCurrentStationName(selectedStation ? selectedStation.name : "");
-            localStorage.setItem("monitoringStation", selectedStationId || "");
-            setEnvironmentState(selectedStation ? (selectedStation.environmentalState || "Saludable") : null);
+            if (global?.window !== undefined) {
+              window?.localStorage?.setItem("monitoringStation", selectedStationId || "");
+            }
+              setEnvironmentState(selectedStation ? (selectedStation.environmentalState || "Saludable") : null);
           }}
-          label="Estación de Monitoreo"
+          label="Estación de Monitoreooo"
         >
           <MenuItem key="" value="" name="">
             Todo

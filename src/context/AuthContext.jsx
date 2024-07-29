@@ -10,16 +10,23 @@ export const AuthProvider = ({ children }) => {
   const loginUser = (userData, authToken) => {
     setUser(userData);
     setToken(authToken);
-
-    localStorage.setItem("user", JSON.stringify(userData))
-    localStorage.setItem("token", authToken)
+      // Solo se ejecutará en el cliente
+    if (global?.window !== undefined) {
+      window?.localStorage?.setItem("user", JSON.stringify(userData));
+      window?.localStorage?.setItem("token", authToken);
+    }
+      // window?.localStorage?.setItem("user", JSON.stringify(userData))
+    // window?.localStorage?.setItem("token", authToken)
   };
 
   const logoutUser = () => {
     setUser(null);
     setToken(null);
-
-    localStorage.clear();
+    if (global?.window !== undefined) {
+      // Solo se ejecutará en el cliente
+      window?.localStorage?.clear();
+    }
+    // window?.localStorage?.clear();
   };
 
   return (
