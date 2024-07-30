@@ -59,7 +59,7 @@ steps:
           --registry-password $ACR_PASSWORD \
           --dns-name-label pis6to \
           --ports 80
-    displayName: "Despliegue de imagen a App Service Container"
+    displayName: "Despliegue de imagen a App Service Container."
 
   # - task: ArchiveFiles@2
   #   inputs:
