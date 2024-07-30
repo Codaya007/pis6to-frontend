@@ -31,6 +31,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
 import io from "socket.io-client";
 import mensajes from "./Mensajes";
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const NavigationMenu = () => {
     let { user, logoutUser, loginUser } = useAuth();
@@ -54,6 +55,7 @@ const NavigationMenu = () => {
         logoutUser();
         router.push("/");
         handleMobileMenuClose(); // Cerrar menú después de cerrar sesión
+        mensajes("Sesión cerrada", "Has cerrado sesión correctamente. ¡Hasta luego!", "warning");
     };
 
     const handleNavigation = (path) => {
@@ -63,11 +65,13 @@ const NavigationMenu = () => {
 
     const menuItems = [
         { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { label: "Chatbot", icon: <ContactSupportIcon />, path: "/chatbot" },
         { label: "Mi Perfil", icon: <PersonIcon />, path: "/users/me" }
     ];
 
     const menuItemsNoUser = [
         { label: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { label: "Chatbot", icon: <ContactSupportIcon />, path: "/chatbot" },
         { label: "Historial", icon: <HistoryIcon />, path: "/monitoringStation/sensors/history" },
         { label: "Registrarse", icon: <PersonAddAltIcon />, path: "/auth/register" },
         { label: "Iniciar sesión", icon: <LoginIcon />, path: "/auth/login" }
@@ -84,7 +88,7 @@ const NavigationMenu = () => {
                 }
             }
             // Si ya hay sesión, logueo al usuario, sino, lo mando al login
-            
+
         }
     }, []);
 
