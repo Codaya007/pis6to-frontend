@@ -7,8 +7,8 @@ pool:
     - agent.name -equals viviagent
 
 variables:
-  # Nombre de la aplicación en Azure App Service
-  webAppName: "pis6tofront"
+  # Nombre de la aplicación en Azure Containers App Service
+  webAppName: "pis6tofrontend"
   # Nombre del grupo de recursos en Azure
   resourceGroupName: "pis6to"
   # Región de despliegue
@@ -30,26 +30,56 @@ steps:
       npm run build
     displayName: "Construir aplicación"
 
-  - task: ArchiveFiles@2
+  - task: Docker@2
     inputs:
-      rootFolderOrFile: "$(Build.SourcesDirectory)/.next"
-      includeRootFolder: false
-      archiveType: "zip"
-      archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
-      replaceExistingArchive: true
-    displayName: "Empaquetar archivos de construcción"
+      containerRegistry: 'pis6toregistrygroup'
+      repository: 'frontend'
+      command: 'buildAndPush'
+      tags: '$(Build.BuildId)'
+      Dockerfile: '**/Dockerfile'
+    displayName: "Construcción de imagen docker y push"
+      
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az container create \
+          --resource-group $(resourceGroupName) \
+          --name pis6tofrontend \
+          --image $(containerRegistry)/frontend:$(Build.BuildId) \
+          --cpu 1 \
+          --memory 1 \
+          --registry-login-server $(containerRegistry).azurecr.io \
+          --registry-username $(az acr credential show --name $(containerRegistry) --query "username" --output tsv) \
+          --registry-password $(az acr credential show --name $(containerRegistry) --query "passwords[0].value" --output tsv) \
+          --dns-name-label pis6to \
+          --ports 80
+    displayName: "Despliegue de imagen a App Service Container"
+    
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: "$(Build.ArtifactStagingDirectory)"
-      artifactName: "drop"
-    displayName: "Publicar artefactos de construcción"
 
-  - task: AzureWebApp@1
-    inputs:
-      azureSubscription: "Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)"
-      appType: "webAppLinux"
-      appName: "pis6tofront"
-      package: "$(Build.ArtifactStagingDirectory)/app.zip"
-      runtimeStack: "NODE|20-lts"
-    displayName: "Desplegar a Azure App Service"
+  # - task: ArchiveFiles@2
+  #   inputs:
+  #     rootFolderOrFile: "$(Build.SourcesDirectory)/.next"
+  #     includeRootFolder: false
+  #     archiveType: "zip"
+  #     archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+  #     replaceExistingArchive: true
+  #   displayName: "Empaquetar archivos de construcción"
+
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     pathToPublish: "$(Build.ArtifactStagingDirectory)"
+  #     artifactName: "drop"
+  #   displayName: "Publicar artefactos de construcción"
+
+  # - task: AzureWebApp@1
+  #   inputs:
+  #     azureSubscription: "Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)"
+  #     appType: "webAppLinux"
+  #     appName: "pis6tofront"
+  #     package: "$(Build.ArtifactStagingDirectory)/app.zip"
+  #     runtimeStack: "NODE|20-lts"
+  #   displayName: "Desplegar a Azure App Service"
