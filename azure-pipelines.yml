@@ -32,33 +32,34 @@ steps:
 
   - task: Docker@2
     inputs:
-      containerRegistry: 'pis6toregistrygroup'
-      repository: 'frontend'
-      command: 'buildAndPush'
-      tags: '$(Build.BuildId)'
-      Dockerfile: '**/Dockerfile'
+      containerRegistry: "pis6toregistrygroup"
+      repository: "frontend"
+      command: "buildAndPush"
+      tags: "$(Build.BuildId)"
+      Dockerfile: "**/Dockerfile"
     displayName: "Construcción de imagen docker y push"
-      
+
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
+      azureSubscription: "Azure for Students(e4ab839e-a978-4b88-8ea0-004e92b4c56b)"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
       inlineScript: |
+        ACR_USERNAME=$(az acr credential show --name $(containerRegistry) --query "username" --output tsv)
+        ACR_PASSWORD=$(az acr credential show --name $(containerRegistry) --query "passwords[0].value" --output tsv)
+
         az container create \
           --resource-group $(resourceGroupName) \
-          --name pis6tofrontend \
-          --image $(containerRegistry)/frontend:$(Build.BuildId) \
+          --name $(webAppName) \
+          --image $(containerRegistry).azurecr.io/frontend:$(Build.BuildId) \
           --cpu 1 \
           --memory 1 \
           --registry-login-server $(containerRegistry).azurecr.io \
-          --registry-username $(az acr credential show --name $(containerRegistry) --query "username" --output tsv) \
-          --registry-password $(az acr credential show --name $(containerRegistry) --query "passwords[0].value" --output tsv) \
+          --registry-username $ACR_USERNAME \
+          --registry-password $ACR_PASSWORD \
           --dns-name-label pis6to \
           --ports 80
     displayName: "Despliegue de imagen a App Service Container"
-    
-
 
   # - task: ArchiveFiles@2
   #   inputs:
