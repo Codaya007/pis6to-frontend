@@ -22,8 +22,8 @@ export const RESEARCHER_ROLE_NAME = "Investigador";
 
 export const BACKEND_BASEURL =
   process.env.REACT_APP_BACKEND_URL || "http://172.212.120.151";
-export const SOCKETS_BASEURL =
-  process.env.REACT_APP_SOCKETS_BASEURL || "http://192.168.1.119";
+export const SOCKETS_BASEURL = "http://10.20.142.199";
+// process.env.REACT_APP_SOCKETS_BASEURL || "http://192.168.1.119";
 
 // export const BACKEND_BASEURL = "http://172.212.120.151";
 // export const BACKEND_BASEURL = "http://localhost:4000";
