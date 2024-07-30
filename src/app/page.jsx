@@ -23,7 +23,7 @@ import io from "socket.io-client";
 import { getAllClimateData, getClimateDataByNodes } from "@/services/climateData.service";
 import mensajes from "./components/Mensajes";
 import { getAllMonitoringStation } from "@/services/monitoring-station.service";
-import { BACKEND_BASEURL } from "@/constants";
+import { SOCKETS_BASEURL } from "@/constants";
 
 const nullLastValue = { temp: null, hum: null, co2: null }
 
@@ -81,8 +81,8 @@ export default function Home() {
     fetchMonitoringStations();
   }, []);
 
-  const CLIMATEDATA_SOCKET_URL = `http://localhost:5000`
-  const ALERTS_SOCKET_URL = `http://localhost:5005`
+  const CLIMATEDATA_SOCKET_URL = `${SOCKETS_BASEURL}:5000`
+  const ALERTS_SOCKET_URL = `${SOCKETS_BASEURL}:5005`
   // const CLIMATEDATA_SOCKET_URL = `${BACKEND_BASEURL}:5000`;
 
   useEffect(() => {
@@ -197,7 +197,7 @@ export default function Home() {
             if (global?.window !== undefined) {
               window?.localStorage?.setItem("monitoringStation", selectedStationId || "");
             }
-              setEnvironmentState(selectedStation ? (selectedStation.environmentalState || "Saludable") : null);
+            setEnvironmentState(selectedStation ? (selectedStation.environmentalState || "Saludable") : null);
           }}
           label="Estación de Monitoreooo"
         >

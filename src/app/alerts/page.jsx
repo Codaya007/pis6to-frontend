@@ -8,6 +8,7 @@ import CustomPagination from "../components/CustomPagination";
 import { getAllAlerts, muteAlert, resolveAlert } from "@/services/alert.service";
 import { getAllNodes } from "@/services/nodes.service";
 import io from "socket.io-client";
+import { SOCKETS_BASEURL } from "@/constants";
 
 // const initialAlerts = [
 //     {
@@ -151,7 +152,7 @@ export default function Alerts() {
     };
 
     // console.log({ currentAlertId })
-    const CLIMATEDATA_SOCKET_URL = `http://localhost:5005`
+    const CLIMATEDATA_SOCKET_URL = `${SOCKETS_BASEURL}:5005`
 
     useEffect(() => {
         try {

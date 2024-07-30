@@ -28,7 +28,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import GppGoodIcon from '@mui/icons-material/GppGood';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useAuth } from "@/context/AuthContext";
-import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME } from "@/constants";
+import { ADMIN_ROLE_NAME, RESEARCHER_ROLE_NAME, SOCKETS_BASEURL } from "@/constants";
 import io from "socket.io-client";
 import mensajes from "./Mensajes";
 import ContactSupportIcon from '@mui/icons-material/ContactSupport';
@@ -92,7 +92,7 @@ const NavigationMenu = () => {
         }
     }, []);
 
-    const CLIMATEDATA_SOCKET_URL = `http://localhost:5005`
+    const CLIMATEDATA_SOCKET_URL = `${SOCKETS_BASEURL}:5005`
 
 
     useEffect(() => {
